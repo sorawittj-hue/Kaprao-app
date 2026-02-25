@@ -1,0 +1,5 @@
+﻿src/lib/supabase.ts(4,21): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(4,33): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(5,21): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(5,33): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+test-types.ts(6,29): error TS2339: Property 'display_name' does not exist on type 'never'.

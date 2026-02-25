@@ -1,0 +1,29 @@
+src/components/feedback/GlobalErrorBoundary.tsx(222,41): error TS2345: Argument of type 'ErrorInfo' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'ErrorInfo'.
+src/features/v2/api/unifiedOrderApi.ts(140,47): error TS2551: Property 'menuItemId' does not exist on type 'CartItem'. Did you mean 'menuItem'?
+src/features/v2/api/unifiedOrderApi.ts(141,41): error TS2339: Property 'name' does not exist on type 'CartItem'.
+src/features/v2/api/unifiedOrderApi.ts(142,43): error TS2339: Property 'price' does not exist on type 'CartItem'.
+src/features/v2/api/unifiedOrderApi.ts(144,45): error TS2339: Property 'options' does not exist on type 'CartItem'.
+src/features/v2/hooks/useLotteryV2.ts(274,11): error TS2339: Property 'data' does not exist on type '{ tickets: LottoTicketV2[]; data: LottoTicketV2[]; error: Error; isError: true; isPending: false; isLoading: false; isLoadingError: false; isRefetchError: true; ... 18 more ...; promise: Promise<...>; } | ... 4 more ... | { ...; }'.
+src/features/v2/hooks/useLotteryV2.ts(311,5): error TS2322: Type '{ ticket: LottoTicketV2; result: { isWin: boolean; prizeType?: string | undefined; prizeAmount: number; matched: string[]; }; }[]' is not assignable to type '{ ticket: LottoTicketV2; result: WinCheckResult; }[]'.
+  Type '{ ticket: LottoTicketV2; result: { isWin: boolean; prizeType?: string | undefined; prizeAmount: number; matched: string[]; }; }' is not assignable to type '{ ticket: LottoTicketV2; result: WinCheckResult; }'.
+    Types of property 'result' are incompatible.
+      Type '{ isWin: boolean; prizeType?: string | undefined; prizeAmount: number; matched: string[]; }' is missing the following properties from type 'WinCheckResult': ticketId, number, matchedDigits, matchedPosition
+src/lib/analytics.ts(97,47): error TS2554: Expected 1-2 arguments, but got 3.
+src/lib/pwa.ts(163,9): error TS2322: Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'string | BufferSource | null | undefined'.
+  Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'ArrayBufferView<ArrayBuffer>'.
+    Types of property 'buffer' are incompatible.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+src/lib/pwa.ts(216,13): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+src/lib/pwa.ts(226,13): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+src/lib/pwa.ts(314,5): error TS2687: All declarations of 'wakeLock' must have identical modifiers.
+src/lib/pwa.ts(314,5): error TS2717: Subsequent property declarations must have the same type.  Property 'wakeLock' must be of type 'WakeLock', but here has type '{ request: (type: "screen") => Promise<WakeLockSentinel>; } | undefined'.
+src/lib/pwa.ts(321,5): error TS2717: Subsequent property declarations must have the same type.  Property 'addEventListener' must be of type '{ <K extends keyof WakeLockSentinelEventMap>(type: K, listener: (this: WakeLockSentinel, ev: WakeLockSentinelEventMap[K]) => any, options?: boolean | ... 1 more ... | undefined): void; (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | ... 1 more ... | undefined): void; }', but here has type '(type: "release", listener: () => void) => void'.
+src/pages/CartPage.tsx(49,26): error TS2345: Argument of type 'CartItem[]' is not assignable to parameter of type 'ProductItem[]'.
+  Type 'CartItem' is missing the following properties from type 'ProductItem': name, price
+src/pages/CheckoutPage.tsx(419,9): error TS2322: Type '{ id: string; menuItemId: number; name: string; price: number; quantity: number; options: { optionId: string; name: string; price: number; }[]; note: string | undefined; subtotal: number; }[]' is not assignable to type 'CartItem[]'.
+  Type '{ id: string; menuItemId: number; name: string; price: number; quantity: number; options: { optionId: string; name: string; price: number; }[]; note: string | undefined; subtotal: number; }' is missing the following properties from type 'CartItem': menuItem, selectedOptions
+src/test/setup.ts(175,1): error TS2304: Cannot find name 'afterEach'.

@@ -1,0 +1,38 @@
+
+> kaprao52-react@3.0.0-ULTIMATE lint
+> eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0
+
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\ai\hooks\useAIRecommendations.ts
+  107:11  error  'categoryCounts' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\ai\hooks\useSmartSearch.ts
+  192:53  error  'category' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\collaboration\CollaborativeCart.tsx
+   12:18  error    'AnimatePresence' is defined but never used. Allowed unused vars must match /^_/u                                               @typescript-eslint/no-unused-vars
+   13:25  error    'UserPlus' is defined but never used. Allowed unused vars must match /^_/u                                                      @typescript-eslint/no-unused-vars
+   13:42  error    'Wifi' is defined but never used. Allowed unused vars must match /^_/u                                                          @typescript-eslint/no-unused-vars
+   13:48  error    'WifiOff' is defined but never used. Allowed unused vars must match /^_/u                                                       @typescript-eslint/no-unused-vars
+   16:25  error    'MenuItem' is defined but never used. Allowed unused vars must match /^_/u                                                      @typescript-eslint/no-unused-vars
+   61:11  error    'yItems' is assigned a value but never used. Allowed unused vars must match /^_/u                                               @typescript-eslint/no-unused-vars
+  292:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  292:38  error    'cartId' is defined but never used. Allowed unused args must match /^_/u                                                        @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\gamification\GamificationEngine.ts
+    9:10  error  'logger' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+  101:11  error  'oldLevel' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\v2\api\lotteryApi.ts
+  252:15  error  'WinCheckResult' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\v2\components\LotteryPurchaseModal.tsx
+   3:31  error  'ChevronRight' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
+   8:10  error  'formatPrice' is defined but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+  25:40  error  'validate' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\v2\components\TicketCardV2.tsx
+  15:40  error  'result' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+✖ 17 problems (16 errors, 1 warning)
+

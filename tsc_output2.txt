@@ -1,0 +1,122 @@
+﻿src/app/layout/AdminLayout.tsx(13,3): error TS6133: 'X' is declared but its value is never read.
+src/app/providers/AuthProvider.tsx(48,25): error TS2345: Argument of type '{ display_name: string; picture_url: string | undefined; updated_at: string; }' is not assignable to parameter of type 'never'.
+src/app/providers/AuthProvider.tsx(53,40): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(60,34): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(64,38): error TS2339: Property 'points' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(65,43): error TS2339: Property 'total_orders' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(66,36): error TS2339: Property 'tier' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(67,38): error TS2339: Property 'avatar' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(68,41): error TS2339: Property 'created_at' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(77,18): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "profiles", never, "POST">', gave the following error.
+    Argument of type '{ line_user_id: string; display_name: string; picture_url: string | undefined; points: number; total_orders: number; tier: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "profiles", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'line_user_id' does not exist in type 'never[]'.
+src/app/providers/AuthProvider.tsx(93,29): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(100,36): error TS2339: Property 'created_at' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(127,27): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(128,35): error TS2339: Property 'line_user_id' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(129,36): error TS2339: Property 'display_name' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(130,35): error TS2339: Property 'picture_url' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(131,31): error TS2339: Property 'points' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(132,36): error TS2339: Property 'total_orders' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(133,29): error TS2339: Property 'tier' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(134,31): error TS2339: Property 'avatar' does not exist on type 'never'.
+src/app/providers/AuthProvider.tsx(135,34): error TS2339: Property 'created_at' does not exist on type 'never'.
+src/components/feedback/EmptyState.tsx(76,39): error TS2339: Property 'actionLabel' does not exist on type '{ title: string; description: string; actionLabel: string; } | { title: string; description: string; actionLabel: string; } | { title: string; description: string; actionLabel: string; } | { title: string; description: string; }'.
+  Property 'actionLabel' does not exist on type '{ title: string; description: string; }'.
+src/components/feedback/EmptyState.tsx(78,42): error TS2339: Property 'actionLabel' does not exist on type '{ title: string; description: string; actionLabel: string; } | { title: string; description: string; actionLabel: string; } | { title: string; description: string; actionLabel: string; } | { title: string; description: string; }'.
+  Property 'actionLabel' does not exist on type '{ title: string; description: string; }'.
+src/components/feedback/ErrorBoundary.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/ui/Skeleton.tsx(19,6): error TS2322: Type '{ defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; suppressContentEditableWarning?: boolean | undefined; suppressHydrationWarning?: boolean | undefined; ... 261 more ...; transition: { ...; }; }' is not assignable to type 'MotionProps'.
+  Types of property 'onAnimationStart' are incompatible.
+    Type 'AnimationEventHandler<HTMLDivElement> | undefined' is not assignable to type '((definition: AnimationDefinition) => void) | undefined'.
+      Type 'AnimationEventHandler<HTMLDivElement>' is not assignable to type '(definition: AnimationDefinition) => void'.
+        Types of parameters 'event' and 'definition' are incompatible.
+          Type 'AnimationDefinition' is not assignable to type 'AnimationEvent<HTMLDivElement>'.
+            Type 'string' is not assignable to type 'AnimationEvent<HTMLDivElement>'.
+src/features/admin/api/adminApi.ts(13,54): error TS2339: Property 'status' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(14,54): error TS2339: Property 'status' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(15,56): error TS2339: Property 'status' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(16,65): error TS2339: Property 'total_price' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(58,17): error TS2339: Property 'id' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(59,26): error TS2339: Property 'display_name' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(60,25): error TS2339: Property 'picture_url' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(61,21): error TS2339: Property 'points' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(62,26): error TS2339: Property 'total_orders' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(63,19): error TS2339: Property 'tier' does not exist on type 'never'.
+src/features/admin/api/adminApi.ts(64,26): error TS2339: Property 'updated_at' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(15,54): error TS2339: Property 'status' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(16,54): error TS2339: Property 'status' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(17,56): error TS2339: Property 'status' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(18,65): error TS2339: Property 'total_price' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(60,17): error TS2339: Property 'id' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(61,26): error TS2339: Property 'display_name' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(62,25): error TS2339: Property 'picture_url' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(63,21): error TS2339: Property 'points' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(64,26): error TS2339: Property 'total_orders' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(65,19): error TS2339: Property 'tier' does not exist on type 'never'.
+src/features/admin/hooks/useAdmin.ts(66,26): error TS2339: Property 'updated_at' does not exist on type 'never'.
+src/features/cart/components/CartDrawer.tsx(7,1): error TS6133: 'cn' is declared but its value is never read.
+src/features/cart/components/FloatingCart.tsx(3,10): error TS6133: 'ShoppingCart' is declared but its value is never read.
+src/features/cart/components/FloatingCart.tsx(11,9): error TS6133: 'openCart' is declared but its value is never read.
+src/features/cart/hooks/useFlyAnimation.ts(2,26): error TS6133: 'useTransform' is declared but its value is never read.
+src/features/cart/hooks/useFlyAnimation.ts(20,28): error TS6133: 'params' is declared but its value is never read.
+src/features/checkout/api/checkoutApi.ts(48,13): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "orders", never, "POST">', gave the following error.
+    Argument of type '{ user_id: string | undefined; line_user_id: string | undefined; customer_name: string; items: { menu_item_id: number; name: string; price: number; quantity: number; options: SelectedOption[]; note: string | undefined; subtotal: number; }[]; ... 8 more ...; payment_status: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "orders", never, "POST">', gave the following error.
+    Argument of type '{ user_id: string | undefined; line_user_id: string | undefined; customer_name: string; items: { menu_item_id: number; name: string; price: number; quantity: number; options: SelectedOption[]; note: string | undefined; subtotal: number; }[]; ... 8 more ...; payment_status: string; }' is not assignable to parameter of type 'never[]'.
+      Type '{ user_id: string | undefined; line_user_id: string | undefined; customer_name: string; items: { menu_item_id: number; name: string; price: number; quantity: number; options: SelectedOption[]; note: string | undefined; subtotal: number; }[]; ... 8 more ...; payment_status: string; }' is missing the following properties from type 'never[]': length, pop, push, concat, and 29 more.
+src/features/lottery/components/TicketCard.tsx(3,1): error TS6133: 'formatDate' is declared but its value is never read.
+src/features/lottery/components/TicketCard.tsx(3,10): error TS2305: Module '"@/utils/formatDate"' has no exported member 'formatDate'.
+src/features/lottery/hooks/useLottery.ts(61,19): error TS2339: Property 'number' does not exist on type 'never'.
+src/features/lottery/hooks/useLottery.ts(61,37): error TS2339: Property 'last2' does not exist on type 'never'.
+src/features/lottery/hooks/useLottery.ts(62,19): error TS2339: Property 'number' does not exist on type 'never'.
+src/features/lottery/hooks/useLottery.ts(62,37): error TS2339: Property 'last2' does not exist on type 'never'.
+src/features/menu/components/AIRecommendations.tsx(8,1): error TS6133: 'cn' is declared but its value is never read.
+src/features/menu/components/AIRecommendations.tsx(9,1): error TS6133: 'fadeInRight' is declared but its value is never read.
+src/features/menu/components/AIRecommendations.tsx(17,10): error TS6133: 'isLoading' is declared but its value is never read.
+src/features/menu/components/MenuItemCard.tsx(2,18): error TS6133: 'useMotionValue' is declared but its value is never read.
+src/features/menu/components/MenuItemCard.tsx(2,34): error TS6133: 'useTransform' is declared but its value is never read.
+src/features/menu/components/MenuItemCard.tsx(2,48): error TS6133: 'AnimatePresence' is declared but its value is never read.
+src/features/menu/store/menuStore.ts(3,29): error TS6196: 'MenuItem' is declared but never used.
+src/features/orders/hooks/useOrders.ts(4,20): error TS6133: 'subscribeToOrders' is declared but its value is never read.
+src/features/orders/hooks/useOrders.ts(41,13): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "orders", never, "POST">', gave the following error.
+    Argument of type 'Partial<Order>' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "orders", never, "POST">', gave the following error.
+    Argument of type 'Partial<Order>' is not assignable to parameter of type 'never[]'.
+      Type 'Partial<Order>' is missing the following properties from type 'never[]': length, pop, push, concat, and 29 more.
+src/features/orders/hooks/useOrders.ts(58,13): error TS2345: Argument of type '{ status: OrderStatus; updated_at: string; }' is not assignable to parameter of type 'never'.
+src/features/points/api/pointsApi.ts(29,16): error TS2339: Property 'points' does not exist on type 'never'.
+src/hooks/useScrollPosition.ts(44,11): error TS6133: 'offset' is declared but its value is never read.
+src/lib/ai.ts(3,30): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/ai.ts(42,3): error TS6133: 'viewedItems' is declared but its value is never read.
+src/lib/ai.ts(43,3): error TS6133: 'orderHistory' is declared but its value is never read.
+src/lib/ai.ts(45,9): error TS6133: 'mockReasons' is declared but its value is never read.
+src/lib/analytics.ts(8,26): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/analytics.ts(21,21): error TS2345: Argument of type 'Date' is not assignable to parameter of type 'string | Record<string, unknown>'.
+  Type 'Date' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'Date'.
+src/lib/analytics.ts(34,35): error TS2345: Argument of type 'Record<string, string | number | boolean> | undefined' is not assignable to parameter of type 'string | Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'string | Record<string, unknown>'.
+src/lib/analytics.ts(62,5): error TS2322: Type '{ item_id: string; item_name: string; price: number; quantity: number; item_category: string; }[]' is not assignable to type 'string | number | boolean'.
+src/lib/analytics.ts(78,5): error TS2322: Type 'unknown[]' is not assignable to type 'string | number | boolean'.
+src/lib/analytics.ts(92,5): error TS2322: Type 'unknown[]' is not assignable to type 'string | number | boolean'.
+src/lib/analytics.ts(93,5): error TS2322: Type 'string | undefined' is not assignable to type 'string | number | boolean'.
+  Type 'undefined' is not assignable to type 'string | number | boolean'.
+src/lib/analytics.ts(106,5): error TS2322: Type '{ item_id: string; item_name: string; price: number; item_category: string; }[]' is not assignable to type 'string | number | boolean'.
+src/lib/liff.ts(3,28): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/liff.ts(112,16): error TS2339: Property 'os' does not exist on type 'Context'.
+src/lib/liff.ts(113,20): error TS2339: Property 'os' does not exist on type 'Context'.
+src/lib/supabase.ts(4,33): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(5,33): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/pages/admin/AdminDashboard.tsx(12,1): error TS6133: 'Container' is declared but its value is never read.
+src/pages/admin/AdminOrdersPage.tsx(7,1): error TS6133: 'Container' is declared but its value is never read.
+src/pages/CartPage.tsx(4,36): error TS6133: 'ShoppingBag' is declared but its value is never read.
+src/pages/HomePage.tsx(4,38): error TS6133: 'useUIStore' is declared but its value is never read.
+src/pages/OrderDetailPage.tsx(4,21): error TS6133: 'MapPin' is declared but its value is never read.
+src/pages/ProfilePage.tsx(19,1): error TS6133: 'formatPrice' is declared but its value is never read.
+src/pages/ProfilePage.tsx(25,17): error TS6133: 'isAuthenticated' is declared but its value is never read.
+src/store/uiStore.ts(90,22): error TS6133: 'state' is declared but its value is never read.

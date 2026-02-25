@@ -1,0 +1,12 @@
+# GitHub Actions disabled due to billing issue
+# To re-enable: Remove this file or update billing settings
+
+name: CI
+on: 
+  workflow_dispatch:  # Only manual trigger allowed
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Actions disabled - billing issue"

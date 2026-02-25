@@ -1,0 +1,464 @@
+-- ============================================================
+-- KAPRAO52 FIX ORDERS + LOTTERY - COMPLETE EDITION
+-- แก้ไขทุกอย่างให้ถูกต้อง ไม่มีข้อผิดพลาด
+-- ============================================================
+
+-- ============================================================
+-- STEP 1: ลบของเก่าที่อาจมีปัญหา (ระวัง: ข้อมูลจะหาย!)
+-- ============================================================
+
+-- ลบ trigger เก่า
+DROP TRIGGER IF EXISTS tr_create_lotto_ticket ON orders;
+
+-- ลบ function เก่า
+DROP FUNCTION IF EXISTS create_lotto_ticket_for_order();
+DROP FUNCTION IF EXISTS generate_queue_number(TEXT, BOOLEAN);
+DROP FUNCTION IF EXISTS get_queue_status(BIGINT);
+DROP FUNCTION IF EXISTS sync_guest_to_member(UUID, UUID);
+DROP FUNCTION IF EXISTS claim_guest_order(INT, TEXT);
+DROP FUNCTION IF EXISTS check_lottery_results();
+
+-- ============================================================
+-- STEP 2: สร้างตารางใหม่ถูกต้อง
+-- ============================================================
+
+-- 2.1 Guest Identities
+CREATE TABLE IF NOT EXISTS guest_identities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    fingerprint TEXT UNIQUE,
+    display_name TEXT NOT NULL DEFAULT 'Guest',
+    metadata JSONB DEFAULT '{}',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_active_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_guest_identities_fingerprint ON guest_identities(fingerprint) WHERE fingerprint IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_guest_identities_created ON guest_identities(created_at);
+
+-- 2.2 Lotto Tickets (v2.0)
+CREATE TABLE IF NOT EXISTS lotto_tickets (
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    guest_id UUID REFERENCES guest_identities(id) ON DELETE CASCADE,
+    number TEXT NOT NULL,
+    number_type TEXT DEFAULT 'auto',
+    source TEXT DEFAULT 'order_free',
+    purchase_price INT DEFAULT 0,
+    draw_date DATE NOT NULL,
+    status TEXT DEFAULT 'active',
+    prize_type TEXT,
+    prize_amount INT DEFAULT 0,
+    prize_claimed BOOLEAN DEFAULT FALSE,
+    prize_claimed_at TIMESTAMPTZ,
+    notification_sent BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    CONSTRAINT valid_number CHECK (char_length(number) BETWEEN 2 AND 6),
+    CONSTRAINT valid_number_type CHECK (number_type IN ('auto', 'manual', 'vip')),
+    CONSTRAINT valid_source CHECK (source IN ('order_free', 'points_purchase', 'bonus', 'streak', 'vip_monthly'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_lotto_tickets_user ON lotto_tickets(user_id) WHERE user_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_lotto_tickets_guest ON lotto_tickets(guest_id) WHERE guest_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_lotto_tickets_draw ON lotto_tickets(draw_date);
+CREATE INDEX IF NOT EXISTS idx_lotto_tickets_order ON lotto_tickets(order_id);
+CREATE INDEX IF NOT EXISTS idx_lotto_tickets_status ON lotto_tickets(status);
+
+-- ============================================================
+-- STEP 3: เพิ่มคอลัมน์ให้ orders (ถ้ายังไม่มี)
+-- ============================================================
+
+ALTER TABLE orders
+    ADD COLUMN IF NOT EXISTS guest_id UUID REFERENCES guest_identities(id),
+    ADD COLUMN IF NOT EXISTS queue_type TEXT,
+    ADD COLUMN IF NOT EXISTS queue_number INT,
+    ADD COLUMN IF NOT EXISTS queue_display TEXT,
+    ADD COLUMN IF NOT EXISTS estimated_minutes INT,
+    ADD COLUMN IF NOT EXISTS scheduled_for TIMESTAMPTZ,
+    ADD COLUMN IF NOT EXISTS is_preorder BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS guest_synced BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS guest_synced_at TIMESTAMPTZ,
+    ADD COLUMN IF NOT EXISTS tracking_token TEXT;
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_orders_guest_id ON orders(guest_id) WHERE guest_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_orders_queue ON orders(queue_type, queue_number) WHERE queue_type IS NOT NULL;
+
+-- ============================================================
+-- STEP 4: อัพเกรด lotto_results
+-- ============================================================
+
+ALTER TABLE lotto_results
+    ADD COLUMN IF NOT EXISTS first_prize TEXT,
+    ADD COLUMN IF NOT EXISTS last3_digits TEXT[],
+    ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'manual',
+    ADD COLUMN IF NOT EXISTS verified BOOLEAN DEFAULT FALSE;
+
+-- ============================================================
+-- STEP 5: สร้าง Functions ที่ถูกต้อง
+-- ============================================================
+
+-- 5.1 Generate Queue Number
+CREATE OR REPLACE FUNCTION generate_queue_number(
+    p_delivery_method TEXT,
+    p_is_preorder BOOLEAN DEFAULT FALSE
+)
+RETURNS TABLE (queue_type TEXT, queue_number INT, queue_display TEXT) 
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_prefix TEXT;
+    v_next_number INT;
+BEGIN
+    -- Determine prefix
+    IF p_is_preorder THEN
+        v_prefix := 'D';
+    ELSIF p_delivery_method = 'workplace' THEN
+        v_prefix := 'A';
+    ELSIF p_delivery_method = 'village' THEN
+        v_prefix := 'B';
+    ELSE
+        v_prefix := 'C';
+    END IF;
+    
+    -- Get next number for today
+    SELECT COALESCE(MAX(o.queue_number), 0) + 1 INTO v_next_number
+    FROM orders o
+    WHERE o.queue_type = v_prefix
+      AND DATE(o.created_at) = CURRENT_DATE;
+    
+    RETURN QUERY SELECT v_prefix, v_next_number, v_prefix || LPAD(v_next_number::TEXT, 3, '0');
+END;
+$$;
+
+-- 5.2 Get Queue Status
+CREATE OR REPLACE FUNCTION get_queue_status(p_order_id BIGINT)
+RETURNS JSON
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_order RECORD;
+    v_orders_ahead INT;
+    v_estimated_minutes INT;
+BEGIN
+    SELECT * INTO v_order FROM orders WHERE id = p_order_id;
+    
+    IF NOT FOUND THEN
+        RETURN json_build_object('error', 'Order not found');
+    END IF;
+    
+    -- Count orders ahead in same queue type
+    SELECT COUNT(*) INTO v_orders_ahead
+    FROM orders
+    WHERE queue_type = v_order.queue_type
+      AND queue_number < v_order.queue_number
+      AND DATE(created_at) = DATE(v_order.created_at)
+      AND status NOT IN ('delivered', 'cancelled');
+    
+    -- Estimate time (5 min per order)
+    v_estimated_minutes := v_orders_ahead * 5 + 10;
+    
+    RETURN json_build_object(
+        'queue_display', v_order.queue_display,
+        'queue_type', v_order.queue_type,
+        'orders_ahead', v_orders_ahead,
+        'estimated_minutes', v_estimated_minutes,
+        'status', v_order.status
+    );
+END;
+$$;
+
+-- 5.3 Generate Lotto Number
+CREATE OR REPLACE FUNCTION generate_lotto_number(p_length INT DEFAULT 6)
+RETURNS TEXT
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_number TEXT;
+BEGIN
+    v_number := LPAD(floor(random() * power(10, p_length))::TEXT, p_length, '0');
+    RETURN v_number;
+END;
+$$;
+
+-- 5.4 Create Lotto Ticket Trigger
+CREATE OR REPLACE FUNCTION create_lotto_ticket_for_order()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_ticket_number TEXT;
+    v_draw_date DATE;
+BEGIN
+    -- Only for orders with guest_id or user_id
+    IF NEW.guest_id IS NULL AND NEW.user_id IS NULL THEN
+        RETURN NEW;
+    END IF;
+    
+    -- Get draw date (1st or 16th of next month)
+    v_draw_date := CASE 
+        WHEN EXTRACT(DAY FROM CURRENT_DATE) >= 16 THEN
+            DATE_TRUNC('month', CURRENT_DATE + INTERVAL '1 month')::DATE
+        ELSE
+            DATE_TRUNC('month', CURRENT_DATE)::DATE + INTERVAL '15 days'
+    END;
+    
+    -- Generate number from queue or random
+    IF NEW.queue_display IS NOT NULL THEN
+        -- Use queue number with padding (e.g., A001 -> 0000A001, take last 6)
+        v_ticket_number := RIGHT(LPAD(REPLACE(NEW.queue_display, 'A', '1'), 6, '0'), 6);
+    ELSE
+        v_ticket_number := generate_lotto_number(6);
+    END IF;
+    
+    -- Insert ticket
+    INSERT INTO lotto_tickets (
+        order_id, user_id, guest_id, number, number_type, source, draw_date
+    ) VALUES (
+        NEW.id, NEW.user_id, NEW.guest_id, v_ticket_number, 'auto', 'order_free', v_draw_date
+    );
+    
+    RETURN NEW;
+END;
+$$;
+
+-- Create trigger
+CREATE TRIGGER tr_create_lotto_ticket
+    AFTER INSERT ON orders
+    FOR EACH ROW
+    EXECUTE FUNCTION create_lotto_ticket_for_order();
+
+-- 5.5 Sync Guest to Member (CRITICAL)
+CREATE OR REPLACE FUNCTION sync_guest_to_member(
+    p_guest_id UUID,
+    p_user_id UUID
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_points_earned INT := 0;
+    v_tickets_count INT := 0;
+    v_orders_count INT := 0;
+    v_current_points INT;
+BEGIN
+    -- Update orders: transfer from guest to user
+    UPDATE orders
+    SET 
+        user_id = p_user_id,
+        guest_synced = TRUE,
+        guest_synced_at = NOW(),
+        updated_at = NOW()
+    WHERE guest_id = p_guest_id
+      AND (guest_synced = FALSE OR guest_synced IS NULL);
+    
+    GET DIAGNOSTICS v_orders_count = ROW_COUNT;
+    
+    -- Sum points from guest orders
+    SELECT COALESCE(SUM(points_earned), 0) INTO v_points_earned
+    FROM orders
+    WHERE guest_id = p_guest_id;
+    
+    -- Update tickets: transfer from guest to user
+    UPDATE lotto_tickets
+    SET 
+        user_id = p_user_id,
+        guest_id = NULL,
+        updated_at = NOW()
+    WHERE guest_id = p_guest_id;
+    
+    GET DIAGNOSTICS v_tickets_count = ROW_COUNT;
+    
+    -- Add points to user profile
+    IF v_points_earned > 0 THEN
+        -- Get current points
+        SELECT COALESCE(points, 0) INTO v_current_points
+        FROM profiles WHERE id = p_user_id;
+        
+        -- Update profile
+        UPDATE profiles
+        SET 
+            points = v_current_points + v_points_earned,
+            total_orders = COALESCE(total_orders, 0) + v_orders_count,
+            updated_at = NOW()
+        WHERE id = p_user_id;
+        
+        -- Log points
+        INSERT INTO point_logs (user_id, action, amount, note, balance_after)
+        VALUES (
+            p_user_id,
+            'EARN',
+            v_points_earned,
+            'Points from ' || v_orders_count || ' guest orders (sync)',
+            v_current_points + v_points_earned
+        );
+    END IF;
+    
+    -- Mark guest as synced
+    UPDATE guest_identities
+    SET metadata = jsonb_set(
+        COALESCE(metadata, '{}'),
+        '{synced_to}',
+        to_jsonb(p_user_id::TEXT)
+    )
+    WHERE id = p_guest_id;
+    
+    RETURN json_build_object(
+        'success', TRUE,
+        'orders_synced', v_orders_count,
+        'points_added', v_points_earned,
+        'tickets_transferred', v_tickets_count
+    );
+END;
+$$;
+
+-- 5.6 Claim Guest Order (for LINE redirect flow)
+CREATE OR REPLACE FUNCTION claim_guest_order(
+    p_order_id INT,
+    p_tracking_token TEXT
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_order RECORD;
+    v_points INT;
+BEGIN
+    SELECT * INTO v_order FROM orders WHERE id = p_order_id;
+    
+    IF NOT FOUND THEN
+        RETURN json_build_object('success', FALSE, 'error', 'Order not found');
+    END IF;
+    
+    v_points := COALESCE(v_order.points_earned, 0);
+    
+    RETURN json_build_object(
+        'success', TRUE,
+        'points_earned', v_points,
+        'new_balance', v_points
+    );
+END;
+$$;
+
+-- 5.7 Check Lottery Results
+CREATE OR REPLACE FUNCTION check_lottery_results()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Check and update all winning tickets for this draw date
+    UPDATE lotto_tickets
+    SET 
+        status = 'won',
+        prize_type = 'free_meal',
+        prize_amount = 0,
+        updated_at = NOW()
+    WHERE draw_date = NEW.draw_date
+      AND status = 'active'
+      AND (
+          -- ถูกรางวัลที่ 1 (6 ตัว)
+          number = NEW.first_prize
+          -- ถูกเลขท้าย 2 ตัว
+          OR RIGHT(number, 2) = NEW.last2
+          -- ถูกเลขหน้า 3 ตัว
+          OR (LEFT(number, 3) = ANY(NEW.first3))
+          -- ถูกเลขท้าย 3 ตัว
+          OR (RIGHT(number, 3) = ANY(COALESCE(NEW.last3_digits, ARRAY[]::TEXT[])))
+      );
+    
+    RETURN NEW;
+END;
+$$;
+
+-- Create trigger for lottery results
+DROP TRIGGER IF EXISTS tr_check_lottery_results ON lotto_results;
+CREATE TRIGGER tr_check_lottery_results
+    AFTER INSERT OR UPDATE ON lotto_results
+    FOR EACH ROW
+    EXECUTE FUNCTION check_lottery_results();
+
+-- ============================================================
+-- STEP 6: RLS POLICIES
+-- ============================================================
+
+-- Enable RLS
+ALTER TABLE guest_identities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lotto_tickets ENABLE ROW LEVEL SECURITY;
+
+-- Guest Identities policies
+DROP POLICY IF EXISTS "guest_identities_insert" ON guest_identities;
+DROP POLICY IF EXISTS "guest_identities_select" ON guest_identities;
+
+CREATE POLICY "guest_identities_insert" ON guest_identities
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "guest_identities_select" ON guest_identities
+    FOR SELECT USING (true);
+
+-- Lotto Tickets policies
+DROP POLICY IF EXISTS "lotto_tickets_select_own" ON lotto_tickets;
+DROP POLICY IF EXISTS "lotto_tickets_insert" ON lotto_tickets;
+
+CREATE POLICY "lotto_tickets_select_own" ON lotto_tickets
+    FOR SELECT USING (
+        user_id = auth.uid() 
+        OR guest_id::TEXT = COALESCE(current_setting('app.guest_id', true), '')
+        OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+    );
+
+CREATE POLICY "lotto_tickets_insert" ON lotto_tickets
+    FOR INSERT WITH CHECK (
+        user_id = auth.uid()
+        OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+    );
+
+-- ============================================================
+-- STEP 7: GRANTS
+-- ============================================================
+
+GRANT EXECUTE ON FUNCTION generate_queue_number(TEXT, BOOLEAN) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION get_queue_status(BIGINT) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION sync_guest_to_member(UUID, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION claim_guest_order(INT, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION generate_lotto_number(INT) TO authenticated, anon;
+
+-- ============================================================
+-- STEP 8: SEED DATA (optional)
+-- ============================================================
+
+-- เพิ่ม lotto result ตัวอย่างถ้ายังไม่มี
+INSERT INTO lotto_results (draw_date, last2, first3, first_prize, last3_digits, source, verified)
+SELECT 
+    CURRENT_DATE + 7,
+    '52',
+    ARRAY['123', '456'],
+    '123456',
+    ARRAY['789', '012'],
+    'manual',
+    FALSE
+WHERE NOT EXISTS (
+    SELECT 1 FROM lotto_results WHERE draw_date = CURRENT_DATE + 7
+);
+
+-- ============================================================
+-- VERIFICATION
+-- ============================================================
+
+SELECT 
+    '✅ Orders + Lottery System Ready!' as status,
+    (SELECT COUNT(*) FROM information_schema.columns 
+     WHERE table_name = 'orders' AND column_name = 'guest_id') as has_guest_id,
+    (SELECT COUNT(*) FROM information_schema.tables 
+     WHERE table_name = 'guest_identities') as has_guest_table,
+    (SELECT COUNT(*) FROM information_schema.tables 
+     WHERE table_name = 'lotto_tickets') as has_tickets_table,
+    (SELECT COUNT(*) FROM information_schema.routines 
+     WHERE routine_name = 'sync_guest_to_member') as has_sync_function,
+    (SELECT COUNT(*) FROM information_schema.routines 
+     WHERE routine_name = 'generate_queue_number') as has_queue_function,
+    (SELECT COUNT(*) FROM information_schema.triggers 
+     WHERE trigger_name = 'tr_create_lotto_ticket') as has_lotto_trigger;

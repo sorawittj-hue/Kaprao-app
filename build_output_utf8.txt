@@ -1,0 +1,105 @@
+﻿
+> kaprao52-react@2.0.0 build
+> tsc && vite build
+
+src/app/providers/AuthProvider.tsx(279,39): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { onConflict?: string | undefined; ignoreDuplicates?: boolean | undefined; count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ ...; }, ... 5 more ..., "POST">', gave the following error.
+    Argument of type '{ id: string; display_name: string; picture_url: string | undefined; line_user_id: string; updated_at: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { onConflict?: string | undefined; ignoreDuplicates?: boolean | undefined; count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
+    Object literal may only specify known properties, and 'id' does not exist in type 'never[]'.
+src/features/checkout/api/checkoutApi.ts(54,13): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "orders", never, "POST">', gave the following error.
+    Argument of type '{ user_id: string | undefined; line_user_id: string | undefined; customer_name: string; phone_number: string; address: string | undefined; items: { menu_item_id: number; name: string; ... 4 more ...; subtotal: number; }[]; ... 10 more ...; payment_status: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "orders", never, "POST">', gave the following error.
+    Argument of type '{ user_id: string | undefined; line_user_id: string | undefined; customer_name: string; phone_number: string; address: string | undefined; items: { menu_item_id: number; name: string; ... 4 more ...; subtotal: number; }[]; ... 10 more ...; payment_status: string; }' is not assignable to parameter of type 'never[]'.
+      Type '{ user_id: string | undefined; line_user_id: string | undefined; customer_name: string; phone_number: string; address: string | undefined; items: { menu_item_id: number; name: string; ... 4 more ...; subtotal: number; }[]; ... 10 more ...; payment_status: string; }' is missing the following properties from type 'never[]': length, pop, push, concat, and 29 more.
+src/features/checkout/api/checkoutApi.ts(64,14): error TS2339: Property 'id' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(65,18): error TS2339: Property 'user_id' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(66,22): error TS2339: Property 'line_user_id' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(67,24): error TS2339: Property 'customer_name' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(68,23): error TS2339: Property 'phone_number' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(69,19): error TS2339: Property 'address' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(70,26): error TS2339: Property 'delivery_method' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(71,31): error TS2339: Property 'special_instructions' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(72,17): error TS2339: Property 'items' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(73,18): error TS2339: Property 'status' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(74,22): error TS2339: Property 'total_price' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(75,25): error TS2339: Property 'subtotal_price' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(76,26): error TS2339: Property 'discount_amount' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(77,24): error TS2339: Property 'discount_code' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(78,26): error TS2339: Property 'points_redeemed' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(79,24): error TS2339: Property 'points_earned' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(80,25): error TS2339: Property 'payment_method' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(81,25): error TS2339: Property 'payment_status' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(82,21): error TS2339: Property 'created_at' does not exist on type 'never'.
+src/features/checkout/api/checkoutApi.ts(83,21): error TS2339: Property 'updated_at' does not exist on type 'never'.
+src/features/config/api/configApi.ts(12,15): error TS2339: Property 'value' does not exist on type 'never'.
+src/features/config/api/configApi.ts(18,13): error TS2345: Argument of type '{ value: T; updated_at: string; }' is not assignable to parameter of type 'never'.
+src/features/config/components/index.ts(1,28): error TS2305: Module '"./ShopClosedBanner"' has no exported member 'ShopOpenGate'.
+src/features/inventory/api/inventoryApi.ts(43,12): error TS2339: Property 'current_stock' does not exist on type 'never'.
+src/features/inventory/api/inventoryApi.ts(45,14): error TS2339: Property 'current_stock' does not exist on type 'never'.
+src/features/inventory/api/inventoryApi.ts(50,13): error TS2345: Argument of type '{ current_stock: any; updated_at: string; }' is not assignable to parameter of type 'never'.
+src/features/inventory/api/inventoryApi.ts(58,49): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "inventory_transactions", never, "POST">', gave the following error.
+    Argument of type '{ inventory_id: number; type: "in" | "adjust" | "out"; quantity: number; reason: string; created_by: string | undefined; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "inventory_transactions", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'inventory_id' does not exist in type 'never[]'.
+src/features/inventory/api/inventoryApi.ts(80,6): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "inventory_items", never, "POST">', gave the following error.
+    Argument of type '{ name: string | undefined; unit: string | undefined; current_stock: number; min_stock: number; reorder_point: number; cost_per_unit: number; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "inventory_items", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'name' does not exist in type 'never[]'.
+src/features/notifications/api/notificationApi.ts(30,13): error TS2345: Argument of type '{ is_read: boolean; read_at: string; }' is not assignable to parameter of type 'never'.
+src/features/notifications/api/notificationApi.ts(42,13): error TS2345: Argument of type '{ is_read: boolean; read_at: string; }' is not assignable to parameter of type 'never'.
+src/features/notifications/api/notificationApi.ts(71,6): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { onConflict?: string | undefined; ignoreDuplicates?: boolean | undefined; count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ ...; }, ... 5 more ..., "POST">', gave the following error.
+    Argument of type '{ user_id: string; token: string; platform: "ios" | "android" | "web"; is_active: boolean; last_used: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { onConflict?: string | undefined; ignoreDuplicates?: boolean | undefined; count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
+    Object literal may only specify known properties, and 'user_id' does not exist in type 'never[]'.
+src/features/notifications/api/notificationApi.ts(87,13): error TS2345: Argument of type '{ is_active: boolean; }' is not assignable to parameter of type 'never'.
+src/features/notifications/api/notificationApi.ts(103,6): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "notifications", never, "POST">', gave the following error.
+    Argument of type '{ user_id: string; type: NotificationType; title: string; message: string; data: Record<string, unknown> | undefined; sent_via: string[]; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "notifications", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'user_id' does not exist in type 'never[]'.
+src/features/notifications/components/NotificationBell.tsx(7,10): error TS2459: Module '"@/utils/formatDate"' declares 'formatDistanceToNow' locally, but it is not exported.
+src/features/notifications/components/NotificationBell.tsx(74,10): error TS18048: 'unreadCount' is possibly 'undefined'.
+src/features/notifications/components/NotificationBell.tsx(80,14): error TS18048: 'unreadCount' is possibly 'undefined'.
+src/features/notifications/components/NotificationBell.tsx(96,16): error TS18048: 'unreadCount' is possibly 'undefined'.
+src/features/orders/api/cancelApi.ts(2,22): error TS6196: 'OrderStatus' is declared but never used.
+src/features/orders/api/cancelApi.ts(75,13): error TS2345: Argument of type '{ status: string; notes: string | undefined; updated_at: string; }' is not assignable to parameter of type 'never'.
+src/features/orders/api/cancelApi.ts(87,46): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "order_cancellations", never, "POST">', gave the following error.
+    Argument of type '{ order_id: number; reason: string; cancelled_at: string; cancelled_by: string | undefined; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "order_cancellations", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'order_id' does not exist in type 'never[]'.
+src/features/orders/hooks/useCancelOrder.ts(8,32): error TS2339: Property 'canCancel' does not exist on type '{ readonly all: () => readonly ["orders"]; readonly list: () => readonly ["orders", "list"]; readonly byUser: (userId: string) => readonly ["orders", "user", string]; readonly detail: (id: number) => readonly ["orders", "detail", number]; readonly active: (userId: string) => readonly [...]; }'.
+src/features/orders/hooks/useCancelOrder.ts(29,36): error TS2339: Property 'canCancel' does not exist on type '{ readonly all: () => readonly ["orders"]; readonly list: () => readonly ["orders", "list"]; readonly byUser: (userId: string) => readonly ["orders", "user", string]; readonly detail: (id: number) => readonly ["orders", "detail", number]; readonly active: (userId: string) => readonly [...]; }'.
+src/features/payment/api/paymentApi.ts(77,15): error TS2339: Property 'value' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(131,13): error TS2345: Argument of type '{ payment_proof_url: string; payment_status: string; }' is not assignable to parameter of type 'never'.
+src/features/payment/api/paymentApi.ts(157,18): error TS2339: Property 'payment_status' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(158,18): error TS2339: Property 'payment_method' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(159,20): error TS2339: Property 'payment_proof_url' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(160,22): error TS2339: Property 'payment_verified_at' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(161,22): error TS2339: Property 'payment_verified_by' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(162,20): error TS2339: Property 'payment_slip_data' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(163,17): error TS2339: Property 'payment_due_at' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(167,12): error TS2339: Property 'payment_proof_url' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(167,39): error TS2339: Property 'payment_verified' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(169,19): error TS2339: Property 'payment_verified' does not exist on type 'never'.
+src/features/payment/api/paymentApi.ts(183,13): error TS2345: Argument of type '{ payment_status: string; payment_verified: boolean; payment_verified_at: string; payment_verified_by: string | undefined; payment_slip_data: PaymentSlipData | null; }' is not assignable to parameter of type 'never'.
+src/features/payment/api/paymentApi.ts(201,13): error TS2345: Argument of type '{ payment_status: string; payment_slip_data: { rejectionReason: string; }; }' is not assignable to parameter of type 'never'.
+src/features/payment/components/PaymentQRModal.tsx(4,10): error TS2724: '"qrcode.react"' has no exported member named 'QRCodeSVG'. Did you mean 'QRCode'?
+src/features/reviews/api/reviewApi.ts(35,6): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "reviews", never, "POST">', gave the following error.
+    Argument of type '{ order_id: number; rating: number; comment: string; images: string[]; would_recommend: boolean | undefined; menu_item_ids: number[] | undefined; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "reviews", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'order_id' does not exist in type 'never[]'.
+src/features/reviews/api/reviewApi.ts(56,13): error TS2345: Argument of type '{ rating: number | undefined; comment: string | undefined; images: string[] | undefined; would_recommend: boolean | undefined; updated_at: string; }' is not assignable to parameter of type 'never'.
+src/features/reviews/api/reviewApi.ts(86,6): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "review_votes", never, "POST">', gave the following error.
+    Argument of type '{ review_id: number; user_id: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "review_votes", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'review_id' does not exist in type 'never[]'.
+src/features/reviews/api/reviewApi.ts(99,13): error TS2345: Argument of type '{ reply: string; replied_at: string; replied_by: string | undefined; }' is not assignable to parameter of type 'never'.
+src/features/reviews/api/reviewApi.ts(124,35): error TS2339: Property 'rating' does not exist on type 'never'.

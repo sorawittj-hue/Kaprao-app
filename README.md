@@ -1,150 +1,280 @@
 # 🍛 Kaprao52 (กะเพรา 52)
 
-> **สุดยอดแอพสั่งอาหารสตรีทฟู้ด** ที่มาพร้อมกับความทันสมัย กราฟิกจัดเต็ม และระบบสมาชิกสุดล้ำ!
-
-![Kaprao52 Banner](images/logo.png)
-
-## 📱 เกี่ยวกับโปรเจกต์ (About)
-**Kaprao52** คือเว็บแอพพลิเคชันสำหรับสั่งอาหาร (Web App) ที่เน้นประสบการณ์การใช้งานที่สนุกและตื่นเต้น (Gamification) ออกแบบมาเพื่อร้านอาหารตามสั่งยุคใหม่ โดยเฉพาะเมนู "กะเพรา" ที่เป็นเมนูยอดฮิต
-
-แอพนี้ไม่ได้มีแค่หน้าสั่งอาหารธรรมดา แต่ยังมีระบบ **สุ่มอาหาร**, **วงล้อเสี่ยงโชค**, **สะสมแต้ม**, และ **ลุ้นหวยจากเลข Order ID** เพื่อให้ลูกค้ากลับมาใช้งานซ้ำ!
+> **World-Class Street Food Ordering App** — สั่งอาหาร, สะสมพอยต์, ลุ้นหวย, แลกรางวัล ทุกอย่างในแอพเดียว!
 
 ---
 
-## ✨ ฟีเจอร์เด่น (Key Features)
+## 📱 About
 
-### 🛍️ ระบบสั่งอาหาร (Ordering System)
-- **Smart Menu**: เมนูแยกหมวดหมู่ชัดเจน (กะเพรา, ของทอด, เส้น, แกง)
-- **Customization**: เลือกระดับความเผ็ด, เนื้อสัตว์, และท็อปปิ้ง (ไข่ดาว, ไข่เจียว, ไข่เยี่ยวม้า) ได้อย่างละเอียด
-- **Cart & Checkout**: ตะกร้าสินค้าและระบบคิดเงินที่คำนวณส่วนลดและพอยต์อัตโนมัติ
+**Kaprao52** เป็น Progressive Web App (PWA) สำหรับสั่งอาหารออนไลน์ สร้างด้วย React + TypeScript + Supabase พร้อมระบบ Gamification เต็มรูปแบบ ออกแบบมาให้ลูกค้ารู้สึกสนุกทุกครั้งที่สั่ง และกลับมาใช้งานซ้ำ!
 
-### 🛵 ติดตามสถานะ (Order Tracking)
-- **Real-time Status**: แสดงสถานะตั้งแต่ 📝 รับออเดอร์ -> 🔥 กำลังปรุง -> 🛵 กำลังส่ง -> ✅ ถึงแล้ว
-- **Visual Timeline**: ไทม์ไลน์สวยงาม เข้าใจง่าย
-
-### 👨‍🍳 โหมดเจ้าของร้าน (Admin Mode)
-- **Secure Access**: เข้าใช้งานผ่านเมนู "เพิ่มเติม" -> "โหมดเจ้าของร้าน" (รหัสผ่าน: `5252`)
-- **Order Management**: อัพเดทสถานะออเดอร์ได้ทันที (เช่น กดเปลี่ยนจาก "กำลังปรุง" เป็น "กำลังส่ง")
-- **Google Sheets Sync**: รองรับการดึงข้อมูลออเดอร์จาก Google Sheets (Backend)
-
-### 🎰 เกมและสิทธิพิเศษ (Gamification & Loyalty)
-- **Kaprao Points**: ทุกการสั่งซื้อได้รับพอยต์ สะสมเพื่อแลกส่วนลด
-- **Wheel of Fortune**: วงล้อเสี่ยงโชค ลุ้นรางวัลพิเศษ
-- **Lotto Ticket**: เลขท้าย Order ID ลุ้นหวยรัฐบาล งวดวันที่ 1 และ 16
-- **Randomizer**: "คิดไม่ออก?" ให้ระบบสุ่มเมนูให้!
-
-### 💬 การเชื่อมต่อ (Integration)
-- **LINE LIFF Support**: รองรับการทำเป็น LINE Mini App ดึงรูปโปรไฟล์และชื่อจาก LINE ได้ทันที
+### 🌟 Highlights
+- **Seamless Guest-to-Member Flow** — สั่งอาหารได้ทันทีไม่ต้อง login, เพิ่ม LINE ทีหลังพอยต์ก็ยังได้
+- **Real-time Order Tracking** — ติดตามสถานะออเดอร์แบบ real-time ผ่าน Supabase Realtime
+- **Gamification System** — สะสมพอยต์ → เลื่อน tier → แลกรางวัล + ลุ้นหวย
+- **LINE Integration** — ส่งออเดอร์ตรงถึง LINE OA, login ด้วย LINE LIFF
 
 ---
 
-## �️ การทำงานของระบบ (System Workflow)
+## ✨ Features
 
-### 1. User Journey (เส้นทางผู้ใช้งาน)
-```mermaid
-graph TD
-    A[📱 Open App] --> B{Login?}
-    B -->|Yes| C[Fetch User Data]
-    B -->|No| D[Guest Mode]
-    C --> E[🏠 Home / Menu]
-    D --> E
-    E --> F[Select Food 🍛]
-    F --> G[Customize & Add to Cart 🛒]
-    G --> H[Checkout 💳]
-    H --> I[Send Order to LINE OA 📨]
-    I --> J[Order Tracking 🛵]
-    J --> K{Order Status}
-    K -->|Delivered| L[Earn Points & Ticket 🎫]
-```
+### 🛍️ ระบบสั่งอาหาร
+- **Smart Menu** — หมวดหมู่ชัดเจน (กะเพรา, ของทอด, เส้น, แกง, เครื่องดื่ม)
+- **Deep Customization** — เลือกความเผ็ด, เนื้อสัตว์, ท็อปปิ้ง (ไข่ดาว/เจียว/เยี่ยวม้า)
+- **Smart Cart** — คำนวณส่วนลด, ใช้พอยต์, preview ตั๋วหวยก่อนสั่ง
+- **Voice Order** — สั่งด้วยเสียง (สั่งด้วยเสียง ฟีเจอร์) 
+- **Random Menu** — "คิดไม่ออก?" ให้ระบบสุ่มเมนูให้!
 
-### 2. Gamification Loop (ระบบเล่นเกมสะสมแต้ม)
-```mermaid
-sequenceDiagram
-    participant User
-    participant App
-    participant System
-    
-    User->>App: สั่งซื้อสำเร็จ (Order Completed)
-    App->>System: บันทึกยอดซื้อ
-    System->>User: +Points (แต้มสะสม)
-    System->>User: +Lotto Ticket (ตั๋วหวย)
-    
-    User->>App: เล่นวงล้อเสี่ยงโชค (Wheel)
-    App->>System: ตรวจสอบสิทธิ์ (Daily Spin)
-    alt มีสิทธิ์หมุน
-        System->>User: แจกรางวัล (ส่วนลด/พอยต์)
-    else หมดสิทธิ์
-        System->>User: แจ้งเตือน "พรุ่งนี้มาใหม่นะ"
-    end
-```
+### 🚀 Guest → Member Conversion
+- **Guest Ordering** — ไม่ต้อง login ก็สั่งได้ทันที
+- **Points Preview** — Guest เห็น "พอยต์ที่จะได้" ก่อนกดสั่ง
+- **Magic Claim** — Login LINE หลังสั่ง → พอยต์จาก guest order โอนเข้ากระเป๋าอัตโนมัติ
+- **Tracking Token** — guest เปิดดู order detail ได้ผ่าน token
 
----
+### 🛵 ติดตามสถานะ (Live Order Tracking)
+- **Real-time Status** — 📝 รับออเดอร์ → 🔥 กำลังปรุง → 🛵 กำลังส่ง → ✅ เสร็จสิ้น
+- **Visual Timeline** — animation สวยงาม เข้าใจง่าย
+- **Phone Search** — guest ค้นหาออเดอร์ด้วยเบอร์โทรได้
 
+### 🎰 Gamification & Loyalty
+| Feature | Description |
+|---------|-------------|
+| ⭐ **Kaprao Points** | ทุก 10 บาท = 1 พอยต์, แลกรางวัลได้ |
+| 🏆 **Tier System** | Member → Silver → Gold → VIP (สิทธิ์เพิ่มตาม tier) |
+| 🎟️ **ตั๋วหวย** | ทุก 100 บาท = 1 ตั๋ว, ลุ้นเลข 2 ตัวท้าย Order ID ตรงหวยรัฐบาล = อาหารฟรี! |
+| 🎡 **วงล้อเสี่ยงโชค** | หมุนฟรีทุกวัน ลุ้นส่วนลด/พอยต์พิเศษ |
+| 🔥 **Streak Tracker** | สั่งติดต่อกัน → bonus points |
+| 🎁 **แลกของรางวัล** | ส่วนลด, เมนูฟรี, ส่งฟรี |
 
-## �🛠️ เทคโนโลยี (Tech Stack)
+### 👨‍🍳 Admin Dashboard
+- **Order Management** — ดู/อัพเดทสถานะทุกออเดอร์
+- **Menu Management** — เพิ่ม/แก้ไข/ปิดเมนู, จัดการ sold out
+- **Points Adjustment** — ปรับพอยต์ให้ลูกค้าได้ (เพิ่ม/หัก)
+- **Shop Toggle** — เปิด/ปิดร้านได้จากแอพ
 
-- **Frontend**: HTML5, CSS3 (Modern CSS Variables, Animations), JavaScript (Vanilla ES6+)
-- **Styling**: Creative CSS Design System (Glassmorphism, Neon Effects)
-- **Backend (Mockup/Connectable)**: Google Sheets API (Script App) integration ready.
-- **Iconography**: FontAwesome
+### 💬 LINE Integration
+- **LINE LIFF Login** — ดึงชื่อ, รูป profile จาก LINE อัตโนมัติ
+- **Order to LINE OA** — ส่งรายละเอียดออเดอร์ครบ (เมนู, ราคา, ที่อยู่, พอยต์, ตั๋วหวย) ไปยัง LINE OA
+- **Guest CTA** — ข้อความ LINE มี call-to-action ให้ guest login เพื่อรับพอยต์
 
 ---
 
-## 🚀 วิธีเริ่มต้นใช้งาน (Getting Started)
+## 🏗️ Tech Stack
 
-### 1. การติดตั้งและรัน (Installation)
+| Layer | Technology |
+|-------|------------|
+| **Framework** | React 18 + TypeScript |
+| **Styling** | TailwindCSS + Custom CSS Variables |
+| **Animation** | Framer Motion |
+| **State** | Zustand (with persist + devtools) |
+| **Backend** | Supabase (PostgreSQL + Auth + Realtime + RPC) |
+| **Auth** | LINE LIFF SDK + Supabase Auth |
+| **Build** | Vite |
+| **PWA** | vite-plugin-pwa + Service Worker |
+| **Icons** | Lucide React |
+| **Data Fetching** | TanStack React Query |
 
-โปรเจกต์นี้เป็น Static Web App สามารถรันได้ทันทีโดยไม่ต้องตั้งค่า Server ซับซ้อน
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Supabase project (with SQL migrations applied)
+- LINE Developers account (LIFF app)
+
+### Installation
 
 ```bash
-# Clone โปรเจกต์
+# Clone
 git clone https://github.com/Sorawittj/Kaprao-app.git
-
-# เข้าไปที่โฟลเดอร์
 cd Kaprao-app
 
-# ติดตั้ง Dependencies (สำหรับ Development Tools เท่านั้น)
+# Install dependencies
 npm install
 
-# รัน Server จำลอง
+# Create environment file
+cp .env.example .env
+# Edit .env with your Supabase & LIFF credentials
+
+# Run development server
 npm run dev
-# หรือ
-npx serve
 ```
 
-### 2. การใช้งานโหมดเจ้าของร้าน (Admin Access)
-1. ไปที่เมนู **"เพิ่มเติม" (More)** ที่แถบด้านล่าง
-2. กดปุ่ม **"โหมดเจ้าของร้าน" (Shop Owner Mode)**
-3. กรอกรหัสผ่าน: **`5252`**
-4. จะเข้าสู่หน้า **Order Tracking** ที่มีปุ่มควบคุมสถานะสินค้าเพิ่มขึ้นมา
+### Environment Variables
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_LIFF_ID=your-liff-id
+```
+
+### Database Setup
+
+Run these SQL files in order in Supabase SQL Editor:
+1. `SUPABASE_COMPLETE_SETUP.sql` — Tables, indexes, RLS policies, triggers
+2. `MENU_OVERHAUL.sql` — Menu items & categories seed data
+3. `GUEST_ORDER_MERGE_SQL.sql` — Guest order claim functions & phone search
 
 ---
 
-## 📂 โครงสร้างไฟล์ (Project Structure)
+## 📂 Project Structure
 
 ```
 Kaprao-app/
-├── constants/       # ค่าคงที่ต่างๆ
-├── css/            # ไฟล์ Style (animations.css, cosmic.css)
-├── images/         # รูปภาพประกอบ
-├── js/
-│   ├── app.js           # Logic หลักของแอพ
-│   ├── data/menu.js     # ข้อมูลเมนูอาหาร
-│   ├── orderTracking.js # ระบบติดตามออเดอร์
-│   ├── state.js         # ตัวแปร Global State
-│   ├── gamification.js  # ระบบเกม (ล้อหมุน)
-│   ├── liff.js          # การเชื่อมต่อ LINE
-│   └── ...
-├── index.html      # หน้าหลัก
-└── sw.js           # Service Worker (PWA offline support)
+├── src/
+│   ├── app/
+│   │   ├── providers/
+│   │   │   └── AuthProvider.tsx    # Auth init, welcome modal, guest claim
+│   │   └── App.tsx                 # Root app with routing
+│   ├── components/
+│   │   ├── layout/                 # Container, BottomNavbar
+│   │   └── ui/                     # Button, Card, Skeleton, Toast, etc.
+│   ├── features/
+│   │   ├── menu/                   # Menu grid, hero slider, search
+│   │   ├── orders/                 # Order tracking, realtime, hooks
+│   │   ├── points/                 # Points system, streak tracker
+│   │   ├── lottery/                # Lottery tickets, draw logic
+│   │   └── gamification/          # Wheel of fortune, random menu
+│   ├── lib/
+│   │   ├── auth.ts                 # Login, logout, guest mode, claim
+│   │   ├── liff.ts                 # LINE LIFF SDK wrapper
+│   │   ├── supabase.ts             # Supabase client
+│   │   └── analytics.ts            # Page view tracking
+│   ├── pages/
+│   │   ├── HomePage.tsx            # Menu browsing + guest banner
+│   │   ├── CheckoutPage.tsx        # Cart review + payment + LINE send
+│   │   ├── OrdersPage.tsx          # Order history + phone search
+│   │   ├── OrderDetailPage.tsx     # Single order + guest CTA
+│   │   ├── ProfilePage.tsx         # Membership card + settings + rewards
+│   │   └── LotteryPage.tsx         # Lottery tickets + results
+│   ├── store/
+│   │   ├── authStore.ts            # Auth state (user, isGuest, isAuth)
+│   │   ├── cartStore.ts            # Cart items + calculations
+│   │   ├── menuStore.ts            # Category filter + search
+│   │   └── uiStore.ts              # Toasts + modals
+│   ├── utils/
+│   │   ├── buildLineMessage.ts     # LINE OA message formatter
+│   │   ├── formatPrice.ts          # Currency formatting
+│   │   └── formatDate.ts           # Thai date formatting
+│   └── types/
+│       └── index.ts                # TypeScript interfaces
+├── SUPABASE_COMPLETE_SETUP.sql     # Main database schema
+├── MENU_OVERHAUL.sql               # Menu seed data
+├── GUEST_ORDER_MERGE_SQL.sql       # Guest claim functions
+├── .env                            # Environment variables
+├── vite.config.ts                  # Vite configuration
+└── package.json
 ```
 
 ---
 
-## 🔒 Security Note
-*Admin Mode ในเวอร์ชันปัจจุบันทำงานแบบ Client-side logic เพื่อการสาธิต (Demo) เท่านั้น สำหรับการใช้งานจริงควรเชื่อมต่อกับระบบ Authentication ฝั่ง Server*
+## 🔄 User Journey
+
+```
+┌──────────────────────────────────────────────────┐
+│                  FIRST VISIT                      │
+│                                                   │
+│  Welcome Modal → [Login LINE] or [Guest Mode]     │
+└──────────────┬───────────────────┬───────────────┘
+               │                   │
+        ┌──────▼──────┐    ┌──────▼──────┐
+        │  LINE User  │    │    Guest    │
+        │ (Full perks)│    │ (Can order) │
+        └──────┬──────┘    └──────┬──────┘
+               │                   │
+               └────────┬─────────┘
+                        │
+                ┌───────▼───────┐
+                │  Browse Menu  │
+                │  Add to Cart  │
+                └───────┬───────┘
+                        │
+                ┌───────▼───────┐
+                │   Checkout    │ ← Points preview for guests
+                │  + Payment    │
+                └───────┬───────┘
+                        │
+                ┌───────▼───────┐
+                │ Order Created │ → LINE OA message sent
+                │ + Confetti 🎊 │
+                └───────┬───────┘
+                        │
+              ┌─────────┴─────────┐
+              │                   │
+       ┌──────▼──────┐    ┌──────▼──────┐
+       │  LINE User  │    │    Guest    │
+       │ Gets points │    │ Sees CTA:  │
+       │ Gets tickets│    │ "Login for │
+       │ Immediately │    │  points!"  │
+       └─────────────┘    └──────┬──────┘
+                                 │
+                          ┌──────▼──────┐
+                          │ Guest logs  │
+                          │ in w/ LINE  │
+                          │ → Points    │
+                          │   claimed!  │
+                          └─────────────┘
+```
+
+---
+
+## 📱 LINE Message Format
+
+เมื่อสั่งอาหาร ข้อความจะถูกส่งไปยัง LINE OA ในรูปแบบ:
+
+```
+╔══════════════════════╗
+   🔥 กะเพรา 52 — ออเดอร์ใหม่!
+╚══════════════════════╝
+
+📋 ออเดอร์ #42
+👤 คุณสมชาย
+📞 081-234-5678
+🕐 22/02/2569 — 20:30 น.
+🏢 ส่งที่ทำงาน (พรุ่งนี้)
+💳 โอนเงิน/พร้อมเพย์ ✅
+
+━━━ รายการอาหาร ━━━━━━━━
+1. กะเพราหมูกรอบ
+   ↳ เผ็ดมาก, ไข่ดาว
+   💰 75฿
+2. น้ำเปล่า x2
+   💰 20฿
+
+━━━ สรุปยอด ━━━━━━━━━━━
+   ราคารวม:     95฿
+   🎁 ส่วนลด:   -10฿ (FIRST10)
+   ✅ สุทธิ:     85฿
+
+━━━ สิทธิพิเศษ ━━━━━━━━━
+   ⭐ พอยต์ที่ได้: +8 pts
+   🎟️ ตั๋วหวย: 1 ใบ
+   🔢 เลขลุ้นโชค: 42
+   📅 งวดวันที่: 01/03/2569
+
+╔══════════════════════╗
+   ขอบคุณที่อุดหนุน
+   ร้านกะเพรา 52 ครับ! 🙏
+╚══════════════════════╝
+```
+
+---
+
+## 🔒 Security
+
+- **Row Level Security (RLS)** — ทุก table มี policy ป้องกันการเข้าถึงข้ามผู้ใช้
+- **Server-side RPC** — guest order claim ใช้ Supabase RPC function (SECURITY DEFINER)
+- **Tracking Token** — guest ดูออเดอร์ได้เฉพาะเมื่อมี token ที่ถูกต้อง
+- **Phone Search** — ใช้ server-side function เพื่อป้องกันการเข้าถึงข้อมูลส่วนตัว
+
+---
+
+## 📄 License
+
+Private project — developed for Kaprao52 street food shop.
 
 ---
 
 **Developed with ❤️ by Sorawittj**
-*Version 24.2.0 COSMIC EDITION*
+*Version 3.0 — World-Class Edition 🚀*

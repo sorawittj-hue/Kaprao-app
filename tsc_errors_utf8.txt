@@ -1,0 +1,3 @@
+﻿src/features/ai/hooks/useAIRecommendations.ts(27,5): error TS6133: 'user' is declared but its value is never read.
+src/features/ai/hooks/useAIRecommendations.ts(87,42): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.
+src/features/games/components/VoiceOrder.tsx(169,47): error TS2367: This comparison appears to be unintentional because the types 'number' and 'string' have no overlap.

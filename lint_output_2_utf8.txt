@@ -1,0 +1,13 @@
+﻿
+> kaprao52-react@2.0.0 lint
+> eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0
+
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\orders\api\cancelApi.ts
+  2:22  error  'OrderStatus' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\test-types.ts
+  3:16  error  'test' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+Γ£û 2 problems (2 errors, 0 warnings)
+

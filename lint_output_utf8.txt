@@ -1,0 +1,37 @@
+﻿
+> kaprao52-react@2.0.0 lint
+> eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0
+
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\config\api\configApi.ts
+  2:15  error  'ShopConfig' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\config\hooks\useShopConfig.ts
+  66:20  error  'variables' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\config\utils\timeUtils.ts
+  68:17  error  'minutes' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\inventory\api\inventoryApi.ts
+  2:30  error  'InventoryTransaction' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\orders\api\cancelApi.ts
+  2:22  error  'OrderStatus' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\orders\components\CancelOrderButton.tsx
+  3:28  error  'Clock' is defined but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+  3:35  error  'Loader2' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\payment\api\paymentApi.ts
+  2:15  error  'ShopConfig' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  2:55  error  'ShopHours' is defined but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\payment\components\PaymentQRModal.tsx
+  3:41  error  'AlertCircle' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  9:10  error  'cn' is defined but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
+
+D:\Build Apps\Kaprao52\Kaprao-app\Kaprao-app\src\features\payment\components\PaymentSlipUpload.tsx
+  53:6  warning  React Hook useCallback has a missing dependency: 'handleFile'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Γ£û 12 problems (11 errors, 1 warning)
+
