@@ -4,6 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 export default defineConfig({
+  base: '/Kaprao-app/',
   plugins: [
     react(),
     VitePWA({
@@ -42,21 +43,21 @@ export default defineConfig({
         theme_color: '#FDFBF7',
         background_color: '#FDFBF7',
         display: 'standalone',
-        scope: '/',
-        start_url: '/',
+        scope: '/Kaprao-app/',
+        start_url: '/Kaprao-app/',
         icons: [
           {
-            src: '/assets/icons/icon-72x72.png',
+            src: '/Kaprao-app/assets/icons/icon-72x72.png',
             sizes: '72x72',
             type: 'image/png',
           },
           {
-            src: '/assets/icons/icon-192x192.png',
+            src: '/Kaprao-app/assets/icons/icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/assets/icons/icon-512x512.png',
+            src: '/Kaprao-app/assets/icons/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
