@@ -17,7 +17,7 @@ const tierConfig = {
   MEMBER: { color: 'bg-gray-500', label: 'สมาชิก', next: 'SILVER', required: 0 },
   SILVER: { color: 'bg-gray-400', label: 'เงิน', next: 'GOLD', required: 500 },
   GOLD: { color: 'bg-amber-400', label: 'ทอง', next: 'VIP', required: 1500 },
-  VIP: { color: 'bg-purple-500', label: 'VIP', next: null, required: 3000 },
+  VIP: { color: 'bg-emerald-500', label: 'VIP', next: null, required: 3000 },
 }
 
 export function PointsCelebration({ 
@@ -45,14 +45,14 @@ export function PointsCelebration({
           angle: 60,
           spread: 55,
           origin: { x: 0 },
-          colors: ['#FF6B00', '#FFD700', '#C0C0C0', '#8B5CF6']
+          colors: ['#FF6B00', '#FFD700', '#C0C0C0', '#10B981']
         })
         confetti({
           particleCount: 3,
           angle: 120,
           spread: 55,
           origin: { x: 1 },
-          colors: ['#FF6B00', '#FFD700', '#C0C0C0', '#8B5CF6']
+          colors: ['#FF6B00', '#FFD700', '#C0C0C0', '#10B981']
         })
 
         if (Date.now() < end) {

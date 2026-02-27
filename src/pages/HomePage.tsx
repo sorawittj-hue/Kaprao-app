@@ -9,6 +9,7 @@ import { staggerContainer, fadeInUp } from '@/animations/variants'
 import { useTextScramble, useMagneticButton } from '@/hooks/useAdvancedAnimations'
 import { trackPageView } from '@/lib/analytics'
 import { Gift, Shuffle, Mic, History } from 'lucide-react'
+import { useSEO } from '@/hooks/useSEO'
 
 // Import feature components
 import { HeroSlider } from '@/features/menu/components/HeroSlider'
@@ -50,6 +51,11 @@ export default function HomePage() {
   useEffect(() => {
     trackPageView('/', 'Home')
   }, [])
+
+  useSEO({
+    title: 'สั่งกะเพราออนไลน์',
+    description: 'กะเพรา 52 - เมนูอาหารไทยรสจัดจ้าน สั่งง่าย ส่งไว ถึงบ้านคุณ'
+  })
 
   // Filter items based on category and search
   const filteredItems = menuItems ? (searchQuery ? searchEngine.search(menuItems, searchQuery).map(r => r.item) : menuItems.filter((item) => {
@@ -253,7 +259,7 @@ export default function HomePage() {
                 icon={Gift}
                 label="วงล้อ"
                 badge={spinsLeft > 0 ? spinsLeft.toString() : undefined}
-                gradient="from-pink-500 to-purple-600"
+                gradient="from-pink-500 to-emerald-600"
                 shadowColor="rgba(168, 85, 247, 0.4)"
                 emoji="🎰"
                 onClick={() => setShowWheel(true)}
@@ -407,7 +413,7 @@ function GreetingPill({ displayName, isGuest }: GreetingPillProps) {
     } else if (hour >= 17 && hour < 21) {
       setGreeting('สวัสดีตอนเย็น')
       setIcon('🌅')
-      setStyle({ bg: '#F3E8FF', text: '#9333EA' })
+      setStyle({ bg: '#F3E8FF', text: '#059669' })
     } else {
       setGreeting('ราตรีสวัสดิ์')
       setIcon('🌙')

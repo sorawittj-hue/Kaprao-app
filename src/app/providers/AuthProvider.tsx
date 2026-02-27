@@ -575,8 +575,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return
         }
 
-        // 3. Check active Supabase session
-        const { data: { session } } = await supabase.auth.getSession()
+        // 3 & 4. Initialize Supabase and LIFF in parallel for performance
+        console.log('🔍 Initializing auth systems in parallel...')
+        const [supabaseResult, liffInitialized] = await Promise.all([
+          supabase.auth.getSession(),
+          initLiff()
+        ])
+
+        const { data: { session } } = supabaseResult
+
         if (session?.user) {
           console.log('✅ Active Supabase session found')
           await handleUserSession(session.user)
@@ -584,10 +591,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setIsInitializing(false)
           return
         }
-
-        // 4. Try LIFF (if inside LINE app)
-        console.log('🔍 Trying LIFF initialization...')
-        const liffInitialized = await initLiff()
 
         if (liffInitialized && isInLineApp() && isLiffLoggedIn()) {
           console.log('✅ Already logged in via LIFF')

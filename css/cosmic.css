@@ -55,7 +55,7 @@
     color: white !important;
 }
 
-.btn-gradient-purple {
+.btn-gradient-emerald {
     background: linear-gradient(135deg, #4A403A 0%, #2D2420 100%) !important;
     /* Dark roast gradient */
     box-shadow: var(--shadow-sm) !important;
@@ -73,7 +73,7 @@
 
 .text-indigo-500,
 .text-indigo-600,
-.text-purple-600 {
+.text-emerald-600 {
     color: var(--secondary-text-strong) !important;
     /* Muted Green/Grey */
     text-shadow: none !important;

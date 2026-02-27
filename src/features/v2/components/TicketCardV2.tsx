@@ -129,7 +129,7 @@ export function TicketCardV2({ ticket, result: _result, onClaim }: TicketCardV2P
           </span>
 
           {ticket.purchasePrice > 0 && (
-            <span className="text-purple-600 font-medium">
+            <span className="text-emerald-600 font-medium">
               {ticket.purchasePrice} pts
             </span>
           )}

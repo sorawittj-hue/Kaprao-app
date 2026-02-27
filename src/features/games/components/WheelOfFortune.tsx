@@ -19,7 +19,7 @@ const PRIZES: Prize[] = [
   { label: 'ลด 10 บาท', code: 'WHEEL10', value: 10, color: '#F59E0B' },
   { label: 'ลด 20 บาท', code: 'WHEEL20', value: 20, color: '#10B981' },
   { label: 'ลองใหม่', code: null, value: 0, color: '#6B7280' },
-  { label: 'ลด 15 บาท', code: 'WHEEL15', value: 15, color: '#8B5CF6' },
+  { label: 'ลด 15 บาท', code: 'WHEEL15', value: 15, color: '#10B981' },
   { label: 'ลองใหม่', code: null, value: 0, color: '#3B82F6' },
   { label: 'ลด 30 บาท', code: 'WHEEL30', value: 30, color: '#EC4899' },
   { label: 'ลองใหม่', code: null, value: 0, color: '#14B8A6' },
@@ -242,7 +242,7 @@ export function WheelOfFortune({ isOpen, onClose, onWin }: WheelOfFortuneProps) 
 
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl mb-3">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-pink-500 to-emerald-600 rounded-2xl mb-3">
               <Gift className="w-7 h-7 text-white" />
             </div>
             <h2 className="text-2xl font-black text-gray-800">วงล้อเสี่ยงโชค</h2>
@@ -258,7 +258,7 @@ export function WheelOfFortune({ isOpen, onClose, onWin }: WheelOfFortuneProps) 
                 key={i}
                 className={cn(
                   'w-8 h-2 rounded-full transition-colors',
-                  i < spinsLeft ? 'bg-gradient-to-r from-pink-500 to-purple-500' : 'bg-gray-200'
+                  i < spinsLeft ? 'bg-gradient-to-r from-pink-500 to-emerald-500' : 'bg-gray-200'
                 )}
               />
             ))}
@@ -324,7 +324,7 @@ export function WheelOfFortune({ isOpen, onClose, onWin }: WheelOfFortuneProps) 
               size="lg"
               fullWidth
               className={cn(
-                'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700',
+                'bg-gradient-to-r from-pink-500 to-emerald-600 hover:from-pink-600 hover:to-emerald-700',
                 (spinsLeft <= 0 || isSpinning) && 'opacity-50 cursor-not-allowed'
               )}
             >

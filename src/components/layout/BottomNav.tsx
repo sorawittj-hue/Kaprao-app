@@ -6,7 +6,7 @@ import { cn } from '@/utils/cn'
 const navItems = [
   { path: '/', icon: Home, label: 'หน้าหลัก', activeGradient: 'from-brand-500 to-orange-400' },
   { path: '/orders', icon: ClipboardList, label: 'ออเดอร์', activeGradient: 'from-blue-500 to-cyan-400' },
-  { path: '/lottery', icon: Ticket, label: 'หวย', activeGradient: 'from-purple-500 to-pink-500' },
+  { path: '/lottery', icon: Ticket, label: 'หวย', activeGradient: 'from-emerald-500 to-teal-500' },
   { path: '/cart', icon: ShoppingCart, label: 'ตะกร้า', showBadge: true, activeGradient: 'from-green-500 to-emerald-400' },
   { path: '/profile', icon: User, label: 'โปรไฟล์', activeGradient: 'from-gray-600 to-gray-500' },
 ]

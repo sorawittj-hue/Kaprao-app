@@ -21,7 +21,7 @@ export function QueueDisplay({ queue, status, compact = false }: QueueDisplayPro
     switch (t) {
       case 'A': return 'from-blue-500 to-blue-600'
       case 'B': return 'from-green-500 to-green-600'
-      case 'C': return 'from-purple-500 to-purple-600'
+      case 'C': return 'from-emerald-500 to-emerald-600'
       case 'D': return 'from-orange-500 to-orange-600'
       default: return 'from-gray-500 to-gray-600'
     }

@@ -56,7 +56,7 @@ export function AIRecommendations() {
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 50 }}
-        className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-4 text-white"
+        className="bg-gradient-to-r from-indigo-500 via-emerald-500 to-pink-500 rounded-2xl p-4 text-white"
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">

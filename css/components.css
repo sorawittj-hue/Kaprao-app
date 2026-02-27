@@ -95,7 +95,7 @@
 }
 
 
-.btn-gradient-purple {
+.btn-gradient-emerald {
     background: var(--text-main);
     /* Dark Button for contrast */
     color: white;
@@ -104,14 +104,14 @@
     transition: all 0.2s ease;
 }
 
-.btn-gradient-purple:hover {
+.btn-gradient-emerald:hover {
     background: #2D2420;
     /* Darker shade */
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
 
-.btn-gradient-purple:active {
+.btn-gradient-emerald:active {
     transform: scale(0.98);
 }
 

@@ -13,8 +13,8 @@ const slides = [
     action: 'ดูตั๋วของฉัน',
     icon: '🎟️',
     emoji: '🍀',
-    gradient: 'from-violet-600 via-purple-600 to-indigo-700',
-    accentColor: '#A78BFA',
+    gradient: 'from-emerald-600 via-emerald-600 to-indigo-700',
+    accentColor: '#34D399',
     particles: ['✨', '🎯', '🏆', '💫'],
   },
   {

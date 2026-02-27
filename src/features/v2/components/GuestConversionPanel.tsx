@@ -146,7 +146,7 @@ export function GuestConversionPanel({
               <p className="text-[10px] text-gray-400 mt-0.5">⭐ พอยต์</p>
             </div>
             <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
-              <p className="text-xl font-black text-purple-400">{ticketsToEarn}</p>
+              <p className="text-xl font-black text-emerald-400">{ticketsToEarn}</p>
               <p className="text-[10px] text-gray-400 mt-0.5">🎟️ ตั๋วหวย</p>
             </div>
             <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
@@ -200,7 +200,7 @@ export function GuestConversionPanel({
             <p className="text-[10px] text-gray-500">⭐ พอยต์</p>
           </div>
           <div className="bg-white/70 rounded-xl p-2.5 text-center">
-            <p className="font-black text-purple-600 text-xl">{ticketsToEarn}</p>
+            <p className="font-black text-emerald-600 text-xl">{ticketsToEarn}</p>
             <p className="text-[10px] text-gray-500">🎟️ ตั๋วหวย</p>
           </div>
           <div className="bg-white/70 rounded-xl p-2.5 text-center">

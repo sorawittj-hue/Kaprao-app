@@ -19,7 +19,7 @@ const tierOptions = [
   { value: 'MEMBER', label: 'สมาชิก', color: 'bg-gray-100 text-gray-600' },
   { value: 'SILVER', label: 'Silver', color: 'bg-gray-200 text-gray-700' },
   { value: 'GOLD', label: 'Gold', color: 'bg-yellow-100 text-yellow-700' },
-  { value: 'VIP', label: 'VIP', color: 'bg-purple-100 text-purple-700' },
+  { value: 'VIP', label: 'VIP', color: 'bg-emerald-100 text-emerald-700' },
 ]
 
 const sortOptions = [
@@ -181,7 +181,7 @@ export default function AdminCustomersPage() {
             icon={Crown}
             label="VIP & Gold"
             value={stats.vip + stats.gold}
-            color="bg-purple-100 text-purple-600"
+            color="bg-emerald-100 text-emerald-600"
           />
           <StatCard
             icon={Award}
@@ -371,7 +371,7 @@ function CustomerCard({ customer, index, onClick }: CustomerCardProps) {
               )}
               
               <div className="flex items-center gap-4 mt-2 text-sm">
-                <span className="flex items-center gap-1 text-purple-600 font-medium">
+                <span className="flex items-center gap-1 text-emerald-600 font-medium">
                   <Award className="w-4 h-4" />
                   {customer.points.toLocaleString()} พอยต์
                 </span>
@@ -413,7 +413,7 @@ function TierBadge({ tier, className = '' }: { tier: string; className?: string 
     MEMBER: 'bg-gray-100 text-gray-600 border-gray-200',
     SILVER: 'bg-gray-200 text-gray-700 border-gray-300',
     GOLD: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    VIP: 'bg-purple-100 text-purple-700 border-purple-200',
+    VIP: 'bg-emerald-100 text-emerald-700 border-emerald-200',
   }
 
   return (
@@ -468,10 +468,10 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-purple-50 rounded-xl p-4 text-center">
-              <Award className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-              <p className="text-2xl font-black text-purple-700">{customer.points.toLocaleString()}</p>
-              <p className="text-xs text-purple-600">พอยต์</p>
+            <div className="bg-emerald-50 rounded-xl p-4 text-center">
+              <Award className="w-6 h-6 text-emerald-600 mx-auto mb-2" />
+              <p className="text-2xl font-black text-emerald-700">{customer.points.toLocaleString()}</p>
+              <p className="text-xs text-emerald-600">พอยต์</p>
             </div>
             <div className="bg-blue-50 rounded-xl p-4 text-center">
               <ShoppingBag className="w-6 h-6 text-blue-600 mx-auto mb-2" />
@@ -547,7 +547,7 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
         <div className="p-6 border-t border-gray-100 flex gap-3">
           <button
             onClick={onUpdatePoints}
-            className="flex-1 px-4 py-3 bg-purple-500 text-white font-bold rounded-xl hover:bg-purple-600 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2"
           >
             <Gift className="w-5 h-5" />
             ปรับพอยต์
@@ -599,9 +599,9 @@ function PointsModal({
         <h3 className="text-xl font-bold text-gray-800 mb-2">ปรับพอยต์</h3>
         <p className="text-gray-500 mb-4">{customer.displayName}</p>
         
-        <div className="bg-purple-50 rounded-xl p-4 mb-4">
-          <p className="text-sm text-purple-600">พอยต์ปัจจุบัน</p>
-          <p className="text-2xl font-black text-purple-700">{customer.points.toLocaleString()} แต้ม</p>
+        <div className="bg-emerald-50 rounded-xl p-4 mb-4">
+          <p className="text-sm text-emerald-600">พอยต์ปัจจุบัน</p>
+          <p className="text-2xl font-black text-emerald-700">{customer.points.toLocaleString()} แต้ม</p>
         </div>
 
         <div className="mb-4">
@@ -647,7 +647,7 @@ function PointsModal({
           <button
             onClick={onConfirm}
             disabled={isLoading || !pointsToAdd}
-            className="flex-1 px-4 py-3 bg-purple-500 text-white font-bold rounded-xl hover:bg-purple-600 disabled:opacity-50 transition-colors"
+            className="flex-1 px-4 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 disabled:opacity-50 transition-colors"
           >
             {isLoading ? 'กำลังดำเนินการ...' : 'ยืนยัน'}
           </button>

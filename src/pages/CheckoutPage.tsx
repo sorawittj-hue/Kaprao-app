@@ -550,7 +550,7 @@ export default function CheckoutPage() {
         particleCount: 150,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#FF6B00', '#22C55E', '#8B5CF6'],
+        colors: ['#FF6B00', '#22C55E', '#10B981'],
       })
 
       addToast({

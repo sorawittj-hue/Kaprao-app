@@ -50,3 +50,7 @@ npm-debug.log*
 .roo/
 .trae/
 .windsurf/
+*audit*.txt
+tsc_output_debug.txt
+ux_audit_result.txt
+ux_audit_utf8*.txt

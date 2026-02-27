@@ -9,6 +9,7 @@ import { OrderCard } from '@/features/orders/components/OrderCard'
 import { OrderCardSkeleton } from '@/components/ui/Skeleton'
 import { staggerContainer, fadeInUp } from '@/animations/variants'
 import { trackPageView } from '@/lib/analytics'
+import { useSEO } from '@/hooks/useSEO'
 import { getOrCreateGuestIdentity } from '@/features/v2/api/unifiedOrderApi'
 
 export default function OrdersPage() {
@@ -28,6 +29,11 @@ export default function OrdersPage() {
   useEffect(() => {
     trackPageView('/orders', 'Orders')
   }, [])
+
+  useSEO({
+    title: 'ประวัติการสั่งซื้อ',
+    description: 'ติดตามสถานะออเดอร์และดูประวัติการสั่งซื้อกะเพราของคุณที่ กะเพรา 52'
+  })
 
   const activeOrders = orders?.filter(
     (o) => ['placed', 'confirmed', 'preparing', 'ready'].includes(o.status)

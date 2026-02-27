@@ -24,6 +24,7 @@ import { cn } from '@/utils/cn'
 import { hapticLight, hapticMedium } from '@/utils/haptics'
 import { getValidImageUrl } from '@/utils/getImageUrl'
 import { useCollaborativeCart, ShareCartButton, CollaborativeCartBadge, UserAvatar } from '@/features/collaboration/CollaborativeCart'
+import { useSEO } from '@/hooks/useSEO'
 
 export default function CartPage() {
   const navigate = useNavigate()
@@ -53,6 +54,11 @@ export default function CartPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useSEO({
+    title: 'ตะกร้าสินค้า',
+    description: 'ตรวจสอบรายการอาหารในตะกร้าของคุณ พร้อมสั่งกะเพรารสเด็ดที่ กะเพรา 52'
+  })
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)

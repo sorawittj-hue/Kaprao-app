@@ -24,12 +24,13 @@ import { StreakTracker } from '@/features/points/components/StreakTracker'
 import { getUserGamification, UserGamificationState } from '@/features/gamification/GamificationEngine'
 import { staggerContainer, fadeInUp } from '@/animations/variants'
 import { trackPageView } from '@/lib/analytics'
+import { useSEO } from '@/hooks/useSEO'
 
 const tierConfig = {
   MEMBER: { gradient: 'linear-gradient(135deg, #CD7F32, #E8A96A)', icon: '🥉', glow: 'rgba(205, 127, 50, 0.4)', label: 'สมาชิก' },
   SILVER: { gradient: 'linear-gradient(135deg, #62748E, #9DB2CC)', icon: '🥈', glow: 'rgba(98, 116, 142, 0.4)', label: 'Silver' },
   GOLD: { gradient: 'linear-gradient(135deg, #F59E0B, #FBBF24, #F59E0B)', icon: '👑', glow: 'rgba(245, 158, 11, 0.5)', label: 'Gold' },
-  VIP: { gradient: 'linear-gradient(135deg, #6C63FF, #A78BFA, #6C63FF)', icon: '💎', glow: 'rgba(108, 99, 255, 0.5)', label: 'VIP' },
+  VIP: { gradient: 'linear-gradient(135deg, #059669, #10B981, #059669)', icon: '💎', glow: 'rgba(5, 150, 105, 0.5)', label: 'VIP' },
 }
 
 type MenuItemConfig = {
@@ -56,6 +57,11 @@ export default function ProfilePage() {
   useEffect(() => {
     trackPageView('/profile', 'Profile')
   }, [])
+
+  useSEO({
+    title: 'ข้อมูลส่วนตัว',
+    description: 'จัดการข้อมูลส่วนตัว พอยท์ และรางวัลของคุณที่ กะเพรา 52'
+  })
 
   const [gameState, setGameState] = useState<UserGamificationState | null>(null)
 
@@ -123,7 +129,7 @@ export default function ProfilePage() {
       label: 'ตั๋วหวยของฉัน',
       onClick: () => navigate('/lottery'),
       iconBg: '#F5F3FF',
-      iconColor: '#8B5CF6',
+      iconColor: '#10B981',
     },
     {
       icon: Star,
@@ -164,7 +170,7 @@ export default function ProfilePage() {
       sublabel: 'จัดการร้านค้า',
       onClick: () => navigate('/admin'),
       iconBg: '#F5F3FF',
-      iconColor: '#7C3AED',
+      iconColor: '#059669',
     },
   ]
 
@@ -361,10 +367,10 @@ export default function ProfilePage() {
                 >
                   <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                     <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                      <Gift className="w-5 h-5 text-purple-500" />
+                      <Gift className="w-5 h-5 text-emerald-500" />
                       ความพยายาม & ป้ายรางวัล
                     </h3>
-                    <div className="text-xs bg-purple-50 text-purple-600 px-3 py-1 rounded-full font-bold">
+                    <div className="text-xs bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full font-bold">
                       {gameState.achievements.filter(a => a.progress >= a.maxProgress).length} / {gameState.achievements.length} ปลดล็อค
                     </div>
                   </div>
@@ -373,7 +379,7 @@ export default function ProfilePage() {
                       const isUnlocked = acc.progress >= acc.maxProgress
                       const progressPct = Math.min(100, (acc.progress / acc.maxProgress) * 100)
                       return (
-                        <div key={idx} className={`p-3 rounded-2xl border-2 transition-all ${isUnlocked ? 'border-purple-100 bg-purple-50/50' : 'border-gray-50 bg-gray-50/50'}`}>
+                        <div key={idx} className={`p-3 rounded-2xl border-2 transition-all ${isUnlocked ? 'border-emerald-100 bg-emerald-50/50' : 'border-gray-50 bg-gray-50/50'}`}>
                           <div className="flex items-center gap-3">
                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-white ${isUnlocked ? 'bg-white' : 'bg-gray-100 grayscale opacity-50'}`}>
                               {acc.icon}
@@ -387,7 +393,7 @@ export default function ProfilePage() {
                                 </div>
                               )}
                               {isUnlocked && (
-                                <div className="mt-1 text-[10px] text-purple-600 font-bold bg-white px-2 py-0.5 rounded inline-block shadow-sm">
+                                <div className="mt-1 text-[10px] text-emerald-600 font-bold bg-white px-2 py-0.5 rounded inline-block shadow-sm">
                                   +{acc.reward.points} pts
                                 </div>
                               )}

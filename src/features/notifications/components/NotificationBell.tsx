@@ -22,7 +22,7 @@ const colorMap: Record<NotificationType, string> = {
   order_status: 'bg-blue-100 text-blue-600',
   payment_received: 'bg-amber-100 text-amber-600',
   payment_verified: 'bg-green-100 text-green-600',
-  order_ready: 'bg-purple-100 text-purple-600',
+  order_ready: 'bg-emerald-100 text-emerald-600',
   promotion: 'bg-pink-100 text-pink-600',
   reminder: 'bg-gray-100 text-gray-600',
   system: 'bg-gray-100 text-gray-600',

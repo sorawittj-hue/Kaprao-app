@@ -651,7 +651,7 @@ function OrderDetailModal({ order, onClose, onUpdateStatus, onPrint, isUpdating 
                 </div>
               )}
               {order.pointsRedeemed > 0 && (
-                <div className="flex justify-between text-purple-600">
+                <div className="flex justify-between text-emerald-600">
                   <span>ใช้พอยต์</span>
                   <span>-{order.pointsRedeemed} พอยต์</span>
                 </div>

@@ -133,7 +133,7 @@ export default function AdminDashboard() {
       title: 'รายได้สัปดาห์นี้',
       value: formatPrice(stats?.weekRevenue || 0),
       icon: TrendingUp,
-      color: 'bg-purple-100 text-purple-600',
+      color: 'bg-emerald-100 text-emerald-600',
       trend: '+15%',
       trendUp: true,
       subtitle: 'สะสม 7 วัน'
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
     {
       label: 'รายงาน',
       icon: BarChart3,
-      color: 'bg-purple-500',
+      color: 'bg-emerald-500',
       action: () => navigate('/admin/reports')
     },
   ]

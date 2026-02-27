@@ -1,154 +1,125 @@
 import { useMemo } from 'react'
+import type { MenuItem } from '@/types'
 import { motion } from 'framer-motion'
-import { Plus, Sparkles, TrendingUp } from 'lucide-react'
-import { useCartStore, useUIStore } from '@/store'
+import { Sparkles, Plus, ChevronRight } from 'lucide-react'
+import { useCartStore } from '@/features/cart/store/cartStore'
 import { useMenuItems } from '@/features/menu/hooks/useMenu'
 import { formatPrice } from '@/utils/formatPrice'
-import { cn } from '@/utils/cn'
-import { hapticLight } from '@/utils/haptics'
 import { getValidImageUrl } from '@/utils/getImageUrl'
+import { hapticLight, hapticMedium } from '@/utils/haptics'
 
 export function SmartUpsell() {
-  const { items, addItem } = useCartStore()
-  const { addToast } = useUIStore()
-  const { data: menuItems } = useMenuItems()
+    const { items, addItem } = useCartStore()
+    const { data: menuItems, isLoading } = useMenuItems()
 
-  // Smart recommendations based on cart contents
-  const recommendations = useMemo(() => {
-    if (!menuItems || items.length === 0) return []
+    // Logic to suggest items:
+    // 1. Not already in cart
+    // 2. Is available
+    // 3. Prioritize 'others' (drinks/sides) or 'recommended'
+    const recommendations = useMemo(() => {
+        if (!menuItems || menuItems.length === 0) return []
 
-    const cartItemIds = new Set(items.map(i => i.menuItem.id))
-    const cartCategories = new Set(items.map(i => i.menuItem.category))
+        const cartItemIds = new Set(items.map((i) => i.menuItem.id))
 
-    // Common pairings
-    const hasMainDish = cartCategories.has('kaprao') || cartCategories.has('bamboo') ||
-      cartCategories.has('garlic') || cartCategories.has('curry') ||
-      cartCategories.has('noodle')
+        return menuItems
+            .filter((item) => !cartItemIds.has(item.id) && item.isAvailable)
+            .sort((a, b) => {
+                // Boost 'others' category (usually drinks/sides that people forget)
+                if (a.category === 'others' && b.category !== 'others') return -1
+                if (a.category !== 'others' && b.category === 'others') return 1
 
-    // Check if they already have an egg item in cart by searching names
-    const hasEgg = items.some(i => i.menuItem.name.includes('ไข่'))
+                // Boost recommended items
+                if (a.isRecommended && !b.isRecommended) return -1
+                if (!a.isRecommended && b.isRecommended) return 1
 
-    const suggestions: Array<{ item: typeof menuItems[0]; reason: string; discount: number }> = []
+                return 0
+            })
+            .slice(0, 3)
+    }, [menuItems, items])
 
-    // Suggest side dishes if cart only has main dishes
-    if (hasMainDish) {
-      const sideDishes = menuItems.filter(i => i.category === 'others' && i.isAvailable && !cartItemIds.has(i.id))
-      if (sideDishes.length > 0) {
-        suggestions.push({
-          item: sideDishes[0],
-          reason: 'คู่กับอาหารจานนี้',
-          discount: 5,
-        })
-      }
+    const handleAddItem = (item: MenuItem) => {
+        hapticMedium()
+        addItem(item, 1, [])
     }
 
-    // Suggest egg dish if no egg in cart
-    if (hasMainDish && !hasEgg) {
-      const eggDishes = menuItems.filter(i => i.name.includes('ไข่') && i.isAvailable && !cartItemIds.has(i.id))
-      if (eggDishes.length > 0) {
-        suggestions.push({
-          item: eggDishes[0],
-          reason: 'เพิ่มเมนูไข่เข้าไป',
-          discount: 0,
-        })
-      }
-    }
+    if (isLoading || recommendations.length === 0) return null
 
-    // Suggest popular add-ons
-    const popularItems = menuItems.filter(i =>
-      i.isRecommended &&
-      i.isAvailable &&
-      !cartItemIds.has(i.id) &&
-      !suggestions.some(s => s.item.id === i.id)
-    )
-
-    if (popularItems.length > 0 && suggestions.length < 3) {
-      suggestions.push({
-        item: popularItems[0],
-        reason: 'ขายดีประจำวัน',
-        discount: 0,
-      })
-    }
-
-    return suggestions.slice(0, 2)
-  }, [menuItems, items])
-
-  const handleAdd = (item: typeof recommendations[0]['item']) => {
-    hapticLight()
-    addItem(item, 1, [])
-    addToast({
-      type: 'cart-add',
-      title: 'เพิ่มลงตะกร้าแล้ว',
-      message: item.name,
-      imageUrl: item.imageUrl,
-    })
-  }
-
-  if (recommendations.length === 0) return null
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 border border-purple-100"
-    >
-      <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-4 h-4 text-purple-500" />
-        <h3 className="font-bold text-purple-800 text-sm">แนะนำสำหรับคุณ</h3>
-      </div>
-
-      <div className="space-y-3">
-        {recommendations.map(({ item, reason, discount }) => (
-          <motion.div
-            key={item.id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-3 bg-white rounded-xl p-2 shadow-sm"
-          >
-            <img
-              src={getValidImageUrl(item.imageUrl)}
-              alt={item.name}
-              className="w-14 h-14 rounded-lg object-cover bg-gray-100"
-            />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1">
-                <p className="font-bold text-gray-800 text-sm truncate">{item.name}</p>
-                {discount > 0 && (
-                  <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full">
-                    -{discount}฿
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-1 text-xs text-purple-600">
-                <TrendingUp className="w-3 h-3" />
-                <span>{reason}</span>
-              </div>
-              <p className="text-sm font-bold text-brand-600 mt-0.5">
-                {discount > 0 ? (
-                  <>
-                    <span className="text-gray-400 line-through text-xs mr-1">
-                      {formatPrice(item.price)}
-                    </span>
-                    {formatPrice(item.price - discount)}
-                  </>
-                ) : (
-                  formatPrice(item.price)
-                )}
-              </p>
+    return (
+        <div className="space-y-3 mt-6">
+            <div className="flex items-center justify-between px-1">
+                <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    รับอะไรเพิ่มไหมคะ?
+                </h3>
+                <span className="text-[10px] font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Smart Suggest
+                </span>
             </div>
-            <button
-              onClick={() => handleAdd(item)}
-              className={cn(
-                'w-9 h-9 rounded-full flex items-center justify-center',
-                'bg-purple-500 text-white shadow-md',
-                'active:scale-90 transition-transform'
-              )}
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-          </motion.div>
-        ))}
-      </div>
-    </motion.div>
-  )
+
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+                {recommendations.map((item, index) => (
+                    <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex-shrink-0 w-[240px]"
+                    >
+                        <div className="bg-white rounded-2xl p-3 border border-gray-100 shadow-sm hover:shadow-md transition-all active:scale-[0.98] relative overflow-hidden group">
+                            {/* Background Accent */}
+                            <div className="absolute top-0 right-0 w-16 h-16 bg-brand-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-500" />
+
+                            <div className="flex gap-3 relative z-10">
+                                <div className="relative">
+                                    <img
+                                        src={getValidImageUrl(item.imageUrl)}
+                                        alt={item.name}
+                                        className="w-16 h-16 rounded-xl object-cover bg-gray-50 border border-gray-50 shadow-sm"
+                                    />
+                                    {item.isRecommended && (
+                                        <div className="absolute -top-1 -left-1 bg-amber-400 text-white p-0.5 rounded-md shadow-sm">
+                                            <Sparkles className="w-3 h-3" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                                    <div>
+                                        <h4 className="font-bold text-sm text-gray-800 truncate leading-tight">
+                                            {item.name}
+                                        </h4>
+                                        <p className="text-xs text-brand-600 font-black mt-0.5">
+                                            {formatPrice(item.price)}
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        onClick={() => handleAddItem(item)}
+                                        className="mt-2 flex items-center justify-center gap-1 bg-brand-500 text-white text-[11px] font-bold py-1.5 px-3 rounded-lg shadow-sm shadow-brand-200 active:scale-90 transition-transform"
+                                    >
+                                        <Plus className="w-3 h-3" strokeWidth={3} />
+                                        เพิ่มเลย
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                ))}
+
+                {/* "View More" placeholder/card */}
+                <motion.button
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: recommendations.length * 0.1 }}
+                    onClick={() => hapticLight()}
+                    className="flex-shrink-0 w-24 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 text-gray-400 active:bg-gray-100 transition-colors"
+                >
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
+                        <ChevronRight className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] font-bold">ดูทั้งหมด</span>
+                </motion.button>
+            </div>
+        </div>
+    )
 }

@@ -108,7 +108,7 @@ export default function LotteryPage() {
         >
           {/* Hero Banner */}
           <motion.div variants={fadeInUp}>
-            <Card className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white border-none overflow-hidden">
+            <Card className="bg-gradient-to-br from-emerald-600 to-indigo-600 text-white border-none overflow-hidden">
               <div className="p-6 relative">
                 {/* Background decoration */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -165,13 +165,13 @@ export default function LotteryPage() {
                 className={cn(
                   'flex-1 py-2.5 rounded-lg text-sm font-bold transition-all',
                   activeTab === 'my'
-                    ? 'bg-white text-purple-600 shadow-sm'
+                    ? 'bg-white text-emerald-600 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                 )}
               >
                 ตั๋วของฉัน
                 {tickets && tickets.length > 0 && (
-                  <span className="ml-1.5 bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full text-xs">
+                  <span className="ml-1.5 bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded-full text-xs">
                     {tickets.length}
                   </span>
                 )}
@@ -181,7 +181,7 @@ export default function LotteryPage() {
                 className={cn(
                   'flex-1 py-2.5 rounded-lg text-sm font-bold transition-all',
                   activeTab === 'result'
-                    ? 'bg-white text-purple-600 shadow-sm'
+                    ? 'bg-white text-emerald-600 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                 )}
               >
@@ -195,7 +195,7 @@ export default function LotteryPage() {
             <motion.div variants={fadeInUp}>
               {ticketsLoading ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                  <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
                 </div>
               ) : tickets && tickets.length > 0 ? (
                 <div className="space-y-4">
@@ -203,7 +203,7 @@ export default function LotteryPage() {
                   {upcomingTickets.length > 0 && (
                     <div>
                       <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                        <Ticket className="w-5 h-5 text-purple-500" />
+                        <Ticket className="w-5 h-5 text-emerald-500" />
                         ตั๋วที่รอลุ้น ({upcomingTickets.length})
                       </h3>
                       <div className="grid gap-3">
@@ -254,7 +254,7 @@ export default function LotteryPage() {
             <motion.div variants={fadeInUp}>
               {latestResult ? (
                 <Card className="overflow-hidden">
-                  <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
+                  <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-emerald-500 to-indigo-500 text-white">
                     <h3 className="font-bold flex items-center gap-2">
                       <Trophy className="w-5 h-5" />
                       ผลรางวัลล่าสุด
@@ -266,8 +266,8 @@ export default function LotteryPage() {
                   <div className="p-4 space-y-4">
                     <div className="text-center">
                       <p className="text-sm text-gray-500 mb-2">เลขท้าย 2 ตัว</p>
-                      <div className="inline-flex items-center justify-center w-24 h-16 bg-purple-100 rounded-xl">
-                        <span className="text-3xl font-black text-purple-600">
+                      <div className="inline-flex items-center justify-center w-24 h-16 bg-emerald-100 rounded-xl">
+                        <span className="text-3xl font-black text-emerald-600">
                           {latestResult.last2}
                         </span>
                       </div>
@@ -372,7 +372,7 @@ function TicketCard({
           <div className="flex items-center gap-2">
             <Ticket className={cn(
               'w-5 h-5',
-              isWinner ? 'text-yellow-500' : 'text-purple-500'
+              isWinner ? 'text-yellow-500' : 'text-emerald-500'
             )} />
             <span className="text-xs text-gray-500">
               ออเดอร์ #{ticket.orderId}

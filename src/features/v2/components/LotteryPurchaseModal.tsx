@@ -66,7 +66,7 @@ export function LotteryPurchaseModal({
             style={{ maxHeight: '85vh' }}
           >
             {/* Header */}
-            <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-6 text-white relative">
+            <div className="bg-gradient-to-br from-emerald-600 to-indigo-600 p-6 text-white relative">
               <button
                 onClick={onClose}
                 className="absolute top-4 right-4 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
@@ -80,7 +80,7 @@ export function LotteryPurchaseModal({
                 </div>
                 <div>
                   <h2 className="text-xl font-black">ซื้อตั๋วหวย</h2>
-                  <p className="text-purple-200 text-sm">ใช้พอยต์แลกตั๋วลุ้นโชค</p>
+                  <p className="text-emerald-200 text-sm">ใช้พอยต์แลกตั๋วลุ้นโชค</p>
                 </div>
               </div>
             </div>
@@ -100,11 +100,11 @@ export function LotteryPurchaseModal({
                       className={cn(
                         "p-3 rounded-xl border-2 transition-all text-center",
                         selectedPrice.type === price.type
-                          ? "border-purple-500 bg-purple-50"
-                          : "border-gray-200 hover:border-purple-300"
+                          ? "border-emerald-500 bg-emerald-50"
+                          : "border-gray-200 hover:border-emerald-300"
                       )}
                     >
-                      <p className="font-black text-lg text-purple-600">
+                      <p className="font-black text-lg text-emerald-600">
                         {price.numberLength} ตัว
                       </p>
                       <p className="text-xs text-gray-500">{price.points} pts</p>
@@ -140,14 +140,14 @@ export function LotteryPurchaseModal({
                     setNumber(val)
                   }}
                   placeholder={`กรอกเลข ${selectedPrice.numberLength} ตัว`}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none text-center text-2xl font-bold tracking-widest"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none text-center text-2xl font-bold tracking-widest"
                   maxLength={selectedPrice.numberLength}
                 />
 
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={generate}
-                    className="flex-1 py-2 rounded-lg bg-purple-100 text-purple-600 font-bold text-sm flex items-center justify-center gap-1"
+                    className="flex-1 py-2 rounded-lg bg-emerald-100 text-emerald-600 font-bold text-sm flex items-center justify-center gap-1"
                   >
                     <Sparkles className="w-4 h-4" />
                     สุ่มเลข
@@ -197,7 +197,7 @@ export function LotteryPurchaseModal({
                   disabled={!canPurchase}
                   onClick={handlePurchase}
                   className={cn(
-                    "bg-gradient-to-r from-purple-600 to-indigo-600",
+                    "bg-gradient-to-r from-emerald-600 to-indigo-600",
                     !canPurchase && "opacity-50 cursor-not-allowed"
                   )}
                 >

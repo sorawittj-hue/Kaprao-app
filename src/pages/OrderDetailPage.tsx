@@ -153,7 +153,7 @@ export default function OrderDetailPage() {
                     <p className="text-[10px] text-gray-400 mt-0.5">⭐ พอยต์</p>
                   </div>
                   <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                    <p className="text-xl font-black text-purple-400">{ticketsMissed}</p>
+                    <p className="text-xl font-black text-emerald-400">{ticketsMissed}</p>
                     <p className="text-[10px] text-gray-400 mt-0.5">🎟️ ตั๋วหวย</p>
                   </div>
                   <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
