@@ -28,6 +28,27 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('💥 Error details:', error)
     console.error('💥 Component stack:', errorInfo.componentStack)
     this.setState({ errorInfo })
+
+    // Check for dynamic import failure
+    const errorMessage = error.toString()
+    const isChunkFailure =
+      error.name === 'TypeError' &&
+      (errorMessage.includes('Failed to fetch dynamically imported module') ||
+        errorMessage.includes('Importing a module script failed') ||
+        errorMessage.includes('error loading dynamically imported module'))
+
+    if (isChunkFailure) {
+      const lastReload = window.sessionStorage.getItem('last-chunk-failure-reload')
+      const now = Date.now()
+
+      // Only auto-reload if we haven't reloaded in the last 10 seconds
+      // to avoid infinite loops if the server is actually down
+      if (!lastReload || now - parseInt(lastReload) > 10000) {
+        window.sessionStorage.setItem('last-chunk-failure-reload', now.toString())
+        console.log('🔄 Detected dynamic import failure. Forcing reload to get latest version...')
+        window.location.reload()
+      }
+    }
   }
 
   private handleReset = () => {
@@ -48,11 +69,11 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-4xl">💥</span>
             </div>
-            
+
             <h1 className="text-2xl font-black text-gray-800 mb-2">
               เกิดข้อผิดพลาด
             </h1>
-            
+
             <p className="text-gray-500 mb-6">
               ขออภัย แอพพลิเคชันเกิดข้อผิดพลาด unexpectedly
             </p>
@@ -65,7 +86,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
             )}
 
-            <Button 
+            <Button
               onClick={this.handleReset}
               fullWidth
             >

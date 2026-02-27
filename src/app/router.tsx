@@ -1,26 +1,27 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
-import { Suspense, lazy } from 'react'
+import { Suspense } from 'react'
+import { lazyWithRetry } from '@/utils/lazyWithRetry'
 import { AppProviders } from './providers/AppProviders'
 import { RootLayout } from './layout/RootLayout'
 import { AdminLayout } from './layout/AdminLayout'
 import { LoadingScreen } from '@/components/feedback/LoadingScreen'
 import { ErrorBoundary } from '@/components/feedback/ErrorBoundary'
 
-// Lazy load pages for code splitting
-const HomePage = lazy(() => import('@/pages/HomePage'))
-const CartPage = lazy(() => import('@/pages/CartPage'))
-const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'))
-const OrdersPage = lazy(() => import('@/pages/OrdersPage'))
-const OrderDetailPage = lazy(() => import('@/pages/OrderDetailPage'))
-const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
-const LotteryPage = lazy(() => import('@/pages/LotteryPage'))
-const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'))
-const AdminOrdersPage = lazy(() => import('@/pages/admin/AdminOrdersPage'))
-const AdminMenuPage = lazy(() => import('@/pages/admin/AdminMenuPage'))
-const AdminCustomersPage = lazy(() => import('@/pages/admin/AdminCustomersPage'))
-const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage'))
-const PrivacyPolicyPage = lazy(() => import('@/pages/legal/PrivacyPolicyPage'))
-const TermsOfServicePage = lazy(() => import('@/pages/legal/TermsOfServicePage'))
+// Lazy load pages for code splitting with automatic retry on failure
+const HomePage = lazyWithRetry(() => import('@/pages/HomePage'))
+const CartPage = lazyWithRetry(() => import('@/pages/CartPage'))
+const CheckoutPage = lazyWithRetry(() => import('@/pages/CheckoutPage'))
+const OrdersPage = lazyWithRetry(() => import('@/pages/OrdersPage'))
+const OrderDetailPage = lazyWithRetry(() => import('@/pages/OrderDetailPage'))
+const ProfilePage = lazyWithRetry(() => import('@/pages/ProfilePage'))
+const LotteryPage = lazyWithRetry(() => import('@/pages/LotteryPage'))
+const AdminDashboard = lazyWithRetry(() => import('@/pages/admin/AdminDashboard'))
+const AdminOrdersPage = lazyWithRetry(() => import('@/pages/admin/AdminOrdersPage'))
+const AdminMenuPage = lazyWithRetry(() => import('@/pages/admin/AdminMenuPage'))
+const AdminCustomersPage = lazyWithRetry(() => import('@/pages/admin/AdminCustomersPage'))
+const AdminSettingsPage = lazyWithRetry(() => import('@/pages/admin/AdminSettingsPage'))
+const PrivacyPolicyPage = lazyWithRetry(() => import('@/pages/legal/PrivacyPolicyPage'))
+const TermsOfServicePage = lazyWithRetry(() => import('@/pages/legal/TermsOfServicePage'))
 
 // Loading fallback
 // eslint-disable-next-line react-refresh/only-export-components
