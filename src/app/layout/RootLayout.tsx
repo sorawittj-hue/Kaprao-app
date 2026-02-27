@@ -21,7 +21,7 @@ export function RootLayout() {
 
       {/* Main content */}
       <main className="pb-24 safe-area-x">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           <motion.div
             key={location.pathname}
             initial={reducedMotion ? false : "hidden"}
