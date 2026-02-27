@@ -10,7 +10,7 @@ export function LoadingScreen({ message = 'กำลังโหลด...' }: Lo
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[300] bg-surface flex flex-col items-center justify-center"
+      className="fixed inset-0 z-[45] bg-surface flex flex-col items-center justify-center p-6 text-center"
     >
       {/* Animated Logo */}
       <div className="relative mb-8">
@@ -27,7 +27,7 @@ export function LoadingScreen({ message = 'กำลังโหลด...' }: Lo
         >
           🍳
         </motion.div>
-        
+
         {/* Steam particles */}
         {[...Array(3)].map((_, i) => (
           <motion.span
@@ -49,7 +49,7 @@ export function LoadingScreen({ message = 'กำลังโหลด...' }: Lo
           </motion.span>
         ))}
       </div>
-      
+
       <motion.h1
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -58,7 +58,7 @@ export function LoadingScreen({ message = 'กำลังโหลด...' }: Lo
       >
         KAPRAO<span className="text-brand-500">52</span>
       </motion.h1>
-      
+
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -67,7 +67,7 @@ export function LoadingScreen({ message = 'กำลังโหลด...' }: Lo
       >
         {message}
       </motion.p>
-      
+
       {/* Loading dots */}
       <div className="flex gap-1 mt-4">
         {[...Array(3)].map((_, i) => (
