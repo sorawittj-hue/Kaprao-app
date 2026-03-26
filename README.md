@@ -278,3 +278,7 @@ Private project — developed for Kaprao52 street food shop.
 
 **Developed with ❤️ by Sorawittj**
 *Version 3.0 — World-Class Edition 🚀*
+
+ #   K a p r a o - a p p   ( N e w   R e p o s i t o r y ) 
+ L a t e s t   p u s h   b y   s o r a w i t t j - h u e  
+ 
