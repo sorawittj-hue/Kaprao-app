@@ -54,3 +54,17 @@ npm-debug.log*
 tsc_output_debug.txt
 ux_audit_result.txt
 ux_audit_utf8*.txt
+
+# Build/lint/test output files
+*_output*.txt
+*_errors*.txt
+*_debug*.txt
+build_output*.txt
+fresh_tsc*.txt
+lint_*.txt
+tsc_*.txt
+test_output*.txt
+test_report.json
+report.txt
+output.txt
+ts_errors.txt

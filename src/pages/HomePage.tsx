@@ -58,9 +58,10 @@ export default function HomePage() {
   })
 
   // Filter items based on category and search
+  const favorites = useMenuStore(s => s.favorites)
   const filteredItems = menuItems ? (searchQuery ? searchEngine.search(menuItems, searchQuery).map(r => r.item) : menuItems.filter((item) => {
     if (activeCategory === 'favorites') {
-      return useMenuStore.getState().favorites.includes(item.id)
+      return favorites.includes(item.id)
     }
     return item.category === activeCategory
   })) : []
@@ -95,10 +96,12 @@ export default function HomePage() {
     addItem(item, 1, selectedOptions)
   }
 
-  // Handle quick reorder
-  const handleQuickReorder = (order: { items: { name: string; quantity: number; price: number }[] }) => {
+  // Handle quick reorder — match by ID for reliability
+  const handleQuickReorder = (order: { items: { name: string; quantity: number; price: number; menuItemId?: number }[] }) => {
     order.items.forEach(orderItem => {
-      const menuItem = menuItems?.find(m => m.name === orderItem.name)
+      const menuItem = menuItems?.find(m => 
+        (orderItem.menuItemId && m.id === orderItem.menuItemId) || m.name === orderItem.name
+      )
       if (menuItem) {
         addItem(menuItem, orderItem.quantity, [])
       }
@@ -108,7 +111,7 @@ export default function HomePage() {
   const scrambledTitle = useTextScramble('KAPRAO', true)
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen pb-24 bg-surface">
       {/* Header */}
       <header
         className="sticky top-0 z-30 safe-area-pt"
@@ -259,8 +262,8 @@ export default function HomePage() {
                 icon={Gift}
                 label="วงล้อ"
                 badge={spinsLeft > 0 ? spinsLeft.toString() : undefined}
-                gradient="from-pink-500 to-emerald-600"
-                shadowColor="rgba(168, 85, 247, 0.4)"
+                gradient="from-amber-500 to-orange-500"
+                shadowColor="rgba(245, 158, 11, 0.4)"
                 emoji="🎰"
                 onClick={() => setShowWheel(true)}
               />
@@ -413,7 +416,7 @@ function GreetingPill({ displayName, isGuest }: GreetingPillProps) {
     } else if (hour >= 17 && hour < 21) {
       setGreeting('สวัสดีตอนเย็น')
       setIcon('🌅')
-      setStyle({ bg: '#F3E8FF', text: '#059669' })
+      setStyle({ bg: '#FFF5EB', text: '#E66000' })
     } else {
       setGreeting('ราตรีสวัสดิ์')
       setIcon('🌙')

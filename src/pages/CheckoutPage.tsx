@@ -480,7 +480,7 @@ export default function CheckoutPage() {
         pointsEarned: unifiedOrder.pointsEarned,
         paymentMethod: unifiedOrder.paymentMethod,
         paymentStatus: unifiedOrder.paymentStatus,
-        trackingToken: undefined, // Will be handled by guest_id system
+        trackingToken: unifiedOrder.guestId || undefined,
         createdAt: unifiedOrder.createdAt,
         updatedAt: unifiedOrder.updatedAt,
         estimatedReadyTime: unifiedOrder.estimatedReadyTime,

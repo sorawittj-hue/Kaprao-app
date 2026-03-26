@@ -19,12 +19,13 @@ import {
 import { useAuthStore, useUIStore } from '@/store'
 import { Container } from '@/components/layout/Container'
 import { logout, loginWithLine } from '@/lib/auth'
-import { useUserPoints, usePointsCalculator } from '@/features/points/hooks/usePoints'
+import { useUserPoints, usePointsCalculator, useRedeemPoints } from '@/features/points/hooks/usePoints'
 import { StreakTracker } from '@/features/points/components/StreakTracker'
 import { getUserGamification, UserGamificationState } from '@/features/gamification/GamificationEngine'
 import { staggerContainer, fadeInUp } from '@/animations/variants'
 import { trackPageView } from '@/lib/analytics'
 import { useSEO } from '@/hooks/useSEO'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 
 const tierConfig = {
   MEMBER: { gradient: 'linear-gradient(135deg, #CD7F32, #E8A96A)', icon: '🥉', glow: 'rgba(205, 127, 50, 0.4)', label: 'สมาชิก' },
@@ -48,6 +49,13 @@ export default function ProfilePage() {
   const { addToast } = useUIStore()
 
   const [activeModal, setActiveModal] = useState<'points' | 'rewards' | 'settings' | 'help' | null>(null)
+  const [isRedeeming, setIsRedeeming] = useState(false)
+  const { mutateAsync: redeemPoints } = useRedeemPoints()
+
+  // Settings state with persistence
+  const [notifOrders, setNotifOrders] = useLocalStorage('kaprao_settings_notif_orders', true)
+  const [notifPromos, setNotifPromos] = useLocalStorage('kaprao_settings_notif_promos', false)
+  const [haptics, setHaptics] = useLocalStorage('kaprao_settings_haptics', true)
 
   // Only fetch points for real logged-in users (not guest, not anonymous)
   const isRealUser = !!user?.id && !!user?.lineUserId
@@ -128,7 +136,7 @@ export default function ProfilePage() {
       icon: Ticket,
       label: 'ตั๋วหวยของฉัน',
       onClick: () => navigate('/lottery'),
-      iconBg: '#F5F3FF',
+      iconBg: '#ECFDF5',
       iconColor: '#10B981',
     },
     {
@@ -164,18 +172,19 @@ export default function ProfilePage() {
       iconBg: '#F9FAFB',
       iconColor: '#4B5563',
     },
-    {
+    // Only show admin link for LINE-authenticated users
+    ...(isRealUser ? [{
       icon: Shield,
       label: 'แอดมิน',
       sublabel: 'จัดการร้านค้า',
       onClick: () => navigate('/admin'),
-      iconBg: '#F5F3FF',
+      iconBg: '#F0FDF4',
       iconColor: '#059669',
-    },
+    }] : []),
   ]
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen pb-28 bg-surface">
       <Container className="py-5">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -562,17 +571,31 @@ export default function ProfilePage() {
                           <div className="mt-auto w-full">
                             <p className="text-xs text-brand-600 font-black mb-2">{r.pts} pts</p>
                             <button
-                              onClick={() => {
+                              disabled={isRedeeming}
+                              onClick={async () => {
                                 if (userPoints < r.pts) {
                                   addToast({ type: 'error', title: 'พอยต์ไม่พอคะ', message: `ขาดอีกแค่ ${r.pts - userPoints} pts ก็แลกได้แล้วค่ะ!` })
-                                } else {
-                                  addToast({ type: 'success', title: 'แลกสำเร็จ!', message: 'ตั๋วรางวัลจะไปอยู่ในระบบของร้าน' })
+                                  return
+                                }
+                                if (!user?.id) {
+                                  addToast({ type: 'error', title: 'กรุณาเข้าสู่ระบบ', message: 'ต้อง Login LINE ก่อนแลกรางวัล' })
+                                  return
+                                }
+                                setIsRedeeming(true)
+                                try {
+                                  await redeemPoints({ userId: user.id, amount: r.pts })
+                                  useAuthStore.getState().updatePoints(userPoints - r.pts)
+                                  addToast({ type: 'success', title: 'แลกสำเร็จ!', message: `แลก "${r.title}" เรียบร้อย ใช้ ${r.pts} pts` })
                                   setActiveModal(null)
+                                } catch (err) {
+                                  addToast({ type: 'error', title: 'แลกไม่สำเร็จ', message: 'กรุณาลองใหม่อีกครั้ง' })
+                                } finally {
+                                  setIsRedeeming(false)
                                 }
                               }}
                               className={`w-full py-2.5 rounded-xl text-xs font-black transition-all ${userPoints >= r.pts ? 'bg-brand-500 text-white hover:bg-brand-600 active:scale-95 shadow-sm' : 'bg-white border text-gray-400'}`}
                             >
-                              {userPoints >= r.pts ? 'กดยืนยันแลก' : 'พอยต์ไม่พอ'}
+                              {isRedeeming ? 'กำลังแลก...' : userPoints >= r.pts ? 'กดยืนยันแลก' : 'พอยต์ไม่พอ'}
                             </button>
                           </div>
                         </div>
@@ -591,7 +614,12 @@ export default function ProfilePage() {
                             <p className="font-bold text-gray-800 text-sm">สถานะออเดอร์</p>
                             <p className="text-xs text-gray-500 mt-0.5">แจ้งเตือนเมื่อกำลังเตรียม</p>
                           </div>
-                          <div className="w-12 h-7 bg-brand-500 rounded-full flex items-center px-1 cursor-pointer transition-colors"><div className="w-5 h-5 bg-white rounded-full ml-auto shadow-sm" /></div>
+                          <button
+                            onClick={() => setNotifOrders(!notifOrders)}
+                            className={`w-12 h-7 rounded-full flex items-center px-1 cursor-pointer transition-colors ${notifOrders ? 'bg-brand-500' : 'bg-gray-300'}`}
+                          >
+                            <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${notifOrders ? 'translate-x-5' : 'translate-x-0'}`} />
+                          </button>
                         </div>
                         <div className="w-full h-px bg-gray-200" />
                         <div className="flex items-center justify-between">
@@ -599,7 +627,12 @@ export default function ProfilePage() {
                             <p className="font-bold text-gray-800 text-sm">ส่วนลดพิเศษ</p>
                             <p className="text-xs text-gray-500 mt-0.5">รับข้อเสนอและโปรลับ</p>
                           </div>
-                          <div className="w-12 h-7 bg-gray-300 rounded-full flex items-center px-1 cursor-pointer transition-colors"><div className="w-5 h-5 bg-white rounded-full shadow-sm" /></div>
+                          <button
+                            onClick={() => setNotifPromos(!notifPromos)}
+                            className={`w-12 h-7 rounded-full flex items-center px-1 cursor-pointer transition-colors ${notifPromos ? 'bg-brand-500' : 'bg-gray-300'}`}
+                          >
+                            <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${notifPromos ? 'translate-x-5' : 'translate-x-0'}`} />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -612,7 +645,12 @@ export default function ProfilePage() {
                             <p className="font-bold text-gray-800 text-sm">Effect การกดสั่น (Haptics)</p>
                             <p className="text-xs text-gray-500 mt-0.5">เพิ่มประสบการณ์กดปุ่มมันส์ๆ</p>
                           </div>
-                          <div className="w-12 h-7 bg-brand-500 rounded-full flex items-center px-1 cursor-pointer transition-colors"><div className="w-5 h-5 bg-white rounded-full ml-auto shadow-sm" /></div>
+                          <button
+                            onClick={() => setHaptics(!haptics)}
+                            className={`w-12 h-7 rounded-full flex items-center px-1 cursor-pointer transition-colors ${haptics ? 'bg-brand-500' : 'bg-gray-300'}`}
+                          >
+                            <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${haptics ? 'translate-x-5' : 'translate-x-0'}`} />
+                          </button>
                         </div>
                       </div>
                     </div>

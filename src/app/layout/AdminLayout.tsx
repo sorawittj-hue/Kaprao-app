@@ -42,15 +42,18 @@ export function AdminLayout() {
   
   const { data: stats } = useAdminStats()
 
-  // Check admin status
+  // Check admin status — require LINE-authenticated user
   useEffect(() => {
-    const checkAdmin = async () => {
-      // DEV MODE: Allow all users including guests to access admin
-      setIsAdmin(true)
+    if (!user?.lineUserId) {
+      setIsAdmin(false)
+      return
     }
-    
-    checkAdmin()
-  }, [])
+
+    // Check admin via env-based allowlist
+    const adminIds = (import.meta.env.VITE_ADMIN_LINE_IDS || '').split(',').filter(Boolean)
+    // If no admin IDs configured, allow all LINE-authenticated users (dev mode)
+    setIsAdmin(adminIds.length === 0 || adminIds.includes(user.lineUserId))
+  }, [user?.lineUserId])
 
   // Subscribe to realtime orders
   useEffect(() => {
