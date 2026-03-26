@@ -2,6 +2,10 @@ import { supabase } from '@/lib/supabase'
 import type { Notification, NotificationType } from '../types'
 
 export async function getNotifications(userId: string): Promise<Notification[]> {
+  if (!userId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+    return []
+  }
+
   const { data, error } = await supabase
     .from('notifications')
     .select('*')
@@ -14,6 +18,10 @@ export async function getNotifications(userId: string): Promise<Notification[]> 
 }
 
 export async function getUnreadCount(userId: string): Promise<number> {
+  if (!userId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+    return 0
+  }
+
   const { count, error } = await supabase
     .from('notifications')
     .select('*', { count: 'exact', head: true })
@@ -37,6 +45,10 @@ export async function markAsRead(notificationId: number): Promise<void> {
 }
 
 export async function markAllAsRead(userId: string): Promise<void> {
+  if (!userId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+    return
+  }
+
   const { error } = await supabase
     .from('notifications')
     .update({

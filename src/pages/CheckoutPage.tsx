@@ -32,6 +32,8 @@ import {
 } from '@/features/v2/api/unifiedOrderApi'
 import { GuestConversionPanel } from '@/features/v2/components/GuestConversionPanel'
 import { CouponInputCompact } from '@/features/coupons/components/CouponInput'
+// ✅ Zod Validation
+import { validateCheckoutForm } from '@/utils/validations'
 
 // Payment method option component
 function PaymentOption({
@@ -355,39 +357,25 @@ export default function CheckoutPage() {
   const handlePlaceOrder = useCallback(async () => {
     console.log('📝 Placing order with Unified Order System v2...')
 
-    // Validation
-    if (deliveryMethod === 'village' && !customerName.trim()) {
-      addToast({
-        type: 'error',
-        title: 'กรุณากรอกชื่อ',
-        message: 'ชื่อผู้สั่งซื้อจำเป็นต้องกรอกเมื่อจัดส่งในหมู่บ้าน',
-      })
-      return
-    }
+    // ✅ Zod Validation
+    const validation = validateCheckoutForm(
+      {
+        customerName,
+        phoneNumber,
+        address,
+        paymentMethod,
+        deliveryMethod,
+      },
+      deliveryMethod
+    )
 
-    if (deliveryMethod === 'workplace' && !user?.displayName && !customerName.trim()) {
-      addToast({
-        type: 'error',
-        title: 'กรุณากรอกชื่อ',
-        message: 'กรุณาระบุชื่อผู้สั่งซื้อ',
-      })
-      return
-    }
-
-    if (deliveryMethod === 'village' && !address.trim()) {
-      addToast({
-        type: 'error',
-        title: 'กรุณากรอกที่อยู่',
-        message: 'กรุณาระบุบ้านเลขที่และซอย',
-      })
-      return
-    }
-
-    if (deliveryMethod === 'village' && !phoneNumber.trim()) {
-      addToast({
-        type: 'error',
-        title: 'กรุณากรอกเบอร์โทร',
-        message: 'เบอร์โทรศัพท์จำเป็นต้องกรอกเมื่อจัดส่งในหมู่บ้าน',
+    if (!validation.valid) {
+      Object.entries(validation.errors).forEach(([, message]) => {
+        addToast({
+          type: 'error',
+          title: 'ข้อมูลไม่ถูกต้อง',
+          message,
+        })
       })
       return
     }

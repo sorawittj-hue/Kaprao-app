@@ -3,6 +3,7 @@
 // ============================================
 
 import { supabase } from '@/lib/supabase'
+import { isValidUUID } from '@/utils/validation'
 import type {
   LottoTicketV2,
   LottoResultV2,
@@ -14,6 +15,7 @@ import type {
 // =====================================================
 
 export async function fetchUserTickets(userId: string): Promise<LottoTicketV2[]> {
+  if (!isValidUUID(userId)) return []
   const { data, error } = await supabase
     .from('lotto_tickets')
     .select('*')
@@ -29,6 +31,7 @@ export async function fetchUserTickets(userId: string): Promise<LottoTicketV2[]>
 }
 
 export async function fetchGuestTickets(guestId: string): Promise<LottoTicketV2[]> {
+  if (!isValidUUID(guestId)) return []
   const { data, error } = await supabase
     .from('lotto_tickets')
     .select('*')
@@ -436,6 +439,15 @@ export interface LotteryStats {
 }
 
 export async function fetchUserLotteryStats(userId: string): Promise<LotteryStats> {
+  if (!isValidUUID(userId)) {
+    return {
+      totalTickets: 0,
+      activeTickets: 0,
+      wonTickets: 0,
+      totalWinnings: 0,
+      unclaimedPrizes: 0,
+    }
+  }
   const { data, error } = await supabase
     .from('lotto_tickets')
     .select('*')

@@ -1,7 +1,9 @@
 import { supabase } from '@/lib/supabase'
+import { isValidUUID } from '@/utils/validation'
 import type { PointLog } from '@/types'
 
 export async function fetchUserPoints(userId: string): Promise<number> {
+  if (!isValidUUID(userId)) return 0
   const { data, error } = await supabase
     .from('profiles')
     .select('points')
@@ -17,6 +19,7 @@ export async function fetchUserPoints(userId: string): Promise<number> {
 }
 
 export async function fetchPointLogs(userId: string): Promise<PointLog[]> {
+  if (!isValidUUID(userId)) return []
   const normalizedUserId = normalizeUserId(userId)
   
   const { data, error } = await supabase

@@ -1,7 +1,11 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, isConfigured } from '@/lib/supabase'
 import type { MenuItem, MenuCategory, CategoryType, MenuOption } from '@/types'
 
 export async function fetchMenuItems(): Promise<MenuItem[]> {
+  if (!isConfigured) {
+    return getSampleMenuItems()
+  }
+
   try {
     const { data, error } = await supabase
       .from('menu_items')
@@ -9,6 +13,7 @@ export async function fetchMenuItems(): Promise<MenuItem[]> {
       .order('name')
 
     if (error) {
+
       console.warn('Supabase error fetching menu items:', error)
       // Return sample data on any error for gracefully degrading UI
       return getSampleMenuItems()

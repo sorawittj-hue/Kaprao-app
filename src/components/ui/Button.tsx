@@ -17,6 +17,8 @@ const buttonVariants = cva(
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-brand-500 underline-offset-4 hover:underline',
         accent: 'bg-accent text-white hover:bg-accent/90 shadow-lg shadow-accent/25',
+        success: 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/25',
+        warning: 'bg-yellow-500 text-white hover:bg-yellow-600 shadow-lg shadow-yellow-500/25',
       },
       size: {
         default: 'h-12 px-6 py-3',
@@ -41,6 +43,8 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
   isLoading?: boolean
+  /** Accessibility label for icon buttons */
+  'aria-label'?: string
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

@@ -1,7 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { queryKeys } from '@/lib/queryClient'
-import { supabase } from '@/lib/supabase'
+import { supabase, isConfigured } from '@/lib/supabase'
+import { isValidUUID } from '@/utils/validation'
+
 import type { Order, OrderStatus } from '@/types'
 
 function mapOrder(order: any): Order {
@@ -36,7 +38,11 @@ function mapOrder(order: any): Order {
 
 // Fetch orders by user_id (authenticated users)
 async function fetchOrdersByUserId(userId: string): Promise<Order[]> {
+  if (!isValidUUID(userId)) {
+    return []
+  }
   try {
+
     const { data, error } = await supabase
       .from('orders')
       .select('*')
@@ -57,8 +63,16 @@ async function fetchOrdersByUserId(userId: string): Promise<Order[]> {
 
 // Fetch orders by line_user_id (for LINE users)
 async function fetchOrdersByLineId(lineUserId: string): Promise<Order[]> {
+  // If lineUserId is meant to be a UUID in your DB, uncomment this check:
+  /*
+  if (!lineUserId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(lineUserId)) {
+    return []
+  }
+  */
+
   try {
     const { data, error } = await supabase
+
       .from('orders')
       .select('*')
       .eq('line_user_id', lineUserId)
@@ -156,7 +170,9 @@ export async function fetchOrders(
   phoneNumber?: string,
   guestId?: string
 ): Promise<Order[]> {
+  if (!isConfigured) return []
   const allOrders: Order[] = []
+
   const seenIds = new Set<number>()
 
   // Strategy 1: Fetch by user_id (authenticated users)
@@ -242,7 +258,8 @@ export function useOrders(userId?: string, lineUserId?: string, phoneNumber?: st
   return useQuery({
     queryKey: queryKeys.orders.byUser(userId || lineUserId || phoneNumber || guestId || 'guest'),
     queryFn: () => fetchOrders(userId, lineUserId, phoneNumber, guestId),
-    enabled: !!(userId || lineUserId || guestId || (phoneNumber && phoneNumber.length >= 9)),
+    enabled: isConfigured && !!(userId || lineUserId || guestId || (phoneNumber && phoneNumber.length >= 9)),
+
     staleTime: 10 * 1000, // 10 seconds
     refetchOnWindowFocus: true,
   })
@@ -260,7 +277,8 @@ export function useOrderRealtime(orderId: number) {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    if (!orderId) return
+    if (!orderId || !isConfigured) return
+
 
     const subscription = supabase
       .channel(`order:${orderId}`)
@@ -293,6 +311,8 @@ export function useAllOrdersRealtime() {
   const queryClient = useQueryClient()
 
   useEffect(() => {
+    if (!isConfigured) return
+
     const subscription = supabase
       .channel('orders:all')
       .on(

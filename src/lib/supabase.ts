@@ -5,16 +5,23 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 // Validate configuration
-const isConfigured = supabaseUrl && supabaseKey &&
+export const isConfigured = Boolean(
+  supabaseUrl && 
+  supabaseKey &&
   !supabaseUrl.includes('your-project') &&
   !supabaseUrl.includes('placeholder') &&
   supabaseUrl.startsWith('https://')
+)
+
 
 if (!isConfigured) {
-  console.error('❌ Supabase not properly configured!')
-  console.error('   VITE_SUPABASE_URL:', supabaseUrl ? 'Set' : 'Missing')
-  console.error('   Please check your .env file')
+  // Only log once at warning level to avoid flooding but still notify developer
+  if (typeof window !== 'undefined' && !(window as any).__SUPABASE_WARNED__) {
+    console.warn('⚠️ Supabase not properly configured, using placeholder. Check your .env file.')
+    ;(window as any).__SUPABASE_WARNED__ = true
+  }
 }
+
 
 // Create Supabase client with resilient config
 // Using the generic Database type for proper table type inference

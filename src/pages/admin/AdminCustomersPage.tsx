@@ -134,7 +134,8 @@ export default function AdminCustomersPage() {
   if (!customers?.length) {
     return (
       <EmptyState
-        type="generic"
+        type="custom"
+        icon={<Users className="w-20 h-20" />}
         title="ยังไม่มีลูกค้า"
         description="ระบบจะแสดงรายชื่อลูกค้าที่สมัครสมาชิก"
       />

@@ -16,6 +16,16 @@ export interface ValidationResult {
   sanitized?: string
 }
 
+// ============================================
+// UUID Validation
+// ============================================
+export const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export const isValidUUID = (uuid: unknown): uuid is string => {
+  if (typeof uuid !== 'string') return false
+  return UUID_REGEX.test(uuid)
+}
+
 export interface FormValidationResult<T> {
   isValid: boolean
   errors: Partial<Record<keyof T, string>>

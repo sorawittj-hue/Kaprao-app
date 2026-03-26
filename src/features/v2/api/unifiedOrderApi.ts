@@ -3,6 +3,7 @@
 // ============================================
 
 import { supabase } from '@/lib/supabase'
+import { isValidUUID } from '@/utils/validation'
 import type {
   UnifiedOrder,
   QueueStatus,
@@ -147,8 +148,8 @@ export async function createUnifiedOrder(
   )
 
   const orderData = {
-    guest_id: params.guestId || null,
-    user_id: params.userId || null,
+    guest_id: isValidUUID(params.guestId) ? params.guestId : null,
+    user_id: isValidUUID(params.userId) ? params.userId : null,
     line_user_id: params.lineUserId || null,
     customer_name: params.customerName,
     phone_number: params.phoneNumber,

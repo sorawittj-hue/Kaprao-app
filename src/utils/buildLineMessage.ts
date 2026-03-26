@@ -56,7 +56,7 @@ export function buildLineOrderMessage({
       const optionNames = item.options.map(opt => opt.name).join(', ')
       msg += `   ↳ ${optionNames}\n`
     }
-    
+
     if (item.note) msg += `   📝 ${item.note}\n`
   })
 
@@ -80,36 +80,6 @@ export function buildLineOrderMessage({
   // 💖 FOOTER
   msg += `━━━━━━━━━━━━━━━━━━\n`
   msg += `ขอบคุณที่สั่งกะเพรา 52 ครับ! 🙏`
-
-  return msg
-}
-ed} pts\n`
-    }
-
-    if (tickets > 0) {
-      msg += `   🎟️ ตั๋วหวย: ${tickets} ใบ\n`
-    }
-
-    if (lottoNumber) {
-      msg += `   🔢 เลขลุ้นโชค: ${lottoNumber}\n`
-      if (drawDate) {
-        msg += `   📅 งวดวันที่: ${drawDate}\n`
-      }
-    }
-  }
-
-  // ── GUEST CONVERSION CTA ──
-  if (isGuest) {
-    msg += `\n🌟 คุณยังไม่ได้ Login LINE!\n`
-    msg += `   เข้าสู่ระบบเพื่อรับ ${ptsEarned} พอยต์\n`
-    msg += `   และสะสมสิทธิ์ลุ้นอาหารฟรีทุกงวด\n`
-  }
-
-  // ── FOOTER ──
-  msg += `\n╔══════════════════════╗\n`
-  msg += `   ขอบคุณที่อุดหนุน\n`
-  msg += `   ร้านกะเพรา 52 ครับ! 🙏\n`
-  msg += `╚══════════════════════╝`
 
   return msg
 }
@@ -158,13 +128,12 @@ export function getThaiLotteryDrawDate(date: Date = new Date()): string {
   })
 }
 
-import { getContactInfo } from '@/features/config/api/configApi'
-
 /**
  * Redirect to LINE OA with order message
  * Uses line_oa_id from shop_config
  */
 export async function redirectToLineOA(message: string): Promise<void> {
+  const { getContactInfo } = await import('@/features/config/api/configApi')
   const contactInfo = await getContactInfo()
   const lineOAId = contactInfo.line_oa_id || '@772ysswn'
   const encodedMsg = encodeURIComponent(message)

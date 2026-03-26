@@ -1,9 +1,11 @@
 import { supabase } from '@/lib/supabase'
+import { isValidUUID } from '@/utils/validation'
 import type { LottoTicket, LottoResult } from '@/types'
 
 // ==================== Tickets ====================
 
 export async function fetchUserTickets(userId: string): Promise<LottoTicket[]> {
+  if (!isValidUUID(userId)) return []
   const { data, error } = await supabase
     .from('lotto_pool')
     .select('*')
@@ -141,6 +143,9 @@ export async function generateTicketsForOrder(
   orderId: number,
   _orderAmount: number
 ): Promise<LottoTicket[]> {
+  if (!isValidUUID(userId)) {
+    throw new Error('Invalid user ID format (UUID expected)')
+  }
   const ticketCount = calculateTicketsFromOrder(_orderAmount)
 
   if (ticketCount === 0) {

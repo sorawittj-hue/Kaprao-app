@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, forwardRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, Search, Edit2, Eye, EyeOff, Trash2, X, Check,
@@ -445,109 +445,117 @@ interface MenuAdminCardProps {
   onToggleAvailability: () => void
 }
 
-function MenuAdminCard({ item, onEdit, onDelete, onToggleAvailability }: MenuAdminCardProps) {
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <Card className={cn('h-full flex flex-col', !item.isAvailable && 'opacity-75')}>
-        {/* Image */}
-        <div className="relative aspect-video bg-gray-100 rounded-t-xl overflow-hidden">
-          <img
-            src={getValidImageUrl(item.imageUrl) || '/placeholder-food.jpg'}
-            alt={item.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute top-2 right-2 flex gap-2">
-            <button
-              onClick={onEdit}
-              className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-600 hover:bg-white transition-colors"
-            >
-              <Edit2 className="w-4 h-4" />
-            </button>
-          </div>
-
-          {!item.isAvailable && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="bg-red-500 text-white font-bold px-3 py-1 rounded-full text-sm">
-                หมดชั่วคราว
-              </span>
-            </div>
-          )}
-
-          {item.isRecommended && item.isAvailable && (
-            <div className="absolute top-2 left-2">
-              <span className="bg-yellow-400 text-yellow-900 font-bold px-2 py-1 rounded-lg text-xs flex items-center gap-1">
-                <Star className="w-3 h-3" />
-                แนะนำ
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="p-4 flex-1 flex flex-col">
-          <div className="flex-1">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <h3 className="font-bold text-gray-800">{item.name}</h3>
-                <p className="text-sm text-gray-500 capitalize">{item.category}</p>
-              </div>
-              <span className="font-bold text-brand-600 text-lg">
-                {formatPrice(item.price)}
-              </span>
-            </div>
-
-            {item.description && (
-              <p className="text-sm text-gray-400 line-clamp-2 mb-3">{item.description}</p>
-            )}
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-3">
-            <div className="flex gap-2">
-              {item.requiresMeat && (
-                <Badge variant="default" className="text-[10px]">เลือกเนื้อได้</Badge>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={onToggleAvailability}
-                className={cn(
-                  'p-2 rounded-lg transition-colors',
-                  item.isAvailable
-                    ? 'bg-green-100 text-green-600 hover:bg-green-200'
-                    : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                )}
-                title={item.isAvailable ? 'ทำให้หมดชั่วคราว' : 'ทำให้พร้อมจำหน่าย'}
-              >
-                {item.isAvailable ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-              </button>
-
+const MenuAdminCard = forwardRef<HTMLDivElement, MenuAdminCardProps>(
+  ({ item, onEdit, onDelete, onToggleAvailability }, ref) => {
+    return (
+      <motion.div
+        ref={ref}
+        layout
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <Card className={cn('h-full flex flex-col', !item.isAvailable && 'opacity-75')}>
+          {/* Image */}
+          <div className="relative aspect-video bg-gray-100 rounded-t-xl overflow-hidden">
+            <img
+              src={getValidImageUrl(item.imageUrl) || '/placeholder-food.jpg'}
+              alt={item.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-2 right-2 flex gap-2">
               <button
                 onClick={onEdit}
-                className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-600 hover:bg-white transition-colors"
+                type="button"
               >
                 <Edit2 className="w-4 h-4" />
               </button>
+            </div>
 
-              <button
-                onClick={onDelete}
-                className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+            {!item.isAvailable && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <span className="bg-red-500 text-white font-bold px-3 py-1 rounded-full text-sm">
+                  หมดชั่วคราว
+                </span>
+              </div>
+            )}
+
+            {item.isRecommended && item.isAvailable && (
+              <div className="absolute top-2 left-2">
+                <span className="bg-yellow-400 text-yellow-900 font-bold px-2 py-1 rounded-lg text-xs flex items-center gap-1">
+                  <Star className="w-3 h-3" />
+                  แนะนำ
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="p-4 flex-1 flex flex-col">
+            <div className="flex-1">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h3 className="font-bold text-gray-800">{item.name}</h3>
+                  <p className="text-sm text-gray-500 capitalize">{item.category}</p>
+                </div>
+                <span className="font-bold text-brand-600 text-lg">
+                  {formatPrice(item.price)}
+                </span>
+              </div>
+
+              {item.description && (
+                <p className="text-sm text-gray-400 line-clamp-2 mb-3">{item.description}</p>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-3">
+              <div className="flex gap-2">
+                {item.requiresMeat && (
+                  <Badge variant="default" className="text-[10px]">เลือกเนื้อได้</Badge>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={onToggleAvailability}
+                  type="button"
+                  className={cn(
+                    'p-2 rounded-lg transition-colors',
+                    item.isAvailable
+                      ? 'bg-green-100 text-green-600 hover:bg-green-200'
+                      : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                  )}
+                  title={item.isAvailable ? 'ทำให้หมดชั่วคราว' : 'ทำให้พร้อมจำหน่าย'}
+                >
+                  {item.isAvailable ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                </button>
+
+                <button
+                  onClick={onEdit}
+                  type="button"
+                  className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={onDelete}
+                  type="button"
+                  className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
-    </motion.div>
-  )
-}
+        </Card>
+      </motion.div>
+    )
+  }
+)
+MenuAdminCard.displayName = 'MenuAdminCard'
 
 // Menu Modal Component
 interface MenuModalProps {

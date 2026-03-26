@@ -1,5 +1,9 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useAuthStore } from '@/store'
+import { useQuery } from '@tanstack/react-query'
+import { supabase } from '@/lib/supabase'
+import type { Order } from '@/types'
+import { isValidUUID } from '@/utils/validation'
 
 const WHEEL_STORAGE_KEY = 'kaprao52_wheel_spins'
 const MAX_SPINS_PER_DAY = 3
@@ -44,17 +48,19 @@ export function useWheelOfFortune() {
 }
 
 // Quick reorder hook
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@/lib/supabase'
-import type { Order } from '@/types'
-
 export function useQuickReorder() {
   const { user } = useAuthStore()
 
   const { data: recentOrders, isLoading } = useQuery({
     queryKey: ['quick-reorder', user?.id],
     queryFn: async () => {
-      if (!user) return []
+      if (!user?.id) return []
+      
+      // Ensure user.id is a valid UUID before querying to prevent 400 Bad Request
+      if (!isValidUUID(user.id)) {
+        console.warn('⚠️ Invalid userId format for quick reorder, skipping fetch:', user.id)
+        return []
+      }
       
       const { data, error } = await supabase
         .from('orders')
@@ -66,7 +72,7 @@ export function useQuickReorder() {
       if (error) throw error
       return (data || []) as unknown as Order[]
     },
-    enabled: !!user,
+    enabled: !!user?.id,
   })
 
   const getUniqueOrders = useCallback(() => {
@@ -76,7 +82,7 @@ export function useQuickReorder() {
     const unique: Order[] = []
     
     for (const order of recentOrders) {
-      const key = order.items.map(i => i.name).join(',')
+      const key = (order.items || []).map(i => i.name).join(',')
       if (!seen.has(key)) {
         seen.add(key)
         unique.push(order)

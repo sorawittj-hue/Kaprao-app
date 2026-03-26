@@ -394,8 +394,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Development mock
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.log('🚧 Dev mode: mocking LINE login...')
+        const devUserId = self.crypto.randomUUID?.() || 'de7da2a0-0000-4000-a000-000000000000'
         const mockProfile = {
-          userId: 'local-dev-' + Math.random().toString(36).slice(2, 8),
+          userId: devUserId,
           displayName: 'Dev User 🧑‍💻',
           pictureUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}`,
         }
@@ -403,6 +404,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setShowWelcome(false)
         return
       }
+
 
       const liff = (await import('@line/liff')).default
       if (!liff.isLoggedIn()) {
@@ -495,11 +497,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
               // Background sync — refresh points from server
               void (async () => {
                 try {
+                  const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsed.userId)
+                  if (!isValidUUID) return
+
                   const { data } = await supabase
                     .from('profiles')
                     .select('points, total_orders, tier, display_name, picture_url')
                     .eq('id', parsed.userId)
                     .maybeSingle()
+
                   if (data) {
                     setUser({
                       ...restoredUser,
@@ -522,17 +528,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 try {
                   const guestIdentity = JSON.parse(guestIdentityStr)
                   const guestId = guestIdentity.id
-                  const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(guestId)
+                  const isGuestUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(guestId)
+                  const isUserUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsed.userId)
 
-                  if (!isValidUUID) {
+                  if (!isGuestUUID || !isUserUUID) {
                     localStorage.removeItem('kaprao_guest_identity')
-                    throw new Error('Invalid legacy guestId')
+                    throw new Error('Invalid guestId or userId for sync')
                   }
 
                   const { data, error } = await (supabase.rpc as any)('sync_guest_to_member', {
                     p_guest_id: guestId,
                     p_user_id: parsed.userId,
                   })
+
                   if (!error && (data as any)?.success) {
                     const pts = (data as any).points_added || 0
                     const orders = (data as any).orders_synced || 0

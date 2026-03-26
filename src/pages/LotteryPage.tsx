@@ -72,7 +72,8 @@ export default function LotteryPage() {
           </div>
 
           <EmptyState
-            type="generic"
+            type="custom"
+            icon={<Ticket className="w-20 h-20" />}
             title="เข้าสู่ระบบก่อน"
             description="กรุณาเข้าสู่ระบบเพื่อดูตั๋วหวยของคุณ"
             actionLabel="เข้าสู่ระบบ"
@@ -239,7 +240,8 @@ export default function LotteryPage() {
                 </div>
               ) : (
                 <EmptyState
-                  type="generic"
+                  type="custom"
+                  icon={<Ticket className="w-20 h-20" />}
                   title="ยังไม่มีตั๋ว"
                   description="สั่งอาหารวันนี้ 1 ออเดอร์ รับตั๋วหวยเลขประจำออเดอร์ 1 ใบ ไว้ลุ้นกินฟรี!"
                   actionLabel="สั่งอาหารเลย"
@@ -291,7 +293,8 @@ export default function LotteryPage() {
                 </Card>
               ) : (
                 <EmptyState
-                  type="generic"
+                  type="custom"
+                  icon={<Trophy className="w-20 h-20" />}
                   title="ยังไม่มีผลรางวัล"
                   description="ผลรางวัลจะประกาศทุกวันที่ 1 และ 16"
                 />

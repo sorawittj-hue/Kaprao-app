@@ -31,7 +31,45 @@
     --safe-area-left: env(safe-area-inset-left);
     --safe-area-right: env(safe-area-inset-right);
 
-    /* Brand Colors */
+    /* Brand Colors - Extended Palette */
+    --brand-50: 25 100% 98%;
+    --brand-100: 25 100% 95%;
+    --brand-200: 25 100% 90%;
+    --brand-300: 25 100% 80%;
+    --brand-400: 25 100% 70%;
+    --brand-500: 24 100% 50%;
+    --brand-600: 24 100% 45%;
+    --brand-700: 24 100% 35%;
+    --brand-800: 24 100% 25%;
+    --brand-900: 24 100% 15%;
+
+    /* Semantic Colors */
+    --success-50: 142 71% 98%;
+    --success-500: 142 71% 45%;
+    --success-600: 142 71% 40%;
+    --warning-50: 38 92% 98%;
+    --warning-500: 38 92% 55%;
+    --warning-600: 38 92% 50%;
+    --error-50: 0 84% 98%;
+    --error-500: 0 84% 60%;
+    --error-600: 0 84% 55%;
+    --info-50: 217 91% 98%;
+    --info-500: 217 91% 60%;
+    --info-600: 217 91% 55%;
+
+    /* Neutral Colors */
+    --neutral-50: 40 20% 98%;
+    --neutral-100: 40 20% 96%;
+    --neutral-200: 40 20% 90%;
+    --neutral-300: 40 20% 80%;
+    --neutral-400: 40 20% 60%;
+    --neutral-500: 40 20% 50%;
+    --neutral-600: 40 20% 40%;
+    --neutral-700: 40 20% 30%;
+    --neutral-800: 40 20% 20%;
+    --neutral-900: 40 20% 15%;
+
+    /* Brand Colors (Legacy Support) */
     --brand-primary: #FF6B00;
     --brand-accent: #22C55E;
 

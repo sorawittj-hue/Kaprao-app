@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { isValidUUID } from '@/utils/validation'
 import type { 
   Order, OrderStatus, MenuItem, CustomerWithStats, AdminStats, 
   TopSellingItem, RecentActivity 
@@ -438,13 +439,16 @@ export async function fetchCustomers(): Promise<CustomerWithStats[]> {
     const p = profile as Record<string, unknown>
     
     // Get total spent from orders
-    const { data: orders } = await supabase
-      .from('orders')
-      .select('total_price')
-      .eq('user_id', p.id as string)
-      .eq('status', 'delivered')
-    
-    const totalSpent = orders?.reduce((sum, o) => sum + ((o as Record<string, unknown>).total_price as number || 0), 0) || 0
+    let totalSpent = 0
+    if (isValidUUID(p.id)) {
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('total_price')
+        .eq('user_id', p.id as string)
+        .eq('status', 'delivered')
+      
+      totalSpent = orders?.reduce((sum, o) => sum + ((o as Record<string, unknown>).total_price as number || 0), 0) || 0
+    }
     
     return {
       id: p.id as string,
@@ -468,6 +472,8 @@ export async function fetchCustomers(): Promise<CustomerWithStats[]> {
 }
 
 export async function fetchCustomerById(customerId: string): Promise<CustomerWithStats | null> {
+  if (!isValidUUID(customerId)) return null
+
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -506,6 +512,10 @@ export async function fetchCustomerById(customerId: string): Promise<CustomerWit
 }
 
 export async function updateCustomerPoints(customerId: string, points: number, reason?: string): Promise<void> {
+  if (!isValidUUID(customerId)) {
+    throw new Error('Invalid customer ID format (UUID expected)')
+  }
+  
   const { error } = await supabase
     .from('profiles')
     .update({ points } as never)

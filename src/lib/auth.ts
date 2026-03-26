@@ -9,12 +9,16 @@ export async function loginWithLine(): Promise<void> {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       console.log('🚧 Dev mode: mocking LINE login...')
       sessionStorage.removeItem('kaprao_guest_mode')
+      const devUserId = self.crypto.randomUUID?.() || 'de7da2a0-0000-4000-a000-000000000000'
+      const devLineId = 'line-' + (self.crypto.randomUUID?.() || 'de7da2a0-0000-4000-a000-111111111111')
+      
       localStorage.setItem('kaprao_user_data', JSON.stringify({
-        userId: 'local-dev-' + Math.random().toString(36).slice(2, 8),
-        lineUserId: 'local-dev-line-' + Math.random().toString(36).slice(2, 8),
+        userId: devUserId,
+        lineUserId: devLineId,
         name: 'Dev User 🧑‍💻',
         image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}`
       }))
+
       window.location.reload()
       return
     }
