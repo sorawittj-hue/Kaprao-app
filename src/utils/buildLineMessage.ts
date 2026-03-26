@@ -30,100 +30,60 @@ export function buildLineOrderMessage({
     year: 'numeric',
   })
 
-  // Payment method label
-  let paymentLabel = ''
-  if (order.paymentMethod === 'promptpay' || order.paymentMethod === 'transfer') {
-    paymentLabel = '💳 โอนเงิน/พร้อมเพย์ ✅'
-  } else if (order.paymentMethod === 'cod') {
-    paymentLabel = '💵 เงินสด / จ่ายทีหลัง 🕒'
-  } else {
-    paymentLabel = order.paymentMethod
-  }
-
-  // Delivery method label
-  const deliveryLabel = order.deliveryMethod === 'workplace'
-    ? '🏢 ส่งที่ทำงาน (พรุ่งนี้)'
-    : '🏘️ ส่งในหมู่บ้าน'
+  // Payment & Delivery labels
+  const paymentLabel = order.paymentMethod === 'cod' ? '💵 เงินสด' : '💳 โอนเงิน/พร้อมเพย์'
+  const deliveryLabel = order.deliveryMethod === 'workplace' ? '🏢 ส่งที่ทำงาน' : '🏘️ ส่งในหมู่บ้าน'
 
   // ====================
-  // BUILD MESSAGE
+  // BUILD MESSAGE (Compact Version)
   // ====================
-
-  let msg = ''
-
-  // ── HEADER ──
-  msg += `╔══════════════════════╗\n`
-  msg += `   🔥 กะเพรา 52 — ออเดอร์ใหม่!\n`
-  msg += `╚══════════════════════╝\n\n`
-
-  // ── ORDER INFO ──
-  msg += `📋 ออเดอร์ #${order.id}\n`
+  let msg = `🔥 ออเดอร์ใหม่ #${order.id}\n`
+  msg += `━━━━━━━━━━━━━━━━━━\n`
   msg += `👤 คุณ${order.customerName}\n`
-  msg += `📞 ${order.phoneNumber || '-'}\n`
-  msg += `🕐 ${dateStr} — ${timeStr} น.\n`
-  msg += `${deliveryLabel}\n`
-  if (order.address) {
-    msg += `📍 ${order.address}\n`
-  }
-  msg += `${paymentLabel}\n`
+  msg += `📱 ${order.phoneNumber || '-'}\n`
+  msg += `📍 ${deliveryLabel}${order.address ? ` (${order.address})` : ''}\n`
+  msg += `💰 รวม ${order.totalPrice}฿ | ${paymentLabel}\n`
+  msg += `🕒 ${dateStr} - ${timeStr} น.\n`
 
-  // ── ITEMS ──
-  msg += `\n━━━ รายการอาหาร ━━━━━━━━\n`
+  // 📝 ITEMS
+  msg += `\n🥡 รายการอาหาร:\n`
   order.items.forEach((item, index) => {
     const qty = item.quantity > 1 ? ` x${item.quantity}` : ''
-    let detail = `${index + 1}. ${item.name}${qty}`
+    msg += `${index + 1}. ${item.name}${qty} (${item.subtotal}฿)\n`
 
-    // Options (เผ็ด, เนื้อ, ท็อปปิ้ง)
+    // Options (Compact)
     if (item.options && item.options.length > 0) {
       const optionNames = item.options.map(opt => opt.name).join(', ')
-      detail += `\n   ↳ ${optionNames}`
+      msg += `   ↳ ${optionNames}\n`
     }
-
-    // Special note
-    if (item.note) {
-      detail += `\n   📝 ${item.note}`
-    }
-
-    msg += `${detail}\n   💰 ${item.subtotal}฿\n`
+    
+    if (item.note) msg += `   📝 ${item.note}\n`
   })
 
-  // ── PRICING ──
-  msg += `\n━━━ สรุปยอด ━━━━━━━━━━━\n`
-
-  if (order.discountAmount > 0 || order.pointsRedeemed > 0) {
-    msg += `   ราคารวม:     ${order.subtotalPrice}฿\n`
-
-    if (order.discountAmount > 0) {
-      msg += `   🎁 ส่วนลด:   -${order.discountAmount}฿`
-      if (order.discountCode) {
-        msg += ` (${order.discountCode})`
-      }
-      msg += `\n`
-    }
-
-    if (order.pointsRedeemed > 0) {
-      msg += `   🪙 ใช้พอยต์:  -${(order.pointsRedeemed / 10).toFixed(0)}฿ (${order.pointsRedeemed} pts)\n`
-    }
-
-    msg += `   ✅ สุทธิ:     ${order.totalPrice}฿\n`
-  } else {
-    msg += `   ✅ ยอดรวม:    ${order.totalPrice}฿\n`
-  }
-
-  // ── SPECIAL INSTRUCTIONS ──
-  if (order.specialInstructions) {
-    msg += `\n📝 หมายเหตุ: ${order.specialInstructions}\n`
-  }
-
-  // ── POINTS & LOTTERY ──
+  // 🎁 REWARDS & LOTTO
   const ptsEarned = pointsEarned ?? order.pointsEarned ?? 0
   const tickets = ticketsEarned ?? Math.floor(order.totalPrice / 100)
 
   if (ptsEarned > 0 || tickets > 0 || lottoNumber) {
-    msg += `\n━━━ สิทธิพิเศษ ━━━━━━━━━\n`
+    msg += `━━━━━━━━━━━━━━━━━━\n`
+    if (ptsEarned > 0) msg += `⭐ ได้รับ +${ptsEarned} pts\n`
+    if (tickets > 0) msg += `🎟️ ตั๋วหวย ${tickets} ใบ (เลข ${lottoNumber || order.id.toString().slice(-2)})\n`
+    if (drawDate) msg += `📅 งวดวันที่: ${drawDate}\n`
+  }
 
-    if (ptsEarned > 0) {
-      msg += `   ⭐ พอยต์ที่ได้: +${ptsEarned} pts\n`
+  // ⚠️ GUEST CTA
+  if (isGuest) {
+    msg += `━━━━━━━━━━━━━━━━━━\n`
+    msg += `‼️ ล็อกอิน LINE เพื่อสะสมพอยต์!\n`
+  }
+
+  // 💖 FOOTER
+  msg += `━━━━━━━━━━━━━━━━━━\n`
+  msg += `ขอบคุณที่สั่งกะเพรา 52 ครับ! 🙏`
+
+  return msg
+}
+ed} pts\n`
     }
 
     if (tickets > 0) {
