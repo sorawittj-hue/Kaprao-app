@@ -5,7 +5,7 @@
  * Order together with friends like Google Docs
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import * as Y from 'yjs'
 import { WebrtcProvider } from 'y-webrtc'
 import { IndexeddbPersistence } from 'y-indexeddb'
@@ -351,7 +351,7 @@ export function useCollaborativeCart(_cartId?: string) {
     return `${window.location.origin}/cart/join/${cart.id}`
   }, [cart])
 
-  return {
+  return useMemo(() => ({
     cart,
     isHost,
     connectedUsers,
@@ -362,7 +362,18 @@ export function useCollaborativeCart(_cartId?: string) {
     removeItem,
     updateQuantity,
     getShareLink,
-  }
+  }), [
+    cart,
+    isHost,
+    connectedUsers,
+    isConnected,
+    createCart,
+    joinCart,
+    addItem,
+    removeItem,
+    updateQuantity,
+    getShareLink,
+  ])
 }
 
 // ============================================
