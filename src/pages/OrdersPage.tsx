@@ -97,8 +97,17 @@ export default function OrdersPage() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={async () => {
-                  const { loginWithLine } = await import('@/lib/auth')
-                  await loginWithLine()
+                  try {
+                    const { loginWithLine } = await import('@/lib/auth')
+                    await loginWithLine()
+                  } catch (error) {
+                    const { useUIStore } = await import('@/store')
+                    useUIStore.getState().addToast({
+                      type: 'error',
+                      title: 'เข้าสู่ระบบไม่สำเร็จ',
+                      message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
+                    })
+                  }
                 }}
                 className="flex items-center gap-1.5 bg-white text-green-700 font-black text-xs px-3 py-2 rounded-xl flex-shrink-0"
               >
@@ -224,8 +233,17 @@ export default function OrdersPage() {
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={async () => {
-                    const { loginWithLine } = await import('@/lib/auth')
-                    await loginWithLine()
+                    try {
+                      const { loginWithLine } = await import('@/lib/auth')
+                      await loginWithLine()
+                    } catch (error) {
+                      const { useUIStore } = await import('@/store')
+                      useUIStore.getState().addToast({
+                        type: 'error',
+                        title: 'เข้าสู่ระบบไม่สำเร็จ',
+                        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
+                      })
+                    }
                   }}
                   className="px-6 py-2.5 rounded-xl font-black text-white text-sm"
                   style={{ background: '#00B900', boxShadow: '0 4px 12px rgba(0,185,0,0.4)' }}

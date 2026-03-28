@@ -15,10 +15,14 @@ import {
   Bell,
   Volume2,
   Smartphone,
+  RefreshCw,
+  ShieldAlert,
 } from 'lucide-react'
 import { useAuthStore, useUIStore } from '@/store'
 import { Container } from '@/components/layout/Container'
 import { logout, loginWithLine } from '@/lib/auth'
+import { supabase } from '@/lib/supabase'
+import { useMemo } from 'react'
 import { useUserPoints, usePointsCalculator, useRedeemPoints } from '@/features/points/hooks/usePoints'
 import { StreakTracker } from '@/features/points/components/StreakTracker'
 import { getUserGamification, UserGamificationState } from '@/features/gamification/GamificationEngine'
@@ -61,6 +65,16 @@ export default function ProfilePage() {
   const isRealUser = !!user?.id && !!user?.lineUserId
   const { data: serverPoints, isLoading: pointsLoading } = useUserPoints(isRealUser ? user!.id : undefined)
   const { getTier, getNextTier, tiers } = usePointsCalculator()
+  const [isUpdatingAdmin, setIsUpdatingAdmin] = useState(false)
+
+  // Memoized Admin check with fallbacks
+  const isAdmin = useMemo(() => {
+    if (user?.isAdmin) return true
+    if (!user?.lineUserId) return false
+    // Check against .env allowed IDs
+    const allowedIds = (import.meta.env.VITE_ADMIN_LINE_IDS || '').split(',').filter(Boolean)
+    return allowedIds.includes(user.lineUserId)
+  }, [user?.isAdmin, user?.lineUserId])
 
   useEffect(() => {
     trackPageView('/profile', 'Profile')
@@ -111,6 +125,32 @@ export default function ProfilePage() {
       await loginWithLine()
     } catch {
       addToast({ type: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', message: 'กรุณาลองใหม่อีกครั้ง' })
+    }
+  }
+
+  const handleMakeMeAdmin = async () => {
+    if (!isRealUser || !user?.id) return
+    setIsUpdatingAdmin(true)
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_admin: true } as any)
+        .eq('id', user.id)
+
+      if (error) throw error
+
+      addToast({
+        type: 'success',
+        title: 'อัปเกรดเรียบร้อย! 🎉',
+        message: 'คุณได้รับสิทธิ์ Admin แล้ว กรุณากดปุ่ม Admin เพื่อเข้าหลังบ้านค่ะ'
+      })
+      // Refresh user state in store
+      useAuthStore.getState().setUser({ ...user, isAdmin: true })
+    } catch (err) {
+      console.error('Failed to update admin:', err)
+      addToast({ type: 'error', title: 'ไม่สามารถอัปเกรดได้', message: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต' })
+    } finally {
+      setIsUpdatingAdmin(false)
     }
   }
 
@@ -172,11 +212,11 @@ export default function ProfilePage() {
       iconBg: '#F9FAFB',
       iconColor: '#4B5563',
     },
-    // Only show admin link for LINE-authenticated users
-    ...(isRealUser ? [{
+    // Only show admin link for authorized users
+    ...(isAdmin ? [{
       icon: Shield,
       label: 'แอดมิน',
-      sublabel: 'จัดการร้านค้า',
+      sublabel: 'จัดการร้านค้า (หลังบ้าน)',
       onClick: () => navigate('/admin'),
       iconBg: '#F0FDF4',
       iconColor: '#059669',
@@ -456,6 +496,26 @@ export default function ProfilePage() {
             <motion.div variants={fadeInUp}>
               <MenuSection items={settingsItems} />
             </motion.div>
+
+            {/* ── Temporary Admin Fixer ── */}
+            {isRealUser && !isAdmin && (
+              <motion.div variants={fadeInUp}>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  disabled={isUpdatingAdmin}
+                  onClick={handleMakeMeAdmin}
+                  className="w-full py-3.5 rounded-2xl font-bold text-orange-600 border-2 border-orange-100 bg-orange-50 hover:bg-orange-100 transition-colors flex items-center justify-center gap-2 mb-2"
+                >
+                  {isUpdatingAdmin ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <ShieldAlert className="w-4 h-4" />
+                  )}
+                  {isUpdatingAdmin ? 'กำลังอัปเกรด...' : 'กู้คืนสิทธิ์แอดมิน (ปุ่มชั่วคราว)'}
+                </motion.button>
+              </motion.div>
+            )}
 
             {/* ── Logout ── */}
             <motion.div variants={fadeInUp}>

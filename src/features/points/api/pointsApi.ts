@@ -8,12 +8,14 @@ export async function fetchUserPoints(userId: string): Promise<number> {
     .from('profiles')
     .select('points')
     .eq('id', userId)
-    .single()
+    .maybeSingle()
 
   if (error) {
     console.error('Error fetching user points:', error)
     return 0
   }
+
+  if (!data) return 0
 
   return ((data as Record<string, unknown> | null)?.points as number) || 0
 }
@@ -77,7 +79,7 @@ export async function addPoints(
     .from('profiles')
     .select('points')
     .eq('id', userId)
-    .single()
+    .maybeSingle()
 
   const currentPoints = ((profile as Record<string, unknown> | null)?.points as number) || 0
   const newBalance = currentPoints + amount
@@ -122,7 +124,7 @@ export async function redeemPoints(
     .from('profiles')
     .select('points')
     .eq('id', userId)
-    .single()
+    .maybeSingle()
 
   const currentPoints = ((profile as Record<string, unknown> | null)?.points as number) || 0
 

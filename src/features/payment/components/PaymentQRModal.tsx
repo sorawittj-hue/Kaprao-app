@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Copy, Check, Clock, Upload } from 'lucide-react'
-import { QRCodeSVG } from 'qrcode.react'
+import { QRCodeCanvas as QRCode } from 'qrcode.react'
 import { Button } from '@/components/ui/Button'
 import { useContactInfo, usePaymentConfig, usePromptPayQR } from '../hooks/usePayment'
 import { PaymentSlipUpload } from './PaymentSlipUpload'
 import { formatPrice } from '@/utils/formatPrice'
+import { hapticLight } from '@/utils/haptics'
 
 interface PaymentQRModalProps {
   isOpen: boolean
@@ -30,6 +31,7 @@ export function PaymentQRModal({
   const qrPayload = usePromptPayQR(amount)
 
   const handleCopy = () => {
+    hapticLight()
     if (paymentConfig?.promptpay_number) {
       navigator.clipboard.writeText(paymentConfig.promptpay_number)
       setCopied(true)
@@ -64,7 +66,10 @@ export function PaymentQRModal({
           <div className="p-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-lg font-bold text-gray-800">ชำระเงินด้วยพร้อมเพย์</h2>
             <button
-              onClick={onClose}
+              onClick={() => {
+                hapticLight()
+                onClose()
+              }}
               className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
             >
               <X className="w-4 h-4" />
@@ -84,7 +89,7 @@ export function PaymentQRModal({
             {qrPayload && (
               <div className="flex justify-center">
                 <div className="p-4 bg-white rounded-xl border-2 border-gray-100">
-                  <QRCodeSVG
+                  <QRCode
                     value={qrPayload}
                     size={200}
                     level="M"
@@ -163,7 +168,10 @@ export function PaymentQRModal({
             ) : (
               <Button
                 fullWidth
-                onClick={() => setShowUpload(true)}
+                onClick={() => {
+                  hapticLight()
+                  setShowUpload(true)
+                }}
                 className="flex items-center justify-center gap-2"
               >
                 <Upload className="w-5 h-5" />

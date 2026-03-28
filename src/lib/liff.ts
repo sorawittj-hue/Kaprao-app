@@ -4,7 +4,6 @@ import type { Liff } from '@line/liff'
 let liffInstance: Liff | null = null
 let initPromise: Promise<boolean> | null = null
 let isInitialized = false
-let initAttempted = false
 
 const liffId = import.meta.env.VITE_LIFF_ID
 
@@ -33,12 +32,6 @@ export async function initLiff(): Promise<boolean> {
 }
 
 async function initializeLiffInternal(): Promise<boolean> {
-  if (initAttempted) {
-    return isInitialized
-  }
-
-  initAttempted = true
-
   try {
     // Dynamic import to avoid SSR issues
     const liffModule = await import('@line/liff')
@@ -51,6 +44,8 @@ async function initializeLiffInternal(): Promise<boolean> {
   } catch (error) {
     console.warn('⚠️ LIFF initialization failed:', error)
     isInitialized = false
+    // Reset promise so retry is possible
+    initPromise = null
     return false
   }
 }
@@ -105,7 +100,6 @@ export async function logoutFromLine(): Promise<void> {
 
   // Reset state
   isInitialized = false
-  initAttempted = false
   initPromise = null
   liffInstance = null
 }

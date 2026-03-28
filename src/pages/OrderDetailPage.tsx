@@ -166,11 +166,20 @@ export default function OrderDetailPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={async () => {
-                    if (effectiveToken) {
-                      savePendingGuestOrder(order.id, effectiveToken)
+                    try {
+                      if (effectiveToken) {
+                        savePendingGuestOrder(order.id, effectiveToken)
+                      }
+                      const { loginWithLine } = await import('@/lib/auth')
+                      await loginWithLine()
+                    } catch (error) {
+                      const { useUIStore } = await import('@/store')
+                      useUIStore.getState().addToast({
+                        type: 'error',
+                        title: 'เข้าสู่ระบบไม่สำเร็จ',
+                        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
+                      })
                     }
-                    const { loginWithLine } = await import('@/lib/auth')
-                    await loginWithLine()
                   }}
                   className="w-full py-3.5 rounded-xl font-black text-white text-sm flex items-center justify-center gap-2"
                   style={{ background: '#00B900', boxShadow: '0 6px 18px rgba(0,185,0,0.45)' }}

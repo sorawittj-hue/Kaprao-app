@@ -322,3 +322,53 @@ function mapOrderFromDB(data: Record<string, unknown>): UnifiedOrder {
     estimatedReadyTime: data.estimated_ready_time as string | undefined,
   }
 }
+// =====================================================
+// COUPONS & DISCOUNTS
+// =====================================================
+
+export async function validateDiscountCode(code: string): Promise<{ valid: boolean; discount: number; type?: string }> {
+  try {
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('discount_type, discount_value, max_discount, usage_limit, usage_count, starts_at, expires_at, is_active')
+      .eq('code', code.toUpperCase())
+      .maybeSingle()
+
+    if (error || !data) {
+      return { valid: false, discount: 0 }
+    }
+
+    // Check if coupon is active
+    if (!data.is_active) {
+      return { valid: false, discount: 0 }
+    }
+
+    // Check start date
+    if (data.starts_at && new Date(data.starts_at) > new Date()) {
+      return { valid: false, discount: 0 }
+    }
+
+    // Check expiration
+    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+      return { valid: false, discount: 0 }
+    }
+
+    // Check usage limit
+    if (data.usage_limit && data.usage_count >= data.usage_limit) {
+      return { valid: false, discount: 0 }
+    }
+
+    // Return discount value based on type
+    if (data.discount_type === 'free_delivery') {
+      return { valid: true, discount: 0, type: 'free_delivery' }
+    }
+
+    return {
+      valid: true,
+      discount: data.discount_value,
+      type: data.discount_type
+    }
+  } catch {
+    return { valid: false, discount: 0 }
+  }
+}

@@ -11,8 +11,8 @@ interface StreakTrackerProps {
 const DAYS = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา']
 
 export function StreakTracker({ currentStreak, longestStreak }: StreakTrackerProps) {
-  // Generate mock activity for the week (in real app, this would come from order history)
-  const weekActivity = [true, true, true, false, true, true, false] // Last 7 days
+  // Show streak circles based on current streak (max 7 days displayed)
+  const weekActivity = Array.from({ length: 7 }, (_, i) => i < Math.min(currentStreak, 7))
 
   return (
     <motion.div

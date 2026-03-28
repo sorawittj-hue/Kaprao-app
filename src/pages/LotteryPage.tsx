@@ -3,14 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Ticket, Gift, Calendar, Trophy, Sparkles, Loader2 } from 'lucide-react'
 import type { LottoResult } from '@/types'
+import { ScratchTicket } from '@/features/lottery/components/ScratchTicket'
 import { useAuthStore, useUIStore } from '@/store'
+import { hapticLight } from '@/utils/haptics'
+import { cn } from '@/utils/cn'
 import { Container } from '@/components/layout/Container'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/feedback/EmptyState'
 import { staggerContainer, fadeInUp } from '@/animations/variants'
 import { trackPageView } from '@/lib/analytics'
 import { useUserTickets, useLottoUtils, useLatestResult } from '@/features/lottery/hooks/useLottery'
-import { cn } from '@/utils/cn'
 
 export default function LotteryPage() {
   const navigate = useNavigate()
@@ -389,20 +391,42 @@ function TicketCard({
           )}
         </div>
 
-        <div className="flex items-center gap-3">
-          {ticket.number.split('').map((digit, idx) => (
-            <div
-              key={idx}
-              className={cn(
-                'w-10 h-12 rounded-lg flex items-center justify-center font-black text-xl',
-                isWinner
-                  ? 'bg-gradient-to-br from-yellow-400 to-yellow-500 text-white'
-                  : 'bg-gray-100 text-gray-800'
-              )}
-            >
-              {digit}
+        <div className="flex justify-center my-4 overflow-visible">
+          {!isPast ? (
+            <ScratchTicket width={280} height={100} onComplete={() => hapticLight()}>
+               <div className="flex items-center gap-3">
+                {ticket.number.split('').map((digit, idx) => (
+                  <div
+                    key={idx}
+                    className={cn(
+                      'w-10 h-12 rounded-lg flex items-center justify-center font-black text-xl',
+                      isWinner
+                        ? 'bg-gradient-to-br from-yellow-400 to-yellow-500 text-white'
+                        : 'bg-emerald-50 text-emerald-800'
+                    )}
+                  >
+                    {digit}
+                  </div>
+                ))}
+              </div>
+            </ScratchTicket>
+          ) : (
+            <div className="flex items-center gap-3">
+              {ticket.number.split('').map((digit, idx) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    'w-10 h-12 rounded-lg flex items-center justify-center font-black text-xl',
+                    isWinner
+                      ? 'bg-gradient-to-br from-yellow-400 to-yellow-500 text-white'
+                      : 'bg-gray-100 text-gray-800'
+                  )}
+                >
+                  {digit}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         <div className="mt-3 flex items-center justify-between">

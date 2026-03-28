@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   ClipboardList,
   Flame,
@@ -12,24 +12,24 @@ import {
   ChefHat,
   Utensils,
   Package,
-  Clock,
   ArrowUpRight,
   ArrowDownRight,
   Calendar,
-  BarChart3,
-  AlertCircle
+  BarChart3
 } from 'lucide-react'
-import { useAdminStats, useRecentActivity, useTopSellingItems } from '@/features/admin/hooks/useAdmin'
+import { useAdminStats, useTopSellingItems } from '@/features/admin/hooks/useAdmin'
 import { Card } from '@/components/ui/Card'
 import { useAllOrdersRealtime } from '@/features/orders/hooks/useOrders'
 import { staggerContainer, fadeInUp } from '@/animations/variants'
 import { formatPrice } from '@/utils/formatPrice'
 import { trackPageView } from '@/lib/analytics'
+import { hapticLight } from '@/utils/haptics'
 import { useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/queryClient'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
-import type { RecentActivity, TopSellingItem } from '@/types'
+import type { TopSellingItem } from '@/types'
 import { getValidImageUrl } from '@/utils/getImageUrl'
+import { AdminLiveStream } from '@/features/admin/components/AdminLiveStream'
 
 
 
@@ -39,7 +39,6 @@ export default function AdminDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month'>('today')
 
   const { data: stats, isLoading, refetch } = useAdminStats(selectedPeriod)
-  const { data: activities } = useRecentActivity(10)
   const { data: topItems } = useTopSellingItems(5)
 
   // Subscribe to realtime order updates
@@ -50,6 +49,7 @@ export default function AdminDashboard() {
   }, [])
 
   const handleRefresh = () => {
+    hapticLight()
     refetch()
     queryClient.invalidateQueries({ queryKey: queryKeys.admin.all() })
   }
@@ -453,27 +453,9 @@ export default function AdminDashboard() {
           </Card>
         </motion.div>
 
-        {/* Recent Activity */}
+        {/* Recent Activity Live Stream */}
         <motion.div variants={fadeInUp} initial="hidden" animate="visible">
-          <Card>
-            <div className="p-5 border-b border-gray-100">
-              <h3 className="font-bold text-gray-800">กิจกรรมล่าสุด</h3>
-              <p className="text-sm text-gray-500">อัพเดตแบบเรียลไทม์</p>
-            </div>
-            <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
-              <AnimatePresence>
-                {activities?.map((activity) => (
-                  <ActivityItem key={activity.id} activity={activity} />
-                ))}
-              </AnimatePresence>
-              {!activities?.length && (
-                <div className="p-8 text-center text-gray-400">
-                  <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>ยังไม่มีกิจกรรมล่าสุด</p>
-                </div>
-              )}
-            </div>
-          </Card>
+          <AdminLiveStream />
         </motion.div>
       </div>
     </div>
@@ -508,45 +490,6 @@ function TopSellingItemRow({ item, index }: { item: TopSellingItem; index: numbe
       <div className="text-right">
         <p className="font-bold text-brand-600">{formatPrice(item.revenue)}</p>
         <p className="text-xs text-gray-500">{item.totalSold} ที่สั่ง</p>
-      </div>
-    </motion.div>
-  )
-}
-
-// Activity Item Component
-function ActivityItem({ activity }: { activity: RecentActivity }) {
-  const icons = {
-    order: ClipboardList,
-    customer: Users,
-    menu: ChefHat,
-    system: AlertCircle
-  }
-
-  const colors = {
-    order: 'bg-blue-100 text-blue-600',
-    customer: 'bg-green-100 text-green-600',
-    menu: 'bg-orange-100 text-orange-600',
-    system: 'bg-gray-100 text-gray-600'
-  }
-
-  const Icon = icons[activity.type]
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className="p-4 flex items-start gap-3 hover:bg-gray-50 transition-colors"
-    >
-      <div className={`w-10 h-10 rounded-xl ${colors[activity.type]} flex items-center justify-center flex-shrink-0`}>
-        <Icon className="w-5 h-5" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-bold text-gray-800 text-sm">{activity.title}</p>
-        <p className="text-sm text-gray-500 truncate">{activity.description}</p>
-        <p className="text-xs text-gray-400 mt-1">
-          {new Date(activity.timestamp).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
-        </p>
       </div>
     </motion.div>
   )

@@ -42,17 +42,6 @@ function getMockRecommendations(
   _viewedItems: number[],
   _orderHistory: number[]
 ): AIRecommendation[] {
-  const mockReasons = [
-    'ลูกค้าที่สั่งรายการนี้มักชอบความเผ็ด',
-    'เมนูนี้เข้ากันได้ดีกับที่คุณดูไว้',
-    'เป็นเมนูยอดนิยมในหมวดเดียวกัน',
-    'ลูกค้าประจำมักสั่งคู่กัน',
-    'เมนูใหม่ที่น่าลองสำหรับคุณ',
-  ]
-
-  // This would be populated from actual menu data
-  // mockReasons is available for use when generating recommendations
-  void mockReasons
   return []
 }
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore, useUIStore } from '@/store'
-import { initLiff, getLineProfile, isInLineApp, isLiffLoggedIn } from '@/lib/liff'
+import { initLiff, getLineProfile, isLiffLoggedIn } from '@/lib/liff'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@/types'
 
@@ -261,6 +261,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       points: 0,
       totalOrders: 0,
       tier: 'MEMBER',
+      isAdmin: false,
       createdAt: new Date().toISOString(),
     }
 
@@ -287,9 +288,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Load actual points from DB
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('points, total_orders, tier')
+        .select('points, total_orders, tier, is_admin')
         .eq('id', supabaseUserId)
-        .single() as { data: { points: number; total_orders: number; tier: string } | null }
+        .maybeSingle() as { data: { points: number; total_orders: number; tier: string; is_admin: boolean } | null }
 
       if (profileData) {
         setUser({
@@ -297,6 +298,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           points: profileData.points || 0,
           totalOrders: profileData.total_orders || 0,
           tier: (profileData.tier as User['tier']) || 'MEMBER',
+          isAdmin: profileData.is_admin || false,
         })
       }
     } catch (e) {
@@ -339,7 +341,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             .from('profiles')
             .select('points, total_orders')
             .eq('id', supabaseUserId)
-            .single()
+            .maybeSingle()
 
           const newPoints = (profileData as any)?.points || pointsAdded
           const totalOrders = (profileData as any)?.total_orders || ordersSynced
@@ -391,20 +393,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true)
       console.log('🔐 Starting LINE login...')
 
-      // Development mock
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.log('🚧 Dev mode: mocking LINE login...')
-        const devUserId = self.crypto.randomUUID?.() || 'de7da2a0-0000-4000-a000-000000000000'
-        const mockProfile = {
-          userId: devUserId,
-          displayName: 'Dev User 🧑‍💻',
-          pictureUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}`,
-        }
-        await handleLiffSession(mockProfile)
-        setShowWelcome(false)
+      // On localhost, LIFF login will fail because the redirect URI is not whitelisted
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      if (isLocalhost) {
+        setLoading(false)
+        useUIStore.getState().addToast({
+          type: 'info',
+          title: 'LINE Login ใช้บน localhost ไม่ได้',
+          message: 'กรุณา deploy ขึ้น production หรือเพิ่ม localhost ใน LINE Developer Console callback URLs',
+          duration: 8000,
+        })
         return
       }
 
+      const { initLiff, isLiffInitialized } = await import('@/lib/liff')
+      
+      // Ensure LIFF is initialized
+      if (!isLiffInitialized()) {
+        const initialized = await initLiff()
+        if (!initialized) {
+          throw new Error('ไม่สามารถเชื่อมต่อ LINE ได้ กรุณาลองใหม่อีกครั้ง')
+        }
+      }
 
       const liff = (await import('@line/liff')).default
       if (!liff.isLoggedIn()) {
@@ -413,8 +423,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       console.error('❌ LINE login error:', error)
       setLoading(false)
+      useUIStore.getState().addToast({
+        type: 'error',
+        title: 'เข้าสู่ระบบไม่สำเร็จ',
+        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
+      })
     }
-  }, [setLoading, handleLiffSession])
+  }, [setLoading])
 
   // Handle Guest access (no Supabase session needed — pure local state)
   const handleGuestLogin = useCallback(() => {
@@ -445,6 +460,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           points: data.points || 0,
           totalOrders: data.total_orders || 0,
           tier: data.tier || 'MEMBER',
+          isAdmin: data.is_admin || false,
           createdAt: data.created_at || new Date().toISOString(),
         }
 
@@ -488,6 +504,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 points: 0,
                 totalOrders: 0,
                 tier: 'MEMBER',
+                isAdmin: false,
                 createdAt: new Date().toISOString(),
               }
               setUser(restoredUser)
@@ -502,7 +519,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
                   const { data } = await supabase
                     .from('profiles')
-                    .select('points, total_orders, tier, display_name, picture_url')
+                    .select('points, total_orders, tier, display_name, picture_url, is_admin')
                     .eq('id', parsed.userId)
                     .maybeSingle()
 
@@ -514,6 +531,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                       tier: (data as any).tier || 'MEMBER',
                       displayName: (data as any).display_name || restoredUser.displayName,
                       pictureUrl: (data as any).picture_url || restoredUser.pictureUrl,
+                      isAdmin: (data as any).is_admin || false,
                     })
                   }
                 } catch (e) {
@@ -556,7 +574,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                         .from('profiles')
                         .select('points')
                         .eq('id', parsed.userId)
-                        .single()
+                        .maybeSingle()
                       setUser({ ...restoredUser, points: (profileData as any)?.points || pts })
                     }
                     // Clear guest identity after sync
@@ -600,7 +618,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return
         }
 
-        if (liffInitialized && isInLineApp() && isLiffLoggedIn()) {
+        if (liffInitialized && isLiffLoggedIn()) {
           console.log('✅ Already logged in via LIFF')
           const profile = await getLineProfile()
           if (profile) {

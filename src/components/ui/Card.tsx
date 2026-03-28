@@ -2,6 +2,7 @@ import * as React from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/utils/cn'
 import { useReducedMotion } from '@/hooks'
+import { hapticLight } from '@/utils/haptics'
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   isPressable?: boolean
@@ -21,6 +22,12 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           isPressable && 'cursor-pointer active:scale-[0.98]',
           className
         )}
+        onClick={(e) => {
+          if (isPressable) {
+            hapticLight()
+          }
+          props.onClick?.(e)
+        }}
         {...props}
       >
         {children}

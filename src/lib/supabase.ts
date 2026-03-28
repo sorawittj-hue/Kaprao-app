@@ -25,10 +25,13 @@ if (!isConfigured) {
 
 // Create Supabase client with resilient config
 // Using the generic Database type for proper table type inference
-export const supabase = createClient<Database>(
+export const supabase = createClient<Database, 'public'>(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseKey || 'placeholder-key',
   {
+    db: {
+      schema: 'public',
+    },
     auth: {
       persistSession: true,
       autoRefreshToken: true,

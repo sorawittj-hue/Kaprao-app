@@ -4,6 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { motion } from 'framer-motion'
 import { cn } from '@/utils/cn'
 import { useReducedMotion } from '@/hooks'
+import { hapticLight } from '@/utils/haptics'
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -57,6 +58,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(buttonVariants({ variant, size, fullWidth, className }))}
         ref={ref}
         disabled={isLoading || props.disabled}
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+          hapticLight()
+          props.onClick?.(e as any)
+        }}
         {...props}
       >
         {isLoading ? (

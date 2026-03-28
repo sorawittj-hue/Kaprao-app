@@ -11,6 +11,7 @@ export interface User {
   points: number
   totalOrders: number
   tier: 'MEMBER' | 'SILVER' | 'GOLD' | 'VIP'
+  isAdmin: boolean
   avatar?: string
   createdAt: string
 }

@@ -28,6 +28,7 @@ import { hapticLight, hapticMedium } from '@/utils/haptics'
 import { getValidImageUrl } from '@/utils/getImageUrl'
 import { useCollaborativeCart, ShareCartButton, CollaborativeCartBadge, UserAvatar } from '@/features/collaboration/CollaborativeCart'
 import { useSEO } from '@/hooks/useSEO'
+import { usePointsCalculator } from '@/features/points/hooks/usePoints'
 
 export default function CartPage() {
   const navigate = useNavigate()
@@ -138,8 +139,13 @@ export default function CartPage() {
   }
 
   // Calculate points progress
+  const { getNextTier } = usePointsCalculator()
   const pointsToEarn = Math.floor(finalTotal / 10)
-  const nextTierProgress = 85 // Mocked for UI demo
+  const userPoints = user?.points || 0
+  const nextTier = getNextTier(userPoints)
+  const nextTierProgress = nextTier
+    ? Math.min(100, Math.round((userPoints / (userPoints + nextTier.pointsNeeded)) * 100))
+    : 100
 
   if (items.length === 0) {
     return (

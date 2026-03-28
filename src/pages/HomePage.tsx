@@ -221,8 +221,17 @@ export default function HomePage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={async () => {
-                    const { loginWithLine } = await import('@/lib/auth')
-                    await loginWithLine()
+                    try {
+                      const { loginWithLine } = await import('@/lib/auth')
+                      await loginWithLine()
+                    } catch (error) {
+                      const { useUIStore } = await import('@/store')
+                      useUIStore.getState().addToast({
+                        type: 'error',
+                        title: 'เข้าสู่ระบบไม่สำเร็จ',
+                        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
+                      })
+                    }
                   }}
                   className="flex items-center gap-1.5 bg-white font-black text-xs px-3.5 py-2 rounded-full flex-shrink-0"
                   style={{ color: '#FF6B00', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}

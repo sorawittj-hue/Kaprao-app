@@ -8,6 +8,8 @@ import { formatPrice } from '@/utils/formatPrice'
 import { cn } from '@/utils/cn'
 import { hapticAddToCart, hapticLight } from '@/utils/haptics'
 import { getValidImageUrl } from '@/utils/getImageUrl'
+import { SmartUpsell } from './SmartUpsell'
+import { useMagnetic } from '@/hooks/useMagnetic'
 
 interface MenuItemModalProps {
   item: MenuItem | null
@@ -50,6 +52,7 @@ const EXTRA_OPTIONS: SelectedOption[] = [
 import { useGlobalOptions, isOptionAvailable } from '../hooks/useGlobalOptions'
 
 export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
+  const magneticButton = useMagnetic<HTMLButtonElement>()
   const { addItem } = useCartStore()
   const { addToast } = useUIStore()
   const { data: globalOptions = [] } = useGlobalOptions()
@@ -493,6 +496,15 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                   </div>
                 </div>
 
+                {/* Smart Upsell */}
+                <SmartUpsell 
+                  hasEgg={selectedEgg.optionId !== 'no_egg'} 
+                  onAddEgg={() => {
+                    const eggDao = EGG_OPTIONS.find(o => o.optionId === 'egg_dao') || EGG_OPTIONS[2]
+                    setSelectedEgg(eggDao)
+                  }}
+                />
+
                 {/* Quantity & Add to Cart */}
                 <div className="flex gap-3">
                   {/* Quantity Selector */}
@@ -522,16 +534,18 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                   </div>
 
                   {/* Add Button */}
-                  <Button
-                    size="lg"
-                    fullWidth
-                    onClick={handleAddToCart}
-                    isLoading={isAdding}
-                    className="flex-1"
-                  >
-                    <span>เพิ่มลงตะกร้า</span>
-                    <span className="ml-2">{formatPrice(calculateTotal)}</span>
-                  </Button>
+                  <div className="flex-1 overflow-visible">
+                    <Button
+                      {...magneticButton}
+                      size="lg"
+                      fullWidth
+                      onClick={handleAddToCart}
+                      isLoading={isAdding}
+                    >
+                      <span>เพิ่มลงตะกร้า</span>
+                      <span className="ml-2">{formatPrice(calculateTotal)}</span>
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>

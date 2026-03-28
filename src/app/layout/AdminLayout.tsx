@@ -4,11 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '@/store'
 import { logout } from '@/lib/auth'
 import { cn } from '@/utils/cn'
-import { 
-  LayoutDashboard, 
-  Utensils, 
-  Users, 
-  Store, 
+import {
+  LayoutDashboard,
+  Utensils,
+  Users,
+  Store,
   LogOut,
   Menu,
   Loader2,
@@ -39,21 +39,25 @@ export function AdminLayout() {
   const [notifications, setNotifications] = useState<{ id: number; message: string; time: string }[]>([])
   const [showNotifications, setShowNotifications] = useState(false)
   const { user } = useAuthStore()
-  
+
   const { data: stats } = useAdminStats()
 
-  // Check admin status — require LINE-authenticated user
+  // Check admin status — prioritize DB-based is_admin flag
   useEffect(() => {
+    if (user?.isAdmin) {
+      setIsAdmin(true)
+      return
+    }
+
     if (!user?.lineUserId) {
       setIsAdmin(false)
       return
     }
 
-    // Check admin via env-based allowlist
+    // Check admin via env-based allowlist as fallback/legacy
     const adminIds = (import.meta.env.VITE_ADMIN_LINE_IDS || '').split(',').filter(Boolean)
-    // If no admin IDs configured, allow all LINE-authenticated users (dev mode)
-    setIsAdmin(adminIds.length === 0 || adminIds.includes(user.lineUserId))
-  }, [user?.lineUserId])
+    setIsAdmin(adminIds.length > 0 && adminIds.includes(user.lineUserId))
+  }, [user?.lineUserId, user?.isAdmin])
 
   // Subscribe to realtime orders
   useEffect(() => {
@@ -61,18 +65,18 @@ export function AdminLayout() {
       if (payload.eventType === 'INSERT') {
         const newOrder = payload.new as { id: number; customer_name: string }
         setNotifications(prev => [
-          { 
-            id: newOrder.id, 
+          {
+            id: newOrder.id,
             message: `ออเดอร์ใหม่ #${newOrder.id} จาก ${newOrder.customer_name}`,
             time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
           },
           ...prev.slice(0, 9)
         ])
-        
+
         // Play notification sound
         const audio = new Audio('/notification.mp3')
-        audio.play().catch(() => {})
-        
+        audio.play().catch(() => { })
+
         // Refresh stats
         queryClient.invalidateQueries({ queryKey: queryKeys.admin.stats() })
         queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders() })
@@ -91,9 +95,9 @@ export function AdminLayout() {
 
   const navItems: NavItem[] = [
     { path: '/admin', icon: LayoutDashboard, label: 'ภาพรวม', exact: true },
-    { 
-      path: '/admin/orders', 
-      icon: Utensils, 
+    {
+      path: '/admin/orders',
+      icon: Utensils,
       label: 'ออเดอร์',
       badge: (stats?.pendingOrders || 0) + (stats?.cookingOrders || 0)
     },
@@ -172,7 +176,7 @@ export function AdminLayout() {
           <p className="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">
             เมนูหลัก
           </p>
-          
+
           {navItems.map((item) => (
             <NavLink
               key={item.path}
@@ -201,7 +205,7 @@ export function AdminLayout() {
           <div className="mt-8 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
             ระบบ
           </div>
-          
+
           {secondaryNavItems.map((item) => (
             <NavLink
               key={item.path}
@@ -219,7 +223,7 @@ export function AdminLayout() {
               <span>{item.label}</span>
             </NavLink>
           ))}
-          
+
           <button
             onClick={handleLogout}
             className="w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
@@ -260,16 +264,16 @@ export function AdminLayout() {
             <div>
               <h2 className="text-xl font-bold text-gray-800">{getPageTitle()}</h2>
               <p className="text-xs text-gray-500 hidden sm:block">
-                {new Date().toLocaleDateString('th-TH', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                {new Date().toLocaleDateString('th-TH', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             {/* Notifications */}
             <div className="relative">
@@ -284,13 +288,13 @@ export function AdminLayout() {
                   </span>
                 )}
               </button>
-              
+
               {/* Notification Dropdown */}
               <AnimatePresence>
                 {showNotifications && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-10" 
+                    <div
+                      className="fixed inset-0 z-10"
                       onClick={() => setShowNotifications(false)}
                     />
                     <motion.div

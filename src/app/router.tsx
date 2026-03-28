@@ -4,7 +4,8 @@ import { lazyWithRetry } from '@/utils/lazyWithRetry'
 import { AppProviders } from './providers/AppProviders'
 import { RootLayout } from './layout/RootLayout'
 import { AdminLayout } from './layout/AdminLayout'
-import { LoadingScreen } from '@/components/feedback/LoadingScreen'
+import { PageTransition } from '@/animations/PageTransition'
+import { PageLoader } from './PageLoader'
 import { ErrorBoundary } from '@/components/feedback/ErrorBoundary'
 
 // Lazy load pages for code splitting with automatic retry on failure
@@ -23,18 +24,14 @@ const AdminSettingsPage = lazyWithRetry(() => import('@/pages/admin/AdminSetting
 const PrivacyPolicyPage = lazyWithRetry(() => import('@/pages/legal/PrivacyPolicyPage'))
 const TermsOfServicePage = lazyWithRetry(() => import('@/pages/legal/TermsOfServicePage'))
 
-// Loading fallback
-// eslint-disable-next-line react-refresh/only-export-components
-function PageLoader() {
-  return <LoadingScreen message="กำลังโหลดหน้า..." />
-}
-
-// Wrap component with Suspense and ErrorBoundary
+// Wrap component with Suspense, ErrorBoundary, and PageTransition
 function withSuspense(Component: React.ComponentType) {
   return (
     <ErrorBoundary>
       <Suspense fallback={<PageLoader />}>
-        <Component />
+        <PageTransition>
+          <Component />
+        </PageTransition>
       </Suspense>
     </ErrorBoundary>
   )

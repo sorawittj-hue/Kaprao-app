@@ -249,6 +249,11 @@ function OrderSuccess({ order, onContinue }: { order: Order; onContinue: () => v
                 await loginWithLine()
               } catch (e) {
                 console.error('Failed LINE login:', e)
+                addToast({
+                  type: 'error',
+                  title: 'เข้าสู่ระบบไม่สำเร็จ',
+                  message: e instanceof Error ? e.message : 'กรุณาลองใหม่อีกครั้ง',
+                })
               }
             }}
             variant="success"
@@ -842,8 +847,16 @@ export default function CheckoutPage() {
                 pointsToEarn={pointsToEarn}
                 ticketsToEarn={ticketsToEarn}
                 onLogin={async () => {
-                  const { loginWithLine } = await import('@/lib/auth')
-                  await loginWithLine()
+                  try {
+                    const { loginWithLine } = await import('@/lib/auth')
+                    await loginWithLine()
+                  } catch (e) {
+                    addToast({
+                      type: 'error',
+                      title: 'เข้าสู่ระบบไม่สำเร็จ',
+                      message: e instanceof Error ? e.message : 'กรุณาลองใหม่อีกครั้ง',
+                    })
+                  }
                 }}
                 variant="checkout"
               />

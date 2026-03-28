@@ -1,32 +1,24 @@
 import { supabase } from './supabase'
-import { initLiff, isLiffInitialized } from './liff'
+import { isLiffInitialized } from './liff'
 import { useAuthStore } from '@/store'
 
 // ─── Login with LINE ──────────────────────────────────────────────────────────
 export async function loginWithLine(): Promise<void> {
   try {
-    // Development mock to prevent 400 Bad Request on localhost
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.log('🚧 Dev mode: mocking LINE login...')
-      sessionStorage.removeItem('kaprao_guest_mode')
-      const devUserId = self.crypto.randomUUID?.() || 'de7da2a0-0000-4000-a000-000000000000'
-      const devLineId = 'line-' + (self.crypto.randomUUID?.() || 'de7da2a0-0000-4000-a000-111111111111')
-      
-      localStorage.setItem('kaprao_user_data', JSON.stringify({
-        userId: devUserId,
-        lineUserId: devLineId,
-        name: 'Dev User 🧑‍💻',
-        image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}`
-      }))
-
-      window.location.reload()
-      return
+    // On localhost, LIFF login will fail because the redirect URI is not whitelisted
+    // in the LINE Developer Console. Show a clear error instead of a 400.
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    if (isLocalhost) {
+      throw new Error('LINE Login ไม่สามารถใช้บน localhost ได้ — deploy ขึ้น production หรือเพิ่ม localhost URL ใน LINE Developer Console callback URLs')
     }
 
+    // Initialize LIFF if not already done
+    const { initLiff, isLiffInitialized } = await import('./liff')
+    
     if (!isLiffInitialized()) {
       const initialized = await initLiff()
       if (!initialized) {
-        throw new Error('LIFF initialization failed')
+        throw new Error('ไม่สามารถเชื่อมต่อ LINE ได้ กรุณาลองใหม่อีกครั้ง')
       }
     }
 
@@ -121,14 +113,15 @@ export async function syncUserStats(userId: string) {
     .from('profiles')
     .select('points, total_orders, tier')
     .eq('id', userId)
-    .single() as { data: { points: number; total_orders: number; tier: string } | null; error: Error | null }
+    .maybeSingle() as { data: { points: number; total_orders: number; tier: string } | null; error: Error | null }
 
   if (error) throw error
+  if (!data) return { points: 0, totalOrders: 0, tier: 'MEMBER' as const }
 
   return {
-    points: data?.points || 0,
-    totalOrders: data?.total_orders || 0,
-    tier: data?.tier || 'MEMBER',
+    points: data.points || 0,
+    totalOrders: data.total_orders || 0,
+    tier: data.tier || 'MEMBER',
   }
 }
 
@@ -151,10 +144,10 @@ export async function checkIsAdmin(userId: string): Promise<boolean> {
       .from('profiles')
       .select('is_admin')
       .eq('id', userId)
-      .single() as { data: { is_admin?: boolean } | null; error: Error | null }
+      .maybeSingle() as { data: { is_admin?: boolean } | null; error: Error | null }
 
-    if (error) return false
-    return data?.is_admin === true
+    if (error || !data) return false
+    return data.is_admin === true
   } catch {
     return false
   }
