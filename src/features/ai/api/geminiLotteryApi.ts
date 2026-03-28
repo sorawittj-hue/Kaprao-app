@@ -1,5 +1,6 @@
 import { UnifiedOrder } from '@/types/v2'
 import { supabase } from '@/lib/supabase'
+import { GoogleGenAI } from '@google/genai'
 
 export interface GeminiLotteryResponse {
   number: string
@@ -22,31 +23,37 @@ export async function generateLuckyLotteryWithGemini(order: UnifiedOrder): Promi
   const itemsList = order.items.map(i => `${i.quantity}x ${i.name}`).join(', ')
   const systemPrompt = `คุณคือซินแส AI ผู้เชี่ยวชาญด้านการให้เลขเด็ดจากเมนูอาหารที่คุณลูกค้าสั่ง 
 วิเคราะห์เมนูเหล่านี้: ${itemsList}
-แล้วให้ 'เลขเด็ด 2 ตัว' และ 'คำทำนายโชคดีสั้นๆ 1 ประโยค' (เช่น สั่งกะเพราหมูกรอบ ความกรอบจะนำพาเงินทอง)
-ตอบกลับมาเป็น JSON เท่านั้น โดยมี property "number" (string 2 หลัก) และ "fortune" (string)`
+แล้วให้ 'เลขเด็ด 2 ตัว' และ 'คำทำนายโชคดีสั้นๆ 1 ประโยค' (เช่น สั่งกะเพราหมูกรอบ ความกรอบจะนำพาเงินทอง)`
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: systemPrompt }]
-        }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.9,
-        }
-      })
-    })
+    const ai = new GoogleGenAI({ apiKey });
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: systemPrompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            number: { 
+              type: "STRING", 
+              description: "เลขเด็ด 2 ตัว (เช่น '42', '09')" 
+            },
+            fortune: { 
+              type: "STRING", 
+              description: "คำทำนายโชคดีสั้นๆ 1 ประโยค" 
+            }
+          },
+          required: ["number", "fortune"]
+        },
+        temperature: 0.9,
+      }
+    });
 
-    if (!res.ok) throw new Error('Gemini API Error')
+    if (!response.text) throw new Error('Empty response');
     
-    const data = await res.json()
-    const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text
-    if (!textContent) throw new Error('Empty response')
-    
-    const parsed = JSON.parse(textContent)
+    const parsed = JSON.parse(response.text);
     const newNumber = parsed.number || String(order.id).slice(-2).padStart(2, '0')
 
     // UPDATE DB SO THEY MATCH

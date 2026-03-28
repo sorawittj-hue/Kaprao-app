@@ -16,6 +16,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@google/genai": "latest",
     "@line/liff": "^2.23.2",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
