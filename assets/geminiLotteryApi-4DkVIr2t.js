@@ -1,0 +1,2 @@
+import"./index-DoU9OJYs.js";import"./vendor-query-DMMGQG64.js";import"./vendor-react-7b8ENrfa.js";import"./vendor-ui-C_ALX6dB.js";import"./vendor-animation-B5KzGM5w.js";import"./vendor-charts-CUJ_K8T4.js";async function s(t){{const i=String(t.id).slice(-2).padStart(2,"0"),r=t.items.reduce((e,n)=>e+n.quantity,0);return{number:i,fortune:`คุณสั่งเมนูไปทั้งหมด ${r} อย่าง ขอให้เลข ${i} นำโชคมาให้นะครับ`}}}export{s as generateLuckyLotteryWithGemini};
+//# sourceMappingURL=geminiLotteryApi-4DkVIr2t.js.map
