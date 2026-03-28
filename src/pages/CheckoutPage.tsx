@@ -21,6 +21,7 @@ import { useCartStore, useAuthStore, useUIStore } from '@/store'
 import { Container } from '@/components/layout/Container'
 import { formatPrice } from '@/utils/formatPrice'
 import type { Order } from '@/types'
+export type OrderWithLotto = Order & { lottoNumber?: string, lottoFortune?: string }
 import { cn } from '@/utils/cn'
 import confetti from 'canvas-confetti'
 import { buildLineOrderMessage, getThaiLotteryDrawDate, redirectToLineOA } from '@/utils/buildLineMessage'
@@ -61,7 +62,7 @@ function PaymentOption({ method, selected, onSelect, icon: Icon, title, descript
 }
 
 // Order success component PRO MAX
-function OrderSuccess({ order, onContinue }: { order: Order; onContinue: () => void }) {
+function OrderSuccess({ order, onContinue }: { order: OrderWithLotto; onContinue: () => void }) {
   const navigate = useNavigate()
   const { isGuest } = useAuthStore()
   const { addToast } = useUIStore()
@@ -70,7 +71,7 @@ function OrderSuccess({ order, onContinue }: { order: Order; onContinue: () => v
   const [isUploading, setIsUploading] = useState(false)
   const [slipUrl, setSlipUrl] = useState<string | null>(order.paymentSlipUrl || null)
 
-  const lottoNumber = String(order.id).slice(-2).padStart(2, '0')
+  const lottoNumber = order.lottoNumber || String(order.id).slice(-2).padStart(2, '0')
   const ticketsEarned = Math.floor(order.totalPrice / 100)
 
   const handleSlipUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +156,39 @@ function OrderSuccess({ order, onContinue }: { order: Order; onContinue: () => v
              }} variant="success" />
           )}
 
+          {/* AI Lottery Ticket */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+            {order.lottoNumber ? (
+               <div className="bg-gradient-to-br from-[#1E1B4B] via-[#4C1D95] to-[#312E81] rounded-[32px] p-8 shadow-2xl relative overflow-hidden text-center mb-6 border border-indigo-400/20">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
+                  
+                  <div className="flex items-center justify-center gap-2 mb-6 relative z-10">
+                     <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
+                     <h3 className="font-black text-amber-100 text-lg sm:text-xl drop-shadow-md">ตีเลขจากเมนูด้วยซินแส AI</h3>
+                     <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
+                  </div>
+
+                  <div className="bg-black/40 backdrop-blur-xl border-2 border-indigo-300/30 rounded-3xl py-8 px-4 mb-6 relative z-10 shadow-inner group transition-all hover:bg-black/50">
+                      <div className="flex justify-center items-center gap-2 mb-2">
+                         <Ticket className="w-4 h-4 text-indigo-300" />
+                         <p className="text-[11px] font-black text-indigo-300 uppercase tracking-widest">LOTTERY TICKET</p>
+                      </div>
+                      <div className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-yellow-400 to-amber-600 drop-shadow-[0_0_15px_rgba(251,191,36,0.3)] tracking-widest group-hover:scale-105 transition-transform duration-500">
+                         {order.lottoNumber}
+                      </div>
+                  </div>
+
+                  {order.lottoFortune && (
+                    <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 relative z-10 border border-white/10">
+                      <p className="text-indigo-100/90 text-[15px] font-bold leading-relaxed italic">"{order.lottoFortune}"</p>
+                    </div>
+                  )}
+                  <p className="text-[9px] text-indigo-300/50 mt-5 relative z-10 uppercase tracking-[0.2em]">Powered by Google Gemini API</p>
+               </div>
+            ) : null}
+          </motion.div>
+
           <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100">
              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100/50">
                 <div className="w-10 h-10 bg-gray-50 rounded-[14px] flex items-center justify-center"><Banknote className="w-5 h-5 text-gray-500" /></div>
@@ -214,7 +248,7 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'transfer' | 'promptpay'>('cod')
   const [specialInstructions, setSpecialInstructions] = useState('')
   const [showSuccess, setShowSuccess] = useState(false)
-  const [createdOrder, setCreatedOrder] = useState<Order | null>(null)
+  const [createdOrder, setCreatedOrder] = useState<OrderWithLotto | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
   const pointsToEarn = calculateEarned(finalTotal)
@@ -260,7 +294,19 @@ export default function CheckoutPage() {
         try { await addPoints({ userId: user.id, amount: pointsToEarn, action: 'EARN', note: `สั่งซื้อออเดอร์ #${order.id}`, orderId: order.id }) } catch (e) { console.error(e) }
       }
 
-      setCreatedOrder(order)
+      // -- GEMINI AI LUCKY NUMBER --
+      let finalLottoNumber = unifiedOrder.queue?.display?.slice(-2) || String(order.id).slice(-2).padStart(2, '0')
+      let lottoFortune = undefined
+      try {
+        const { generateLuckyLotteryWithGemini } = await import('@/features/ai/api/geminiLotteryApi')
+        const geminiResult = await generateLuckyLotteryWithGemini(unifiedOrder as any)
+        finalLottoNumber = geminiResult.number
+        lottoFortune = geminiResult.fortune
+      } catch (e) { console.error('Gemini Failed:', e) }
+
+      const finalOrder = { ...order, lottoNumber: finalLottoNumber, lottoFortune }
+
+      setCreatedOrder(finalOrder)
       clearCart()
       useAuthStore.getState().incrementOrderCount()
 
@@ -269,13 +315,13 @@ export default function CheckoutPage() {
 
       setShowSuccess(true)
       confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 }, colors: ['#FF6B00', '#FBBF24', '#10B981'] })
-      addToast({ type: 'success', title: 'สุดยอด!', message: unifiedOrder.queue?.display ? `ออเดอร์ #${order.id} - คทรคิว ${unifiedOrder.queue.display}` : `ออเดอร์ #${order.id} ถูกบันทึกแล้ว` })
+      addToast({ type: 'success', title: 'สุดยอด!', message: unifiedOrder.queue?.display ? `ออเดอร์ #${order.id} - คิว ${unifiedOrder.queue.display}` : `ออเดอร์ #${order.id} ถูกบันทึกแล้ว` })
 
       const drawDate = getThaiLotteryDrawDate()
       const isGuestUser = !user?.lineUserId
-      const lineMessage = buildLineOrderMessage({ order, lottoNumber: unifiedOrder.queue?.display?.slice(-2) || String(order.id).slice(-2).padStart(2, '0'), drawDate, isGuest: isGuestUser, pointsEarned: pointsToEarn, ticketsEarned: ticketsToEarn })
+      const lineMessage = buildLineOrderMessage({ order, lottoNumber: finalLottoNumber, drawDate, isGuest: isGuestUser, pointsEarned: pointsToEarn, ticketsEarned: ticketsToEarn })
 
-      setTimeout(async () => { await redirectToLineOA(lineMessage) }, 2500)
+      setTimeout(async () => { await redirectToLineOA(lineMessage) }, 4000)
     } catch (error) { addToast({ type: 'error', title: 'มีบางอย่างผิดพลาด', message: 'กรุณาลองใหม่อีกครั้ง' }) }
     finally { setIsProcessing(false) }
   }, [addPoints, addToast, address, clearCart, couponCode, customerName, deliveryMethod, discountAmount, finalTotal, items, paymentMethod, phoneNumber, pointsToEarn, pointsUsed, specialInstructions, subtotal, ticketsToEarn, user])
