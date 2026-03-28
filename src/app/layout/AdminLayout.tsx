@@ -156,24 +156,24 @@ export function AdminLayout() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed md:relative inset-y-0 left-0 w-72 bg-gray-900 text-white z-30 transition-transform duration-300 flex flex-col",
+          "fixed md:relative inset-y-0 left-0 w-72 bg-white text-gray-900 border-r border-gray-100 z-30 transition-transform duration-300 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)]",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
         {/* Header */}
-        <div className="h-20 flex items-center px-6 border-b border-gray-800">
-          <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl mr-3">
+        <div className="h-20 flex items-center px-6 border-b border-gray-100">
+          <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center text-white font-black text-xl mr-3 shadow-md">
             K
           </div>
           <div>
-            <h1 className="font-black text-lg tracking-tight">KAPRAO52</h1>
-            <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Admin Panel</p>
+            <h1 className="font-black text-lg tracking-tight text-gray-900">KAPRAO52</h1>
+            <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Admin Panel</p>
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <p className="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">
+          <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4">
             เมนูหลัก
           </p>
 
@@ -187,22 +187,22 @@ export function AdminLayout() {
                 cn(
                   "w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-all relative",
                   isActive
-                    ? "bg-orange-500 text-white shadow-lg"
-                    : "text-gray-400 hover:bg-white/10 hover:text-white"
+                    ? "bg-gray-900 text-white shadow-md shadow-gray-900/10"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                 )
               }
             >
               <item.icon className="w-5 h-5" />
               <span>{item.label}</span>
               {item.badge ? (
-                <span className="absolute right-3 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute right-3 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
                   {item.badge > 99 ? '99+' : item.badge}
                 </span>
               ) : null}
             </NavLink>
           ))}
 
-          <div className="mt-8 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+          <div className="mt-8 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
             ระบบ
           </div>
 
@@ -214,8 +214,8 @@ export function AdminLayout() {
                 cn(
                   "w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-all",
                   isActive
-                    ? "bg-white/20 text-white"
-                    : "text-gray-400 hover:bg-white/10 hover:text-white"
+                    ? "bg-gray-100 text-gray-900"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                 )
               }
             >
@@ -226,7 +226,7 @@ export function AdminLayout() {
 
           <button
             onClick={handleLogout}
-            className="w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
+            className="w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-red-500 hover:bg-red-50 hover:text-red-600 transition-all mt-4"
           >
             <LogOut className="w-5 h-5" />
             <span>ออกจากระบบ</span>
@@ -234,16 +234,16 @@ export function AdminLayout() {
         </nav>
 
         {/* User Info */}
-        <div className="p-6 border-t border-gray-800">
+        <div className="p-6 border-t border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-lg font-bold">
+            <div className="w-10 h-10 rounded-[14px] bg-gray-100 text-gray-900 border border-gray-200 flex items-center justify-center text-lg font-black shadow-sm">
               {user?.displayName?.[0] || 'A'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm truncate">{user?.displayName || 'Admin'}</p>
+              <p className="font-bold text-sm text-gray-900 truncate">{user?.displayName || 'Admin'}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <p className="text-xs text-green-400 font-medium">ออนไลน์</p>
+                <span className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
+                <p className="text-xs text-emerald-600 font-bold">ออนไลน์</p>
               </div>
             </div>
           </div>

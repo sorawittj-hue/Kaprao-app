@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Share2, Copy, Check, X } from 'lucide-react'
+import { Share2, Copy, Check } from 'lucide-react'
 import { useUIStore } from '@/store'
 
 interface LotteryShareButtonProps {

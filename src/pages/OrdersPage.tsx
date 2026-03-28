@@ -1,25 +1,35 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ArrowLeft, CheckCircle, LogIn } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowLeft, CheckCircle, Clock, RefreshCw, Smartphone, PackageX } from 'lucide-react'
 import { useOrders } from '@/features/orders/hooks/useOrders'
-import { useAuthStore } from '@/store'
+import { useAuthStore, useUIStore } from '@/store'
 import { Container } from '@/components/layout/Container'
 import { OrderCard } from '@/features/orders/components/OrderCard'
 import { OrderCardSkeleton } from '@/components/ui/Skeleton'
-import { staggerContainer, fadeInUp } from '@/animations/variants'
 import { trackPageView } from '@/lib/analytics'
 import { useSEO } from '@/hooks/useSEO'
 import { getOrCreateGuestIdentity } from '@/features/v2/api/unifiedOrderApi'
+import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
+import { cn } from '@/utils/cn'
+
+const slideUpItem = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 25 } }
+}
+const staggerList = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+}
 
 export default function OrdersPage() {
   const navigate = useNavigate()
   const { user, isGuest } = useAuthStore()
+  const { addToast } = useUIStore()
 
   const guestIdentity = isGuest ? getOrCreateGuestIdentity() : null
 
-  // Use persistent ID for fetching orders
-  const { data: orders, isLoading, refetch } = useOrders(
+  const { data: orders, isLoading, refetch, isRefetching } = useOrders(
     user?.id,
     user?.lineUserId,
     undefined,
@@ -28,231 +38,137 @@ export default function OrdersPage() {
 
   useEffect(() => {
     trackPageView('/orders', 'Orders')
+    window.scrollTo(0, 0)
   }, [])
 
   useSEO({
-    title: 'ประวัติการสั่งซื้อ',
-    description: 'ติดตามสถานะออเดอร์และดูประวัติการสั่งซื้อกะเพราของคุณที่ กะเพรา 52'
+    title: 'ประวัติการสั่งซื้อ | กะเพรา 52',
+    description: 'ติดตามสถานะออเดอร์และดูประวัติการสั่งซื้อกะเพราของคุณ'
   })
 
-  const activeOrders = orders?.filter(
-    (o) => ['placed', 'confirmed', 'preparing', 'ready'].includes(o.status)
-  )
-  const pastOrders = orders?.filter(
-    (o) => ['delivered', 'cancelled'].includes(o.status)
-  )
+  const activeOrders = orders?.filter(o => ['placed', 'confirmed', 'preparing', 'ready'].includes(o.status)) || []
+  const pastOrders = orders?.filter(o => ['delivered', 'cancelled'].includes(o.status)) || []
+
+  const handleLogin = async () => {
+    hapticHeavy()
+    try {
+      const { loginWithLine } = await import('@/lib/auth')
+      await loginWithLine()
+    } catch (error) {
+       addToast({ type: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', message: 'กรุณาลองใหม่อีกครั้ง' })
+    }
+  }
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: '#FAFAF9' }}>
-      <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-blue-50 to-transparent pointer-events-none" />
-      <Container className="py-6 relative z-10">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: '#f3f4f6' }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate(-1)}
-            className="w-11 h-11 rounded-full bg-white flex items-center justify-center text-gray-700 shadow-sm border border-gray-100 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </motion.button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-black text-gray-900 tracking-tight">รายการสั่งซื้อของคุณ</h1>
-            {orders && orders.length > 0 && (
-              <p className="text-sm text-gray-400 mt-1 font-medium">{orders.length} ออเดอร์ทั้งหมด</p>
-            )}
-          </div>
-          {/* Refresh button */}
-          <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: '#f3f4f6' }}
-            whileTap={{ scale: 0.9, rotate: 180 }}
-            onClick={() => refetch()}
-            className="w-11 h-11 rounded-full bg-white flex items-center justify-center text-gray-400 shadow-sm border border-gray-100 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </motion.button>
+    <div className="min-h-screen bg-[#F4F4F5] pb-32">
+       {/* Background Aesthetics */}
+       <div className="absolute top-0 inset-x-0 h-[200px] bg-gradient-to-b from-gray-100 to-transparent pointer-events-none z-0" />
+
+      <Container className="py-4 relative z-10 px-5 space-y-6">
+        
+        {/* Header Section */}
+        <div className="flex items-center justify-between sticky top-4 z-50 mb-2">
+           <motion.button whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 border border-gray-100 shadow-sm">
+             <ArrowLeft className="w-5 h-5" />
+           </motion.button>
+           <div className="text-center">
+             <h1 className="text-lg font-black tracking-tight text-gray-900">ประวัติออเดอร์</h1>
+             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Order History</p>
+           </div>
+           <motion.button whileTap={{ scale: 0.9 }} onClick={() => { hapticMedium(); refetch() }} className={cn("w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 border border-gray-100 shadow-sm", isRefetching ? "opacity-50 pointer-events-none" : "")}>
+             <RefreshCw className={cn("w-5 h-5", isRefetching ? "animate-spin" : "")} />
+           </motion.button>
         </div>
 
-        {/* Guest Login Prompt */}
-        {isGuest && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4 rounded-2xl overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, #00B900 0%, #00A000 100%)',
-              boxShadow: '0 8px 24px -4px rgba(0,185,0,0.35)',
-            }}
-          >
-            <div className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl">
-                👤
-              </div>
-              <div className="flex-1">
-                <p className="font-black text-white text-sm">เข้าสู่ระบบเพื่อดูออเดอร์ทั้งหมด</p>
-                <p className="text-green-100 text-xs mt-0.5">ด้วย LINE — ดูประวัติ สะสมพอยต์ ลุ้นหวย</p>
-              </div>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={async () => {
-                  try {
-                    const { loginWithLine } = await import('@/lib/auth')
-                    await loginWithLine()
-                  } catch (error) {
-                    const { useUIStore } = await import('@/store')
-                    useUIStore.getState().addToast({
-                      type: 'error',
-                      title: 'เข้าสู่ระบบไม่สำเร็จ',
-                      message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
-                    })
-                  }
-                }}
-                className="flex items-center gap-1.5 bg-white text-green-700 font-black text-xs px-3 py-2 rounded-xl flex-shrink-0"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                Login
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-
-
+        {/* Guest Banner */}
+        <AnimatePresence>
+           {isGuest && (
+             <motion.div initial={{ opacity: 0, height: 0, scale: 0.9 }} animate={{ opacity: 1, height: 'auto', scale: 1 }} exit={{ opacity: 0, height: 0 }} className="pt-2">
+                <div className="bg-white rounded-[24px] p-5 relative overflow-hidden shadow-sm border border-gray-100">
+                   <div className="flex items-center justify-between relative z-10">
+                      <div className="flex-1">
+                         <p className="font-black text-gray-900 text-sm">ผู้เยี่ยมชมระบบ</p>
+                         <p className="text-gray-500 text-[10px] font-bold mt-0.5">เชื่อมต่อ LINE เพื่อบันทึกประวัติถาวร</p>
+                      </div>
+                      <button onClick={handleLogin} className="bg-[#00B900] text-white px-4 py-2.5 rounded-xl font-black text-xs shadow-sm active:scale-95 transition-transform flex items-center gap-1.5 flex-shrink-0">
+                         <Smartphone className="w-4 h-4"/> Login
+                      </button>
+                   </div>
+                </div>
+             </motion.div>
+           )}
+        </AnimatePresence>
 
         {isLoading ? (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <OrderCardSkeleton key={i} />
-            ))}
-          </div>
+           <div className="space-y-4 pt-4">
+             {[...Array(3)].map((_, i) => <OrderCardSkeleton key={i} />)}
+           </div>
         ) : !orders?.length ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-
-            <div className="text-center py-16 px-4 bg-white rounded-3xl border border-gray-100 shadow-sm">
-              <div className="w-24 h-24 bg-gradient-to-tr from-orange-100 to-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-                <div className="absolute inset-0 bg-orange-200 rounded-full animate-ping opacity-20"></div>
-                <span className="text-4xl drop-shadow-sm">🛵</span>
+           <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ type: "spring", stiffness: 300, damping: 25 }} className="bg-white rounded-[40px] p-8 text-center shadow-sm border border-white mt-10">
+              <div className="w-24 h-24 bg-gray-50 rounded-[28px] border border-gray-100 shadow-sm flex items-center justify-center mx-auto mb-6">
+                 <PackageX className="w-10 h-10 text-gray-400" />
               </div>
-              <h2 className="font-black text-gray-800 text-2xl mb-2">หิวรึยังคะ?</h2>
-              <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[260px] mx-auto font-medium">
-                {isGuest ? 'ดูเหมือนคุณจะยังไม่เคยสั่งอาหารเลย' : 'คุณยังไม่เคยสั่งอาหารกับกะเพรา 52'}<br />
-                มาลองเมนูเด็ดๆ กันเลยดีไหม!
-              </p>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => navigate('/')}
-                className="w-full max-w-[260px] mx-auto py-3.5 rounded-2xl font-black text-white text-base flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(135deg, #FF6B00, #FF8C42)', boxShadow: '0 8px 24px -6px rgba(255,107,0,0.45)' }}
-              >
-                <span className="text-xl">🥗</span>
-                ดูเมนูอาหารทั้งหมด
-              </motion.button>
-            </div>
-          </motion.div>
+              <h2 className="font-black text-xl text-gray-900 tracking-tight mb-2">หิวรึยังคะ?</h2>
+              <p className="text-sm font-medium text-gray-500 mb-8 max-w-[240px] mx-auto leading-relaxed">ดูเหมือนคุณจะยังไม่เคยสั่งอาหารกับกะเพรา 52 เลย มาลองเมนูเด็ดๆ กัน!</p>
+              
+              <button onClick={() => { hapticHeavy(); navigate('/') }} className="w-full h-14 bg-gray-900 text-white rounded-[20px] shadow-md font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform relative overflow-hidden group">
+                 ดูเมนูอาหารทั้งหมด
+              </button>
+           </motion.div>
         ) : (
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="space-y-6"
-          >
-            {/* Active Orders */}
-            {activeOrders && activeOrders.length > 0 && (
-              <motion.section variants={fadeInUp}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className="flex items-center justify-center w-8 h-8 rounded-full"
-                    style={{ background: 'linear-gradient(135deg, #3B82F6, #06B6D4)', boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.4)' }}
-                  >
-                    <motion.div
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ duration: 1.2, repeat: Infinity }}
-                      className="w-2.5 h-2.5 bg-white rounded-full"
-                    />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-black text-gray-800">กำลังดำเนินการ</h2>
-                    <p className="text-xs font-bold text-blue-600">{activeOrders.length} ออเดอร์</p>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {activeOrders.map((order) => (
-                    <OrderCard
-                      key={order.id}
-                      order={order}
-                      onClick={() => navigate(`/orders/${order.id}`)}
-                    />
-                  ))}
-                </div>
-              </motion.section>
-            )}
+           <motion.div variants={staggerList} initial="hidden" animate="visible" className="space-y-6 pt-4 pb-16">
+              
+              {/* Active Orders */}
+              {activeOrders.length > 0 && (
+                <motion.section variants={slideUpItem}>
+                   <div className="flex items-center gap-3 mb-4 px-2">
+                      <div className="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center border border-blue-100/50 shadow-inner relative overflow-hidden">
+                         <div className="absolute inset-0 bg-blue-500/10 animate-pulse" />
+                         <Clock className="w-5 h-5 text-blue-500 relative z-10" />
+                      </div>
+                      <div>
+                         <h2 className="font-black text-gray-800 text-[15px]">กำลังดำเนินการ</h2>
+                         <p className="text-[11px] font-bold text-blue-500 tracking-widest uppercase">{activeOrders.length} ออเดอร์</p>
+                      </div>
+                   </div>
+                   <div className="space-y-4">
+                      {activeOrders.map((order) => (
+                         <div key={order.id} className="active:scale-[0.98] transition-transform">
+                            <OrderCard order={order} onClick={() => { hapticLight(); navigate(`/orders/${order.id}${order.trackingToken ? `?token=${order.trackingToken}` : ''}`) }} />
+                         </div>
+                      ))}
+                   </div>
+                </motion.section>
+              )}
 
-            {/* Past Orders */}
-            {pastOrders && pastOrders.length > 0 && (
-              <motion.section variants={fadeInUp} className="pt-4 border-t-2 border-dashed border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className="flex items-center justify-center w-8 h-8 rounded-full"
-                    style={{ background: '#F3F4F6', border: '1px solid #E5E7EB' }}
-                  >
-                    <CheckCircle className="w-4 h-4 text-gray-500" />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-black text-gray-500">ประวัติการสั่งซื้อ</h2>
-                    <p className="text-xs font-bold text-gray-400">{pastOrders.length} ออเดอร์</p>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {pastOrders.map((order) => (
-                    <OrderCard
-                      key={order.id}
-                      order={order}
-                      onClick={() => navigate(`/orders/${order.id}`)}
-                    />
-                  ))}
-                </div>
-              </motion.section>
-            )}
+              {/* Past Orders */}
+              {pastOrders.length > 0 && (
+                <motion.section variants={slideUpItem} className={cn("pt-4", activeOrders.length > 0 ? "border-t border-gray-200/50 dashed" : "")}>
+                   <div className="flex items-center gap-3 mb-4 px-2">
+                      <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100/50 shadow-inner">
+                         <CheckCircle className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div>
+                         <h2 className="font-black text-gray-600 text-[15px]">เสร็จสิ้นแล้ว</h2>
+                         <p className="text-[11px] font-bold text-gray-400 tracking-widest uppercase">{pastOrders.length} ออเดอร์</p>
+                      </div>
+                   </div>
+                   <div className="space-y-4">
+                      {pastOrders.map((order) => (
+                         <div key={order.id} className="opacity-80 hover:opacity-100 active:scale-[0.98] transition-all">
+                            <OrderCard order={order} onClick={() => { hapticLight(); navigate(`/orders/${order.id}${order.trackingToken ? `?token=${order.trackingToken}` : ''}`) }} />
+                         </div>
+                      ))}
+                   </div>
+                </motion.section>
+              )}
 
-            {/* Guest: invite to link LINE after seeing orders */}
-            {isGuest && orders && orders.length > 0 && (
-              <motion.div
-                variants={fadeInUp}
-                className="rounded-2xl p-4 text-center"
-                style={{ background: 'linear-gradient(135deg, #ECFDF5, #D1FAE5)', border: '1px solid #A7F3D0' }}
-              >
-                <p className="text-sm font-bold text-green-800 mb-1">💡 ยังเป็นไอดีผู้เยี่ยมชมอยู่</p>
-                <p className="text-xs text-green-600 mb-3">
-                  เข้าสู่ระบบ LINE เพื่อบันทึกประวัติการสั่งซื้อนี้ และสะสมพอยต์ในครั้งหน้า!
-                </p>
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={async () => {
-                    try {
-                      const { loginWithLine } = await import('@/lib/auth')
-                      await loginWithLine()
-                    } catch (error) {
-                      const { useUIStore } = await import('@/store')
-                      useUIStore.getState().addToast({
-                        type: 'error',
-                        title: 'เข้าสู่ระบบไม่สำเร็จ',
-                        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
-                      })
-                    }
-                  }}
-                  className="px-6 py-2.5 rounded-xl font-black text-white text-sm"
-                  style={{ background: '#00B900', boxShadow: '0 4px 12px rgba(0,185,0,0.4)' }}
-                >
-                  เข้าสู่ระบบ LINE ตอนนี้
-                </motion.button>
-              </motion.div>
-            )}
-          </motion.div>
+              {/* End Note */}
+              <div className="pt-8 text-center">
+                 <p className="text-[10px] font-black tracking-widest uppercase text-gray-300">แสดงรายการทั้งหมดแล้ว</p>
+              </div>
+
+           </motion.div>
         )}
       </Container>
     </div>

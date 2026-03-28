@@ -1,14 +1,16 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { Home, ClipboardList, Ticket, User, ShoppingCart } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { useCartStore } from '@/store'
 import { cn } from '@/utils/cn'
+import { hapticLight } from '@/utils/haptics'
 
 const navItems = [
-  { path: '/', icon: Home, label: 'หน้าหลัก', activeGradient: 'from-brand-500 to-orange-400' },
-  { path: '/orders', icon: ClipboardList, label: 'ออเดอร์', activeGradient: 'from-blue-500 to-cyan-400' },
-  { path: '/lottery', icon: Ticket, label: 'หวย', activeGradient: 'from-emerald-500 to-teal-500' },
-  { path: '/cart', icon: ShoppingCart, label: 'ตะกร้า', showBadge: true, activeGradient: 'from-green-500 to-emerald-400' },
-  { path: '/profile', icon: User, label: 'โปรไฟล์', activeGradient: 'from-gray-600 to-gray-500' },
+  { path: '/', icon: Home, label: 'หน้าหลัก', activeColor: 'text-[#FF6B00]' },
+  { path: '/orders', icon: ClipboardList, label: 'ออเดอร์', activeColor: 'text-blue-500' },
+  { path: '/lottery', icon: Ticket, label: 'หวยหรรษา', activeColor: 'text-emerald-500' },
+  { path: '/cart', icon: ShoppingCart, label: 'ตะกร้า', showBadge: true, activeColor: 'text-green-500' },
+  { path: '/profile', icon: User, label: 'โปรไฟล์', activeColor: 'text-gray-900' },
 ]
 
 export function BottomNav() {
@@ -24,78 +26,65 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe" role="navigation" aria-label="เมนูหลัก">
-      <div
-        className="border-t border-gray-100/80"
-        style={{
-          background: 'rgba(255,255,255,0.92)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          boxShadow: '0 -8px 32px -8px rgba(0,0,0,0.1)',
-        }}
-      >
-        <div className="max-w-md mx-auto flex justify-around items-center h-[62px] safe-area-x px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe pointer-events-none" role="navigation" aria-label="เมนูหลัก">
+      <div className="max-w-md mx-auto px-4 pb-4 pt-6 pointer-events-auto">
+        <div 
+           className="h-[72px] rounded-[36px] flex justify-around items-center px-2 relative overflow-hidden"
+           style={{
+             background: 'rgba(255, 255, 255, 0.75)',
+             backdropFilter: 'blur(30px) saturate(200%)',
+             WebkitBackdropFilter: 'blur(30px) saturate(200%)',
+             boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.8) inset'
+           }}
+        >
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
-              aria-label={item.label}
-              className="relative flex flex-col items-center justify-center flex-1 h-full py-1"
+              onClick={() => hapticLight()}
+              className="relative flex flex-col items-center justify-center flex-1 h-full tap-highlight-transparent group"
             >
               {({ isActive }) => (
                 <>
-                  {/* Active background pill */}
-                  {isActive && (
-                    <div
-                      className={cn(
-                        'absolute top-1 w-12 h-8 rounded-2xl bg-brand-500/10',
-                      )}
-                    />
-                  )}
+                  <motion.div 
+                     layoutId="nav-pill"
+                     className={cn("absolute inset-y-2 inset-x-1 rounded-[28px] z-0 transition-opacity", isActive ? "bg-white shadow-sm opacity-100" : "opacity-0")}
+                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
 
-                  {/* Icon container */}
-                  <div className="relative flex items-center justify-center">
-                    <div
-                      className={cn(
-                        'transition-all',
-                        isActive ? '-translate-y-0.5' : 'translate-y-0'
-                      )}
+                  <div className="relative z-10 flex flex-col items-center justify-center pt-1">
+                    <motion.div
+                      animate={{ y: isActive ? -2 : 0, scale: isActive ? 1.1 : 1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
                       <item.icon
                         className={cn(
-                          'w-6 h-6 transition-colors',
-                          isActive ? 'text-brand-600' : 'text-gray-400'
+                          'w-6 h-6 transition-colors duration-300',
+                          isActive ? item.activeColor : 'text-gray-400 group-hover:text-gray-500'
                         )}
-                        style={isActive ? { strokeWidth: 2.5 } : { strokeWidth: 2 }}
+                        strokeWidth={isActive ? 2.5 : 2}
                       />
-                    </div>
+                    </motion.div>
 
-                    {/* Cart Badge */}
                     {item.showBadge && totalItems > 0 && (
-                      <span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[9px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 border-2 border-white shadow-lg">
+                      <motion.span 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 border-2 border-white shadow-sm"
+                      >
                         {totalItems > 99 ? '99+' : totalItems}
-                      </span>
+                      </motion.span>
                     )}
-                  </div>
 
-                  {/* Label */}
-                  <span
-                    className={cn(
-                      'text-[10px] font-bold mt-0.5 transition-all duration-200',
-                      isActive ? 'text-gray-800 opacity-100' : 'text-gray-400 opacity-60'
-                    )}
-                  >
-                    {item.label}
-                  </span>
-
-                  {/* Active dot indicator */}
-                  {isActive && (
-                    <div
+                    <span
                       className={cn(
-                        'absolute bottom-0 w-6 h-0.5 rounded-full bg-brand-500'
+                        'text-[9px] font-black mt-1 transition-all duration-300 tracking-wide',
+                        isActive ? cn(item.activeColor, 'opacity-100') : 'text-gray-400 opacity-80 group-hover:opacity-100'
                       )}
-                    />
-                  )}
+                    >
+                      {item.label}
+                    </span>
+                  </div>
                 </>
               )}
             </NavLink>
@@ -105,6 +94,5 @@ export function BottomNav() {
     </nav>
   )
 }
-
 
 export default BottomNav

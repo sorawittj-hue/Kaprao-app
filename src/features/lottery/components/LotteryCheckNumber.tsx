@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Ticket, Trophy, AlertCircle, Sparkles } from 'lucide-react'
+import { Search, Ticket, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { useLottoUtils } from '@/features/lottery/hooks/useLottery'
+import { fetchLatestResult } from '@/features/lottery/api/lotteryApi'
 
 interface LotteryCheckNumberProps {
   onResult?: (result: { isWin: boolean; prize: string }) => void
@@ -16,13 +16,13 @@ export function LotteryCheckNumber({ onResult }: LotteryCheckNumberProps) {
     show: boolean
   } | null>(null)
   
-  const { checkWin, getLatestResult } = useLottoUtils()
+
 
   const handleCheck = async () => {
     if (number.length !== 5) return
 
     try {
-      const latestResult = await getLatestResult()
+      const latestResult = await fetchLatestResult()
       
       if (!latestResult) {
         setResult({

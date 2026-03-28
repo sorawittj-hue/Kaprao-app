@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Plus, Minus, Flame, Egg, Beef, ChevronRight } from 'lucide-react'
+import { X, Plus, Minus, Flame, Egg, Beef, CheckCircle2 } from 'lucide-react'
 import type { MenuItem, SelectedOption } from '@/types'
 import { useCartStore, useUIStore } from '@/store'
 import { Button } from '@/components/ui/Button'
@@ -195,15 +196,15 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
   }, [onClose])
 
   const tabConfig = useMemo(() => ({
-    meat: { icon: Beef, label: 'เนื้อ', color: 'bg-red-100 text-red-600' },
-    egg: { icon: Egg, label: 'ไข่', color: 'bg-yellow-100 text-yellow-600' },
-    spicy: { icon: Flame, label: 'เผ็ด', color: 'bg-orange-100 text-orange-600' },
-    extra: { icon: ChevronRight, label: 'พิเศษ', color: 'bg-blue-100 text-blue-600' },
+    meat: { icon: Beef, label: 'เนื้อ', activeClass: 'bg-red-50 border-red-500 text-red-600 shadow-sm' },
+    egg: { icon: Egg, label: 'ไข่', activeClass: 'bg-yellow-50 border-yellow-500 text-yellow-600 shadow-sm' },
+    spicy: { icon: Flame, label: 'ระดับความเผ็ด', activeClass: 'bg-orange-50 border-orange-500 text-orange-600 shadow-sm' },
+    extra: { icon: Plus, label: 'พิเศษ', activeClass: 'bg-brand-50 border-brand-500 text-brand-600 shadow-sm' },
   }), [])
 
   if (!item) return null
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -230,22 +231,27 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
             </div>
 
             <div className="overflow-y-auto max-h-[calc(90vh-60px)]">
-              {/* Header Image */}
-              <div className="relative h-48 bg-gray-100">
+              {/* Header Image with Premium Gradient */}
+              <div className="relative h-56 bg-gray-100">
                 <img
                   src={getValidImageUrl(item.imageUrl)}
                   alt={item.name}
                   className="w-full h-full object-cover"
                 />
+                
+                {/* Smooth Gradient blend into content */}
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all text-gray-600 hover:text-gray-900 z-10"
                 >
-                  <X className="w-5 h-5 text-gray-600" />
+                  <X className="w-5 h-5" />
                 </button>
 
                 {item.isRecommended && (
-                  <span className="absolute top-4 left-4 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="absolute top-4 left-4 bg-brand-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10 flex items-center gap-1">
+                    <Flame className="w-3 h-3" />
                     แนะนำ
                   </span>
                 )}
@@ -284,10 +290,10 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                           hapticLight()
                         }}
                         className={cn(
-                          'flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all',
+                          'flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm whitespace-nowrap transition-all border-2',
                           isActive
-                            ? `${config.color} ring-2 ring-offset-2 ring-current`
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? config.activeClass
+                            : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50 hover:border-gray-200'
                         )}
                       >
                         <Icon className="w-4 h-4" />
@@ -302,9 +308,11 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                   {activeTab === 'meat' && (
                     <>
                       <p className="text-sm font-bold text-gray-700">เลือกเนื้อ</p>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-3">
                         {MEAT_OPTIONS.map((meat) => {
                           const isAvailable = isOptionAvailable(meat.optionId, globalOptions)
+                          const isSelected = selectedMeat?.optionId === meat.optionId
+                          
                           return (
                             <button
                               key={meat.optionId}
@@ -314,20 +322,33 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                                 hapticLight()
                               }}
                               className={cn(
-                                'p-3 rounded-xl border-2 text-left transition-all active:scale-95 relative overflow-hidden',
-                                selectedMeat?.optionId === meat.optionId
-                                  ? 'border-red-500 bg-red-50'
+                                'p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between h-auto',
+                                isSelected
+                                  ? 'border-red-500 bg-red-50/50 shadow-sm scale-[0.98]'
                                   : isAvailable
-                                    ? 'border-gray-200 hover:border-gray-300'
-                                    : 'border-gray-100 bg-gray-50 opacity-60 grayscale cursor-not-allowed'
+                                    ? 'border-gray-100 bg-white hover:border-red-200 hover:shadow-sm active:scale-95'
+                                    : 'border-gray-50 bg-gray-50/50 opacity-60 grayscale cursor-not-allowed'
                               )}
                             >
-                              <p className="font-bold text-sm">{meat.name}</p>
-                              {meat.price > 0 && isAvailable && (
-                                <p className="text-xs text-red-600">+{formatPrice(meat.price)}</p>
-                              )}
+                              <div className="w-full flex justify-between items-start mb-1">
+                                <p className={cn("font-bold text-sm transition-colors", isSelected ? "text-red-700" : "text-gray-700")}>
+                                  {meat.name}
+                                </p>
+                                {isSelected && (
+                                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                                    <CheckCircle2 className="w-5 h-5 text-red-500" />
+                                  </motion.div>
+                                )}
+                              </div>
+                              
+                              <div className="h-5 flex items-end">
+                                {meat.price > 0 && isAvailable && (
+                                  <p className="text-sm font-bold text-red-500">+{formatPrice(meat.price)}</p>
+                                )}
+                              </div>
+                              
                               {!isAvailable && (
-                                <span className="absolute top-1 right-1 bg-gray-400 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                <span className="absolute top-2 right-2 bg-gray-300 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-bold">
                                   หมด
                                 </span>
                               )}
@@ -341,9 +362,11 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                   {activeTab === 'egg' && (
                     <>
                       <p className="text-sm font-bold text-gray-700">เลือกไข่</p>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-3">
                         {EGG_OPTIONS.map((egg) => {
                           const isAvailable = egg.optionId === 'no_egg' || isOptionAvailable(egg.optionId, globalOptions);
+                          const isSelected = selectedEgg.optionId === egg.optionId;
+                          
                           return (
                             <button
                               key={egg.optionId}
@@ -353,20 +376,33 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                                 hapticLight()
                               }}
                               className={cn(
-                                'p-3 rounded-xl border-2 text-left transition-all active:scale-95 relative overflow-hidden',
-                                selectedEgg.optionId === egg.optionId
-                                  ? 'border-yellow-500 bg-yellow-50'
+                                'p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between h-auto',
+                                isSelected
+                                  ? 'border-yellow-500 bg-yellow-50/50 shadow-sm scale-[0.98]'
                                   : isAvailable
-                                    ? 'border-gray-200 hover:border-gray-300'
-                                    : 'border-gray-100 bg-gray-50 opacity-60 grayscale cursor-not-allowed'
+                                    ? 'border-gray-100 bg-white hover:border-yellow-200 hover:shadow-sm active:scale-95'
+                                    : 'border-gray-50 bg-gray-50/50 opacity-60 grayscale cursor-not-allowed'
                               )}
                             >
-                              <p className="font-bold text-sm">{egg.name}</p>
-                              {egg.price > 0 && isAvailable && (
-                                <p className="text-xs text-yellow-600">+{formatPrice(egg.price)}</p>
-                              )}
+                              <div className="w-full flex justify-between items-start mb-1">
+                                <p className={cn("font-bold text-sm transition-colors", isSelected ? "text-yellow-700" : "text-gray-700")}>
+                                  {egg.name}
+                                </p>
+                                {isSelected && (
+                                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                                    <CheckCircle2 className="w-5 h-5 text-yellow-500" />
+                                  </motion.div>
+                                )}
+                              </div>
+                              
+                              <div className="h-5 flex items-end">
+                                {egg.price > 0 && isAvailable && (
+                                  <p className="text-sm font-bold text-yellow-600">+{formatPrice(egg.price)}</p>
+                                )}
+                              </div>
+                              
                               {!isAvailable && (
-                                <span className="absolute top-1 right-1 bg-gray-400 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                <span className="absolute top-2 right-2 bg-gray-300 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-bold">
                                   หมด
                                 </span>
                               )}
@@ -380,50 +416,48 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                   {activeTab === 'spicy' && (
                     <>
                       <p className="text-sm font-bold text-gray-700">เลือกระดับความเผ็ด</p>
-                      <div className="space-y-2">
-                        {SPICE_OPTIONS.map((spice, index) => (
-                          <button
-                            key={spice.optionId}
-                            onClick={() => {
-                              setSelectedSpice(spice)
-                              hapticLight()
-                            }}
-                            className={cn(
-                              'w-full p-4 rounded-xl border-2 flex items-center justify-between transition-all active:scale-95',
-                              selectedSpice.optionId === spice.optionId
-                                ? 'border-orange-500 bg-orange-50'
-                                : 'border-gray-200 hover:border-gray-300'
-                            )}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className={cn(
-                                'w-8 h-8 rounded-full flex items-center justify-center',
-                                index === 0 ? 'bg-green-100' :
-                                  index === 1 ? 'bg-yellow-100' :
-                                    index === 2 ? 'bg-orange-100' :
-                                      'bg-red-100'
-                              )}>
-                                <Flame className={cn(
-                                  'w-4 h-4',
-                                  index === 0 ? 'text-green-600' :
-                                    index === 1 ? 'text-yellow-600' :
-                                      index === 2 ? 'text-orange-600' :
-                                        'text-red-600'
-                                )} />
+                      <div className="space-y-3">
+                        {SPICE_OPTIONS.map((spice, index) => {
+                          const isSelected = selectedSpice.optionId === spice.optionId;
+                          return (
+                            <button
+                              key={spice.optionId}
+                              onClick={() => {
+                                setSelectedSpice(spice)
+                                hapticLight()
+                              }}
+                              className={cn(
+                                'w-full p-4 rounded-2xl border-2 flex items-center justify-between transition-all',
+                                isSelected
+                                  ? 'border-orange-500 bg-orange-50/50 shadow-sm scale-[0.98]'
+                                  : 'border-gray-100 bg-white hover:border-orange-200 hover:shadow-sm active:scale-95'
+                              )}
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className={cn(
+                                  'w-10 h-10 rounded-xl flex items-center justify-center shadow-inner',
+                                  index === 0 ? 'bg-green-100 text-green-600' :
+                                    index === 1 ? 'bg-yellow-100 text-yellow-600' :
+                                      index === 2 ? 'bg-orange-100 text-orange-600' :
+                                        'bg-red-100 text-red-600'
+                                )}>
+                                  <Flame className="w-5 h-5" />
+                                </div>
+                                <span className={cn(
+                                  "font-bold text-base", 
+                                  isSelected ? "text-orange-700" : "text-gray-700"
+                                )}>
+                                  {spice.name}
+                                </span>
                               </div>
-                              <span className="font-bold">{spice.name}</span>
-                            </div>
-                            {selectedSpice.optionId === spice.optionId && (
-                              <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-                                <motion.div
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  className="w-3 h-3 bg-white rounded-full"
-                                />
-                              </div>
-                            )}
-                          </button>
-                        ))}
+                              {isSelected && (
+                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                                  <CheckCircle2 className="w-6 h-6 text-orange-500" />
+                                </motion.div>
+                              )}
+                            </button>
+                          )
+                        })}
                       </div>
                     </>
                   )}
@@ -431,7 +465,7 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                   {activeTab === 'extra' && (
                     <>
                       <p className="text-sm font-bold text-gray-700">เพิ่มเติม (เลือกได้หลายอย่าง)</p>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-3">
                         {EXTRA_OPTIONS.map((extra) => {
                           const isSelected = selectedExtras.find(e => e.optionId === extra.optionId)
                           return (
@@ -439,27 +473,30 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                               key={extra.optionId}
                               onClick={() => toggleExtra(extra)}
                               className={cn(
-                                'p-3 rounded-xl border-2 text-left transition-all active:scale-95 relative',
+                                'p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between h-auto',
                                 isSelected
-                                  ? 'border-blue-500 bg-blue-50'
-                                  : 'border-gray-200 hover:border-gray-300'
+                                  ? 'border-brand-500 bg-brand-50/50 shadow-sm scale-[0.98]'
+                                  : 'border-gray-100 bg-white hover:border-brand-200 hover:shadow-sm active:scale-95'
                               )}
                             >
-                              {isSelected && (
-                                <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                                  <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    className="w-2.5 h-2.5 bg-white rounded-full"
-                                  />
-                                </div>
-                              )}
-                              <p className="font-bold text-sm">{extra.name}</p>
-                              {extra.price > 0 ? (
-                                <p className="text-xs text-blue-600">+{formatPrice(extra.price)}</p>
-                              ) : (
-                                <p className="text-xs text-gray-400">ฟรี</p>
-                              )}
+                              <div className="w-full flex justify-between items-start mb-1">
+                                <p className={cn("font-bold text-sm transition-colors", isSelected ? "text-brand-700" : "text-gray-700")}>
+                                  {extra.name}
+                                </p>
+                                {isSelected && (
+                                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                                    <CheckCircle2 className="w-5 h-5 text-brand-500" />
+                                  </motion.div>
+                                )}
+                              </div>
+                              
+                              <div className="h-5 flex items-end">
+                                {extra.price > 0 ? (
+                                  <p className="text-sm font-bold text-brand-500">+{formatPrice(extra.price)}</p>
+                                ) : (
+                                  <p className="text-sm font-bold text-gray-500">ฟรี</p>
+                                )}
+                              </div>
                             </button>
                           )
                         })}
@@ -554,4 +591,8 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
       )}
     </AnimatePresence>
   )
+
+  // Wait until mounted to avoid SSR issues if this was SSR, though Vite is mostly client-side
+  // document.body is always available in client-side Vite apps.
+  return createPortal(modalContent, document.body)
 }

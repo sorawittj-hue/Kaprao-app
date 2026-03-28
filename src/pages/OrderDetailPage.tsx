@@ -1,21 +1,30 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ArrowLeft, Phone, MessageCircle, Star } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowLeft, Phone, MessageCircle, Star, MapPinned, MoreVertical, Receipt, Store, Map, CheckCircle2, ShoppingBag, HeartHandshake } from 'lucide-react'
 import { useOrderDetail, useOrderRealtime } from '@/features/orders/hooks/useOrders'
 import { useAuthStore } from '@/store'
 import { Container } from '@/components/layout/Container'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
 import { LiveOrderTracker } from '@/features/orders/components/LiveOrderTracker'
 import { formatPrice } from '@/utils/formatPrice'
 import { formatOrderDate } from '@/utils/formatDate'
-import { staggerContainer, fadeInUp } from '@/animations/variants'
 import { trackPageView } from '@/lib/analytics'
+import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
 import { savePendingGuestOrder } from '@/lib/auth'
 import { usePointsCalculator } from '@/features/points/hooks/usePoints'
 import { useContactInfo } from '@/features/config/hooks/useShopConfig'
 import { ReviewForm } from '@/features/reviews/components/ReviewForm'
+
+// Pro Max Animations
+const fadeUpSpring = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } }
+}
+
+const staggerList = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
+}
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -29,19 +38,23 @@ export default function OrderDetailPage() {
 
   const { data: order, isLoading } = useOrderDetail(orderId)
   const { data: contactInfo } = useContactInfo()
+  const [showOptions, setShowOptions] = useState(false)
   useOrderRealtime(orderId)
 
   useEffect(() => {
     trackPageView(`/orders/${orderId}`, 'Order Detail')
+    window.scrollTo(0, 0)
   }, [orderId])
 
   const handleCallShop = () => {
+    hapticMedium()
     if (contactInfo?.phone) {
       window.location.href = `tel:${contactInfo.phone}`
     }
   }
 
   const handleChatShop = () => {
+    hapticHeavy()
     if (contactInfo?.line_id) {
       window.open(`https://line.me/R/ti/p/${contactInfo.line_id}`, '_blank')
     }
@@ -49,32 +62,35 @@ export default function OrderDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}>
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAF9]">
         <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-12 h-12 border-4 rounded-full"
-          style={{ borderColor: '#FF6B00 transparent transparent transparent' }}
-        />
+           animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+           transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+           className="relative flex items-center justify-center"
+        >
+          <div className="w-16 h-16 border-4 border-gray-100 rounded-full absolute"></div>
+          <div className="w-16 h-16 border-4 border-transparent border-t-[#FF6B00] border-r-[#FF6B00] rounded-full animate-spin"></div>
+          <ShoppingBag className="w-6 h-6 text-[#FF6B00] absolute" />
+        </motion.div>
       </div>
     )
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen safe-area-pt" style={{ background: '#FAFAF9' }}>
-        <Container className="py-6">
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">🔍</div>
-            <h2 className="font-black text-gray-800 text-xl mb-2">ไม่พบออเดอร์นี้</h2>
-            <p className="text-gray-500 text-sm mb-6">
-              อาจถูกลบหรือ ID ผิด กรุณาตรวจสอบอีกครั้ง
-            </p>
-            <Button onClick={() => navigate('/orders')}>
-              ดูรายการออเดอร์
-            </Button>
+      <div className="min-h-screen safe-area-pt flex flex-col items-center justify-center bg-[#FAFAF9]">
+        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-8">
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+             <Receipt className="w-10 h-10 text-gray-400" />
           </div>
-        </Container>
+          <h2 className="font-black text-gray-800 text-2xl mb-2">ไม่พบออเดอร์</h2>
+          <p className="text-gray-500 text-sm mb-8 max-w-xs mx-auto leading-relaxed">
+            ออเดอร์นี้อาจถูกยกเลิกแล้ว หรือหมายเลขออเดอร์ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง
+          </p>
+          <button onClick={() => { hapticLight(); navigate('/orders'); }} className="bg-gray-900 text-white px-8 py-3.5 rounded-full font-bold shadow-xl shadow-gray-900/20 active:scale-95 transition-all">
+            กลับไปหน้าออเดอร์
+          </button>
+        </motion.div>
       </div>
     )
   }
@@ -84,32 +100,66 @@ export default function OrderDetailPage() {
   const effectiveToken = trackingTokenFromUrl || order.trackingToken
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#FAFAF9' }}>
-      <Container className="py-6">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+    <div className="min-h-screen bg-[#F4F4F5] pb-28">
+      {/* Immersive Header Background */}
+      <div className="absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-[#FFF5F0] via-[#FAFAF9] to-[#F4F4F5] -z-10 overflow-hidden">
+         <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#FF6B00]/5 rounded-full blur-3xl"></div>
+         <div className="absolute top-20 -left-20 w-72 h-72 bg-amber-500/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <Container className="py-4 space-y-6">
+        {/* Dynamic Nav */}
+        <div className="flex items-center justify-between sticky top-4 z-50">
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-gray-600"
-            style={{ boxShadow: '0 2px 10px -2px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)' }}
+            onClick={() => { hapticLight(); navigate(-1); }}
+            className="w-12 h-12 rounded-2xl bg-white/80 backdrop-blur-xl flex items-center justify-center text-gray-700 shadow-lg shadow-gray-200/50 border border-white/50"
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
-          <div>
-            <h1 className="text-2xl font-black text-gray-800">รายละเอียดออเดอร์</h1>
-            <p className="text-sm text-gray-400">#{order.id}</p>
+          
+          <div className="flex flex-col items-center">
+            <motion.span initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-[10px] font-black text-[#FF6B00] tracking-widest uppercase bg-[#FF6B00]/10 px-3 py-1 rounded-full mb-1">
+              Order Details
+            </motion.span>
+            <h1 className="text-lg font-black text-gray-900">#{order.id}</h1>
           </div>
+
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => { hapticLight(); setShowOptions(!showOptions); }}
+            className="w-12 h-12 rounded-2xl bg-white/80 backdrop-blur-xl flex items-center justify-center text-gray-700 shadow-lg shadow-gray-200/50 border border-white/50 relative"
+          >
+            <MoreVertical className="w-5 h-5" />
+            
+            {/* Context Menu */}
+            <AnimatePresence>
+               {showOptions && (
+                 <motion.div 
+                   initial={{ opacity: 0, scale: 0.8, transformOrigin: 'top right' }} 
+                   animate={{ opacity: 1, scale: 1 }} 
+                   exit={{ opacity: 0, scale: 0.8 }}
+                   className="absolute top-14 right-0 w-48 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white p-2 z-50 overflow-hidden"
+                 >
+                    <div className="text-left">
+                       <p className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">ความช่วยเหลือ</p>
+                       <button onClick={handleCallShop} className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 rounded-xl transition-colors text-sm font-bold text-gray-700">
+                          <Phone className="w-4 h-4 text-blue-500" /> โทรติดต่อร้าน
+                       </button>
+                       <button onClick={handleChatShop} className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 rounded-xl transition-colors text-sm font-bold text-gray-700">
+                          <MessageCircle className="w-4 h-4 text-green-500" /> แชท LINE ร้าน
+                       </button>
+                    </div>
+                 </motion.div>
+               )}
+            </AnimatePresence>
+          </motion.button>
         </div>
 
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="space-y-4"
-        >
-          {/* Live Order Tracking */}
-          <motion.div variants={fadeInUp}>
+        <motion.div variants={staggerList} initial="hidden" animate="visible" className="space-y-5">
+          
+          {/* Pro Max Interactive Status Tracker Tracker */}
+          <motion.div variants={fadeUpSpring}>
             <LiveOrderTracker
               orderId={order.id}
               initialStatus={order.status}
@@ -117,253 +167,240 @@ export default function OrderDetailPage() {
             />
           </motion.div>
 
-          {/* 🌟 Guest Conversion Panel — shown when viewing as guest */}
+          {/* Guest Gamification Notice */}
+          <AnimatePresence>
           {isGuest && pointsMissed > 0 && (
             <motion.div
-              variants={fadeInUp}
-              className="rounded-2xl overflow-hidden"
+              variants={fadeUpSpring}
+              initial="hidden" animate="visible" exit="hidden"
+              className="relative rounded-3xl overflow-hidden group border border-white"
               style={{
-                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                boxShadow: '0 12px 32px -6px rgba(0,0,0,0.3)',
+                background: 'linear-gradient(135deg, #020617 0%, #0F172A 100%)',
+                boxShadow: '0 20px 40px -12px rgba(0,0,0,0.4)',
               }}
             >
-              <div className="p-5">
-                <div className="flex items-start gap-4 mb-4">
-                  <motion.div
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl"
-                    style={{ background: 'rgba(255,255,255,0.1)' }}
-                  >
-                    🌟
+              {/* Animated particles */}
+              <motion.div animate={{ backgroundPosition: ['0% 0%', '100% 100%'] }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }} className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at center, #FF6B00 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+              
+              <div className="p-6 relative z-10">
+                <div className="flex items-start gap-4 mb-5">
+                  <motion.div animate={{ rotate: [0, -10, 10, -10, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 text-3xl shadow-lg border border-white/10" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)', backdropFilter: 'blur(10px)' }}>
+                    🎁
                   </motion.div>
-                  <div>
-                    <h3 className="font-black text-white text-base leading-tight">
-                      ออเดอร์นี้มีพอยต์รออยู่!
-                    </h3>
-                    <p className="text-gray-400 text-xs mt-1 leading-relaxed">
-                      Login LINE แล้วพอยต์จาก Order #{order.id} จะโอนเข้ากระเป๋าทันที
-                    </p>
+                  <div className="pt-1">
+                    <h3 className="font-black text-white text-lg leading-tight mb-1">สะสมพอยต์ก่อนหายไป!</h3>
+                    <p className="text-blue-200/80 text-xs leading-relaxed font-medium">คุณพลาดพอยต์ไปแล้ว {pointsMissed} แต้ม ผูก LINE ตอนนี้เพื่อรับพอยต์ย้อนหลังและลุ้นหวยฟรี</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                    <p className="text-xl font-black text-yellow-400">{pointsMissed}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">⭐ พอยต์</p>
+                <div className="grid grid-cols-3 gap-3 mb-5">
+                  <div className="rounded-2xl p-3.5 flex flex-col items-center justify-center bg-white/5 border border-white/10 backdrop-blur-md">
+                    <p className="text-2xl font-black text-amber-400 drop-shadow-md">{pointsMissed}</p>
+                    <p className="text-[10px] text-white/50 font-bold mt-1 uppercase tracking-wider">Points</p>
                   </div>
-                  <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                    <p className="text-xl font-black text-emerald-400">{ticketsMissed}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">🎟️ ตั๋วหวย</p>
+                  <div className="rounded-2xl p-3.5 flex flex-col items-center justify-center bg-white/5 border border-white/10 backdrop-blur-md">
+                    <p className="text-2xl font-black text-emerald-400 drop-shadow-md">{ticketsMissed}</p>
+                    <p className="text-[10px] text-white/50 font-bold mt-1 uppercase tracking-wider">Tickets</p>
                   </div>
-                  <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                    <p className="text-xl font-black text-green-400">+{Math.round(pointsMissed / 10)}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">💰 บาท</p>
+                  <div className="rounded-2xl p-3.5 flex flex-col items-center justify-center bg-white/5 border border-white/10 backdrop-blur-md">
+                    <p className="text-2xl font-black text-blue-400 drop-shadow-md">{Math.round(pointsMissed / 10)}</p>
+                    <p className="text-[10px] text-white/50 font-bold mt-1 uppercase tracking-wider">Baht</p>
                   </div>
                 </div>
 
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.96 }}
                   onClick={async () => {
+                    hapticHeavy();
                     try {
-                      if (effectiveToken) {
-                        savePendingGuestOrder(order.id, effectiveToken)
-                      }
+                      if (effectiveToken) savePendingGuestOrder(order.id, effectiveToken)
                       const { loginWithLine } = await import('@/lib/auth')
                       await loginWithLine()
                     } catch (error) {
                       const { useUIStore } = await import('@/store')
-                      useUIStore.getState().addToast({
-                        type: 'error',
-                        title: 'เข้าสู่ระบบไม่สำเร็จ',
-                        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
-                      })
+                      useUIStore.getState().addToast({ type: 'error', title: 'Login Failed', message: error instanceof Error ? error.message : 'Please try again.' })
                     }
                   }}
-                  className="w-full py-3.5 rounded-xl font-black text-white text-sm flex items-center justify-center gap-2"
-                  style={{ background: '#00B900', boxShadow: '0 6px 18px rgba(0,185,0,0.45)' }}
+                  className="w-full py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2.5 relative overflow-hidden group"
+                  style={{ background: '#00C300', boxShadow: '0 8px 24px -6px rgba(0, 195, 0, 0.5)' }}
                 >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .345-.285.63-.631.63s-.63-.285-.63-.63V8.108c0-.345.283-.63.63-.63.346 0 .63.285.63.63v4.771zm-1.94-.532c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.631c-.691 0-1.25-.563-1.25-1.257V8.108c0-.345.284-.63.631-.63.345 0 .63.285.63.63v4.771c0 .173.14.315.315.315h.674c.348 0 .629.283.629.63 0 .344-.282.629-.629.629zM3.678 8.735c0-.345.285-.63.631-.63h2.505c.345 0 .627.285.627.63s-.282.63-.627.63H4.938v1.126h1.481c.346 0 .628.283.628.63 0 .344-.282.629-.628.629H4.938v1.756c0 .345-.286.63-.631.63-.346 0-.629-.285-.629-.63V8.735z" />
-                  </svg>
-                  Login LINE รับพอยต์ {pointsMissed} ทันที!
+                  <motion.div className="absolute inset-0 bg-white/20" initial={{ x: '-100%' }} whileHover={{ x: '100%' }} transition={{ duration: 0.5 }} />
+                  <MessageCircle className="w-5 h-5" />
+                  Claim via LINE
                 </motion.button>
               </div>
             </motion.div>
           )}
+          </AnimatePresence>
 
-          {/* Points earned (for logged-in users) */}
-          {!isGuest && order.pointsEarned > 0 && (
-            <motion.div
-              variants={fadeInUp}
-              className="rounded-2xl p-4 flex items-center gap-3"
-              style={{ background: 'linear-gradient(135deg, #FFFBEB, #FEF3C7)', border: '1.5px solid #FDE68A' }}
-            >
-              <div className="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Star className="w-5 h-5 text-white fill-white" />
-              </div>
-              <div>
-                <p className="font-black text-amber-800 text-sm">ได้รับ {order.pointsEarned} พอยต์จากออเดอร์นี้!</p>
-                <p className="text-xs text-amber-600">สะสมต่อเพื่อขึ้น tier และแลกรางวัล</p>
-              </div>
-            </motion.div>
-          )}
+          {/* Delivery & Payment Info (Glass Card) */}
+          <motion.div variants={fadeUpSpring}>
+            <div className="bg-white rounded-3xl p-1 shadow-sm border border-gray-100">
+               <div className="bg-gray-50/50 rounded-[22px] px-5 py-4 flex items-center justify-between border-b border-gray-100/50">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100">
+                        {order.deliveryMethod === 'workplace' ? <Store className="w-5 h-5 text-blue-500" /> : <Map className="w-5 h-5 text-[#FF6B00]" />}
+                     </div>
+                     <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{order.deliveryMethod === 'workplace' ? 'รับที่ออฟฟิศ' : 'ส่งถึงบ้าน'}</p>
+                        <p className="font-black text-gray-900">{formatOrderDate(order.createdAt)}</p>
+                     </div>
+                  </div>
+                  <div className="text-right">
+                     <div className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-bold">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        ชำระแล้ว
+                     </div>
+                  </div>
+               </div>
+               
+               <div className="p-5 space-y-4">
+                  <div className="flex gap-4 items-start">
+                     <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <MapPinned className="w-4 h-4 text-gray-500" />
+                     </div>
+                     <div>
+                        <p className="text-sm font-bold text-gray-900">{order.customerName} <span className="text-gray-400 font-medium ml-1">({order.phoneNumber || 'ไม่มีเบอร์'})</span></p>
+                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">{order.address || 'รับที่ร้าน'}</p>
+                     </div>
+                  </div>
 
-          {/* Order Info */}
-          <motion.div variants={fadeInUp}>
-            <Card>
-              <div className="p-4 border-b border-gray-100">
-                <h2 className="font-bold text-gray-800">ข้อมูลการสั่งซื้อ</h2>
-              </div>
-              <div className="p-4 space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">วันที่สั่งซื้อ</span>
-                  <span>{formatOrderDate(order.createdAt)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">ชื่อผู้สั่ง</span>
-                  <span>{order.customerName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">เบอร์โทรศัพท์</span>
-                  <span>{order.phoneNumber || '-'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">วิธีรับอาหาร</span>
-                  <span>{order.deliveryMethod === 'workplace' ? 'ส่งที่ทำงาน (พรุ่งนี้)' : 'ส่งในหมู่บ้าน'}</span>
-                </div>
-                {order.address && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">ที่อยู่จัดส่ง</span>
-                    <span className="text-right max-w-[60%] whitespace-pre-line">{order.address}</span>
-                  </div>
-                )}
-                {order.specialInstructions && (
-                  <div className="flex justify-between mt-2 pt-2 border-t border-gray-50">
-                    <span className="text-gray-500">หมายเหตุ</span>
-                    <span className="text-right text-amber-600 max-w-[60%] italic whitespace-pre-line">{order.specialInstructions}</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-gray-500">วิธีชำระเงิน</span>
-                  <span>
-                    {order.paymentMethod === 'cod' && 'เงินสด'}
-                    {order.paymentMethod === 'transfer' && 'โอนเงิน'}
-                    {order.paymentMethod === 'promptpay' && 'พร้อมเพย์'}
-                  </span>
-                </div>
-              </div>
-            </Card>
+                  {order.specialInstructions && (
+                     <div className="flex gap-4 items-start">
+                        <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                           <MessageCircle className="w-4 h-4 text-amber-500" />
+                        </div>
+                        <div className="bg-amber-50/50 rounded-2xl p-3.5 flex-1 border border-amber-100/50">
+                           <p className="text-xs font-bold text-amber-800 uppercase tracking-widest mb-1">หมายเหตุเพิ่มเติม</p>
+                           <p className="text-sm text-amber-900/80 italic font-medium">{order.specialInstructions}</p>
+                        </div>
+                     </div>
+                  )}
+               </div>
+            </div>
           </motion.div>
 
-          {/* ❌ Cancel Order Action */}
+          {/* Receipt Style Items List */}
+          <motion.div variants={fadeUpSpring}>
+             <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 relative">
+                {/* Receipt Zig Zag Top */}
+                <div className="absolute top-0 left-0 right-0 h-2 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSI0Ij48cGF0aCBkPSJNMCAwbDUgNCA1LTR2NHgtMTB6IiBmaWxsPSIjRjRGNEY1Ii8+PC9zdmc+')] bg-repeat-x z-10 -mt-[1px]"></div>
+                
+                <div className="p-6 pt-8 pb-4 border-b border-dashed border-gray-200">
+                   <h3 className="font-black text-gray-900 text-lg flex items-center gap-2 mb-1">
+                      <ShoppingBag className="w-5 h-5 text-[#FF6B00]" /> สรุปรายการอาหาร
+                   </h3>
+                   <p className="text-xs font-bold text-gray-400">{order.items.length} รายการในออเดอร์นี้</p>
+                </div>
+
+                <div className="p-2">
+                   {order.items.map((item, index) => (
+                     <div key={index} className="flex gap-4 p-4 hover:bg-gray-50 rounded-2xl transition-colors">
+                        <div className="w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center font-black text-gray-700 shadow-sm flex-shrink-0">
+                           {item.quantity}
+                        </div>
+                        <div className="flex-1">
+                           <div className="flex justify-between items-start mb-1">
+                              <h4 className="font-bold text-gray-900 text-base leading-tight pr-4">{item.name}</h4>
+                              <span className="font-black text-gray-900">{formatPrice(item.subtotal)}</span>
+                           </div>
+                           
+                           {item.options.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                 {item.options.map((opt, i) => (
+                                    <span key={i} className="text-[10px] font-bold bg-white border border-gray-200 text-gray-600 px-2 py-0.5 rounded-lg shadow-sm">
+                                       {opt.name}
+                                    </span>
+                                 ))}
+                              </div>
+                           )}
+
+                           {item.note && (
+                              <div className="mt-2 text-xs text-gray-500 bg-gray-100/80 px-3 py-2 rounded-xl border border-gray-200/60 inline-flex items-center gap-1.5 font-medium">
+                                 <span className="text-[10px]">✏️</span> {item.note}
+                              </div>
+                           )}
+                        </div>
+                     </div>
+                   ))}
+                </div>
+
+                {/* Subtotals & Totals */}
+                <div className="p-6 bg-gray-50/50 border-t border-dashed border-gray-200 space-y-3">
+                   <div className="flex justify-between items-center text-sm font-bold text-gray-500">
+                      <span>ยอดรวมค่าอาหาร</span>
+                      <span>{formatPrice(order.subtotalPrice)}</span>
+                   </div>
+                   
+                   {order.discountAmount > 0 && (
+                     <div className="flex justify-between items-center text-sm font-bold bg-green-50 text-green-600 p-2.5 rounded-xl border border-green-100">
+                        <span className="flex items-center gap-2"><div className="bg-white w-5 h-5 rounded-full flex items-center justify-center text-[10px]">🎫</div> ส่วนลด</span>
+                        <span>-{formatPrice(order.discountAmount)}</span>
+                     </div>
+                   )}
+
+                   {order.pointsRedeemed > 0 && (
+                     <div className="flex justify-between items-center text-sm font-bold bg-amber-50 text-amber-600 p-2.5 rounded-xl border border-amber-100">
+                        <span className="flex items-center gap-2"><Star className="w-4 h-4 fill-amber-500 text-amber-500"/> ใช้พอยต์</span>
+                        <span>-{formatPrice(order.pointsRedeemed / 10)}</span>
+                     </div>
+                   )}
+
+                   <div className="pt-4 mt-2 border-t border-gray-200 flex justify-between items-end">
+                      <div>
+                         <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">ยอดสุทธิ</p>
+                         <p className="text-gray-500 text-xs font-medium">ชำระผ่าน {order.paymentMethod === 'promptpay' ? 'QR Code' : 'เงินสด'}</p>
+                      </div>
+                      <span className="text-3xl font-black text-[#FF6B00] tracking-tight drop-shadow-sm">{formatPrice(order.totalPrice)}</span>
+                   </div>
+                </div>
+
+                {/* Receipt Zig Zag Bottom */}
+                <div className="absolute bottom-0 left-0 right-0 h-2 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSI0Ij48cGF0aCBkPSJNMCA0bDUtNCA1IDR2LTR4LTEweiIgZmlsbD0iI0Y0RjRGNSIvPjwvc3ZnPg==')] bg-repeat-x z-10 -mb-[1px]"></div>
+             </div>
+          </motion.div>
+
+          {/* ❌ Cancel Action */}
           {(order.status === 'placed' || order.status === 'pending') && (
-            <motion.div variants={fadeInUp}>
-              <button
-                onClick={async () => {
-                  if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการยกเลิกออเดอร์นี้?')) {
-                    const { updateOrderStatus } = await import('@/features/orders/hooks/useOrders')
-                    try {
-                      await updateOrderStatus(order.id, 'cancelled')
-                      alert('ยกเลิกออเดอร์สำเร็จ')
-                    } catch (err) {
-                      alert('ไม่สามารถยกเลิกได้ กรุณาติดต่อร้านค้า')
-                    }
-                  }
-                }}
-                className="w-full py-3 text-red-500 font-bold text-sm hover:bg-red-50 rounded-xl transition-colors"
-              >
-                ยกเลิกออเดอร์นี้
-              </button>
-            </motion.div>
+            <motion.button
+               variants={fadeUpSpring}
+               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+               onClick={async () => {
+                 hapticMedium()
+                 if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการยกเลิกออเดอร์นี้?')) {
+                   const { updateOrderStatus } = await import('@/features/orders/hooks/useOrders')
+                   try {
+                     await updateOrderStatus(order.id, 'cancelled')
+                     alert('ยกเลิกออเดอร์สำเร็จ')
+                   } catch (err) {
+                     alert('ไม่สามารถยกเลิกได้ กรุณาติดต่อร้านค้า')
+                   }
+                 }
+               }}
+               className="w-full py-4 text-gray-500 font-bold text-sm bg-white hover:bg-red-50 hover:text-red-500 rounded-2xl transition-all shadow-sm border border-gray-200 hover:border-red-200 flex items-center justify-center gap-2 group"
+             >
+               ยกเลิกออเดอร์นี้
+             </motion.button>
           )}
 
-          {/* Items */}
-          <motion.div variants={fadeInUp}>
-            <Card>
-              <div className="p-4 border-b border-gray-100">
-                <h2 className="font-bold text-gray-800">รายการอาหาร</h2>
-              </div>
-              <div className="divide-y divide-gray-50">
-                {order.items.map((item, index) => (
-                  <div key={index} className="p-4 flex justify-between items-start">
-                    <div>
-                      <p className="font-bold text-gray-800">{item.name}</p>
-                      {item.options.length > 0 && (
-                        <p className="text-xs text-gray-500">{item.options.map(o => o.name).join(', ')}</p>
-                      )}
-                      {item.note && (
-                        <p className="text-xs text-amber-600 italic mt-0.5">📝 {item.note}</p>
-                      )}
-                      <p className="text-sm text-gray-400">x{item.quantity}</p>
-                    </div>
-                    <span className="font-bold text-gray-800">{formatPrice(item.subtotal)}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="p-4 border-t border-gray-100 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">ยอดรวม</span>
-                  <span>{formatPrice(order.subtotalPrice)}</span>
-                </div>
-                {order.discountAmount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">ส่วนลด</span>
-                    <span className="text-green-600">-{formatPrice(order.discountAmount)}</span>
-                  </div>
-                )}
-                {order.pointsRedeemed > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">ใช้พอยต์</span>
-                    <span className="text-green-600">-{formatPrice(order.pointsRedeemed / 10)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-100">
-                  <span>ยอดสุทธิ</span>
-                  <span style={{ color: '#FF6B00' }}>{formatPrice(order.totalPrice)}</span>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-
-          {/* Review Form */}
+          {/* Review Section */}
+          <AnimatePresence>
           {order.status === 'delivered' && (
-            <motion.div variants={fadeInUp}>
-              <Card>
-                <div className="p-4 border-b border-gray-100">
-                  <h2 className="font-bold text-gray-800 flex items-center gap-2">
-                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                    รีวิวและให้คะแนน
-                  </h2>
-                </div>
-                <div className="p-4">
-                  <ReviewForm order={order} />
-                </div>
-              </Card>
-            </motion.div>
+             <motion.div variants={fadeUpSpring} initial="hidden" animate="visible">
+               <div className="bg-gradient-to-br from-indigo-50 to-[#FAFAF9] rounded-3xl p-1 shadow-sm border border-indigo-100/50">
+                  <div className="bg-white/60 backdrop-blur-xl rounded-[22px] p-6 text-center border border-white">
+                     <div className="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-indigo-500/20 transform rotate-3">
+                        <HeartHandshake className="w-8 h-8 text-white tracking-widest" />
+                     </div>
+                     <h3 className="text-lg font-black text-gray-900 mb-1">อาหารอร่อยไหม?</h3>
+                     <p className="text-gray-500 text-sm font-medium mb-6">บอกเราหน่อย เพื่อให้เราพัฒนาขึ้นในครั้งถัดไป</p>
+                     <ReviewForm order={order} />
+                  </div>
+               </div>
+             </motion.div>
           )}
+          </AnimatePresence>
 
-          {/* Contact Actions */}
-          <motion.div variants={fadeInUp} className="flex gap-3">
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleCallShop}
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 border-gray-200 bg-white font-bold text-gray-700 text-sm hover:border-gray-300 transition-colors"
-            >
-              <Phone className="w-4 h-4" />
-              โทรหาร้าน
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleChatShop}
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-white text-sm"
-              style={{ background: '#00B900', boxShadow: '0 4px 14px rgba(0,185,0,0.35)' }}
-            >
-              <MessageCircle className="w-4 h-4" />
-              แชท LINE
-            </motion.button>
-          </motion.div>
         </motion.div>
       </Container>
     </div>

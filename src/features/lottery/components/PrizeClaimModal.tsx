@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Gift, Check, AlertCircle, Copy, ExternalLink } from 'lucide-react'
+import { X, Gift, Check, AlertCircle, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { formatPrice } from '@/utils/formatPrice'
 
@@ -24,13 +24,11 @@ export function PrizeClaimModal({
   onClaim
 }: PrizeClaimModalProps) {
   const [step, setStep] = useState<'confirm' | 'processing' | 'success'>('confirm')
-  const [isProcessing, setIsProcessing] = useState(false)
 
   if (!isOpen) return null
 
   const handleClaim = async () => {
     setStep('processing')
-    setIsProcessing(true)
     
     try {
       await onClaim(ticket.id)
@@ -38,8 +36,6 @@ export function PrizeClaimModal({
     } catch (error) {
       console.error('Failed to claim prize:', error)
       setStep('confirm')
-    } finally {
-      setIsProcessing(false)
     }
   }
 

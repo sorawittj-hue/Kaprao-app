@@ -2,7 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
+    # Disable auto-deploy on main to stop billing issues
+    branches: [ "disable-auto-deploy" ]
   workflow_dispatch:
 
 permissions:

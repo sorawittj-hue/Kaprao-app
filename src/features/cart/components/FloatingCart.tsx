@@ -16,7 +16,7 @@ export function FloatingCart() {
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 120, opacity: 0, scale: 0.9 }}
           transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-          className="fixed left-4 right-4 bottom-[76px] z-40"
+          className="fixed left-4 right-4 bottom-[104px] z-40"
         >
           <motion.button
             onClick={() => navigate('/cart')}
