@@ -8,15 +8,13 @@ import {
   Banknote,
   QrCode,
   Check,
-  AlertCircle,
   User,
   Sparkles,
   Gift,
-  ChevronRight,
-  ShieldCheck,
   UploadCloud,
   FileImage,
-  CreditCard
+  CreditCard,
+  Ticket
 } from 'lucide-react'
 import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
 import { useCartStore, useAuthStore, useUIStore } from '@/store'
@@ -37,7 +35,7 @@ const staggerList = { hidden: { opacity: 0 }, visible: { opacity: 1, transition:
 const slideUpItem = { hidden: { opacity: 0, y: 30, scale: 0.95 }, visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 25 } } }
 
 // Payment method option component
-function PaymentOption({ method, selected, onSelect, icon: Icon, title, description, color }: { method: 'cod' | 'transfer' | 'promptpay', selected: string, onSelect: (m: 'cod' | 'transfer' | 'promptpay') => void, icon: React.ElementType, title: string, description: string, color: string }) {
+function PaymentOption({ method, selected, onSelect, icon: Icon, title, description }: { method: 'cod' | 'transfer' | 'promptpay', selected: string, onSelect: (m: 'cod' | 'transfer' | 'promptpay') => void, icon: React.ElementType, title: string, description: string }) {
   const isSelected = selected === method
   return (
     <button
@@ -356,8 +354,8 @@ export default function CheckoutPage() {
                 <h2 className="font-black text-gray-800">วิธีชำระเงิน</h2>
              </div>
              <div className="p-4 space-y-3">
-                 <PaymentOption method="cod" selected={paymentMethod} onSelect={setPaymentMethod} icon={Banknote} title="จ่ายเงินสด / เก็บเงินปลายทาง" description="ชำระเงินให้พนักงานจัดส่งเมื่อรับอาหาร" color="emerald" />
-                 <PaymentOption method="promptpay" selected={paymentMethod} onSelect={setPaymentMethod} icon={QrCode} title="พร้อมเพย์ / สแกนคิวอาร์" description="โอนเงินปลอดภัยผ่านแอปธนาคาร รวดเร็วกว่า" color="blue" />
+                 <PaymentOption method="cod" selected={paymentMethod} onSelect={setPaymentMethod} icon={Banknote} title="จ่ายเงินสด / เก็บเงินปลายทาง" description="ชำระเงินให้พนักงานจัดส่งเมื่อรับอาหาร" />
+                 <PaymentOption method="promptpay" selected={paymentMethod} onSelect={setPaymentMethod} icon={QrCode} title="พร้อมเพย์ / สแกนคิวอาร์" description="โอนเงินปลอดภัยผ่านแอปธนาคาร รวดเร็วกว่า" />
              </div>
           </motion.div>
 

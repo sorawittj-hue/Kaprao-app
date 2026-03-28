@@ -3,8 +3,8 @@ import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Search, MoreVertical, Printer, Eye, X, Check, 
-  Clock, MapPin, Phone, User, Package, CheckCircle,
-  Trash2, CreditCard, Flame, AlertCircle
+  Clock, MapPin, User, Package, CheckCircle,
+  Trash2, Flame, AlertCircle
 } from 'lucide-react'
 import { useAllOrders, useUpdateOrderStatus, useCancelOrder, useDeleteOrder } from '@/features/admin/hooks/useAdmin'
 import { useAllOrdersRealtime } from '@/features/orders/hooks/useOrders'
@@ -16,7 +16,7 @@ import { cn } from '@/utils/cn'
 import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
 import { OrderCardSkeleton } from '@/components/ui/Skeleton'
 
-const slideUpItem = { hidden: { opacity: 0, y: 30, scale: 0.95 }, visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 25 } } }
+
 const staggerList = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } } }
 
 const statusTabs: { status: OrderStatus | 'all'; label: string; color: string; bg: string }[] = [
