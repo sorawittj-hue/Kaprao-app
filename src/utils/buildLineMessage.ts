@@ -14,6 +14,10 @@ interface BuildLineMessageParams {
   ticketsEarned?: number
 }
 
+function formatPrice(price: number): string {
+  return price.toLocaleString('th-TH')
+}
+
 export function buildLineOrderMessage({
   order,
   lottoNumber,
@@ -31,55 +35,67 @@ export function buildLineOrderMessage({
   })
 
   // Payment & Delivery labels
-  const paymentLabel = order.paymentMethod === 'cod' ? '💵 เงินสด' : '💳 โอนเงิน/พร้อมเพย์'
-  const deliveryLabel = order.deliveryMethod === 'workplace' ? '🏢 ส่งที่ทำงาน' : '🏘️ ส่งในหมู่บ้าน'
+  const paymentLabel = order.paymentMethod === 'cod' ? '💵 เงินสด' : '💳 โอน/พร้อมเพย์'
+  const deliveryLabel = order.deliveryMethod === 'workplace' ? '🏢 ที่ทำงาน' : '🏘️ ในหมู่บ้าน'
 
   // ====================
-  // BUILD MESSAGE (Compact Version)
+  // BUILD MESSAGE (Readable Version)
   // ====================
-  let msg = `🔥 ออเดอร์ใหม่ #${order.id}\n`
-  msg += `━━━━━━━━━━━━━━━━━━\n`
+  let msg = `� ออเดอร์ใหม่ #${order.id}\n`
+  msg += `══════════════════\n`
   msg += `👤 คุณ${order.customerName}\n`
   msg += `📱 ${order.phoneNumber || '-'}\n`
-  msg += `📍 ${deliveryLabel}${order.address ? ` (${order.address})` : ''}\n`
-  msg += `💰 รวม ${order.totalPrice}฿ | ${paymentLabel}\n`
-  msg += `🕒 ${dateStr} - ${timeStr} น.\n`
+  msg += `📍 ${deliveryLabel}${order.address ? ` — ${order.address}` : ''}\n`
+  msg += `💰 ${formatPrice(order.totalPrice)} บาท | ${paymentLabel}\n`
+  msg += `🕒 ${dateStr} เวลา ${timeStr} น.\n`
 
-  // 📝 ITEMS
-  msg += `\n🥡 รายการอาหาร:\n`
+  // 📝 ITEMS SECTION
+  msg += `\n📋 รายการอาหาร:\n`
+  msg += `──────────────────\n`
+  
   order.items.forEach((item, index) => {
-    const qty = item.quantity > 1 ? ` x${item.quantity}` : ''
-    msg += `${index + 1}. ${item.name}${qty} (${item.subtotal}฿)\n`
+    const qty = item.quantity > 1 ? ` (x${item.quantity})` : ''
+    msg += `${index + 1}. ${item.name}${qty}\n`
+    msg += `   💵 ${formatPrice(item.subtotal)} บาท\n`
 
-    // Options (Compact)
+    // Options with bullet points
     if (item.options && item.options.length > 0) {
-      const optionNames = item.options.map(opt => opt.name).join(', ')
-      msg += `   ↳ ${optionNames}\n`
+      item.options.forEach(opt => {
+        msg += `      • ${opt.name}\n`
+      })
     }
 
-    if (item.note) msg += `   📝 ${item.note}\n`
+    if (item.note) msg += `      📝 หมายเหตุ: ${item.note}\n`
+    
+    // Add spacing between items
+    if (index < order.items.length - 1) {
+      msg += `\n`
+    }
   })
 
-  // 🎁 REWARDS & LOTTO
+  // 🎁 REWARDS & LOTTO SECTION
   const ptsEarned = pointsEarned ?? order.pointsEarned ?? 0
   const tickets = ticketsEarned ?? Math.floor(order.totalPrice / 100)
 
   if (ptsEarned > 0 || tickets > 0 || lottoNumber) {
-    msg += `━━━━━━━━━━━━━━━━━━\n`
-    if (ptsEarned > 0) msg += `⭐ ได้รับ +${ptsEarned} pts\n`
-    if (tickets > 0) msg += `🎟️ ตั๋วหวย ${tickets} ใบ (เลข ${lottoNumber || order.id.toString().slice(-2)})\n`
-    if (drawDate) msg += `📅 งวดวันที่: ${drawDate}\n`
+    msg += `\n🎁 สิทธิพิเศษ:\n`
+    msg += `──────────────────\n`
+    if (ptsEarned > 0) msg += `⭐ ได้รับ ${ptsEarned} พอยต์\n`
+    if (tickets > 0) msg += `🎟️ ตั๋วหวย ${tickets} ใบ\n`
+    if (lottoNumber) msg += `🍀 เลขนำโชค: ${lottoNumber}\n`
+    if (drawDate) msg += `📅 งวด: ${drawDate}\n`
   }
 
   // ⚠️ GUEST CTA
   if (isGuest) {
-    msg += `━━━━━━━━━━━━━━━━━━\n`
-    msg += `‼️ ล็อกอิน LINE เพื่อสะสมพอยต์!\n`
+    msg += `\n⚠️ แจ้งเตือน:\n`
+    msg += `──────────────────\n`
+    msg += `ล็อกอิน LINE เพื่อสะสมพอยต์!\n`
   }
 
   // 💖 FOOTER
-  msg += `━━━━━━━━━━━━━━━━━━\n`
-  msg += `ขอบคุณที่สั่งกะเพรา 52 ครับ! 🙏`
+  msg += `\n══════════════════\n`
+  msg += `🙏 ขอบคุณที่สั่งกะเพรา 52 ครับ!`
 
   return msg
 }
