@@ -1,8 +1,10 @@
 name: Deploy to GitHub Pages
 
+# DISABLED: GitHub Actions blocked due to billing issue
+# Use manual deploy: npm run deploy
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "never-trigger" ]
   workflow_dispatch:
 
 permissions:
