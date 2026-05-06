@@ -72,21 +72,29 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -6, transition: { duration: 0.25, ease: [0, 0, 0.2, 1] } }}
+        whileHover={{
+          y: -6,
+          boxShadow: '0 16px 40px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04)',
+          transition: { duration: 0.25, ease: [0, 0, 0.2, 1] },
+        }}
         whileTap={{ scale: 0.97 }}
         onClick={handleCardClick}
+        role="button"
+        tabIndex={0}
+        aria-label={`ดูรายละเอียด ${item.name}`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleCardClick()
+          }
+        }}
         className={cn(
-          'bg-white rounded-[1.25rem] overflow-hidden cursor-pointer select-none',
-          'border border-gray-100/80',
+          'menu-card group bg-white rounded-[1.25rem] overflow-hidden cursor-pointer select-none',
+          'border border-gray-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
           !item.isAvailable && 'opacity-65 grayscale'
         )}
         style={{
           boxShadow: '0 4px 20px -4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)',
-          transition: 'box-shadow 0.25s ease',
-        }}
-        onHoverStart={(e) => {
-          const el = e.target as HTMLElement
-          el.closest?.('.menu-card')?.setAttribute('style', 'box-shadow: 0 16px 40px -8px rgba(0,0,0,0.15)')
         }}
       >
         {/* Image */}
@@ -100,11 +108,12 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
             src={getValidImageUrl(item.imageUrl)}
             alt={item.name}
             className={cn(
-              'absolute inset-0 w-full h-full object-cover transition-all duration-500',
+              'absolute inset-0 w-full h-full object-cover transition-all duration-500 will-change-transform',
               imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105',
-              'group-hover:scale-110'
+              'group-hover:scale-[1.08]'
             )}
             loading="lazy"
+            decoding="async"
             onLoad={() => setImageLoaded(true)}
             onError={(e) => {
               setImageLoaded(true)
@@ -125,16 +134,22 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
 
           {/* Favorite Button */}
           <motion.button
+            type="button"
             onClick={handleToggleFavorite}
             whileTap={{ scale: 0.8 }}
+            whileHover={{ scale: 1.08 }}
+            aria-label={isFav ? `เอา ${item.name} ออกจากรายการโปรด` : `เพิ่ม ${item.name} เป็นรายการโปรด`}
+            aria-pressed={isFav}
             className={cn(
               'absolute top-2.5 right-2.5 w-9 h-9 rounded-full flex items-center justify-center',
               'shadow-lg backdrop-blur-sm transition-all duration-200',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1',
               isFav ? 'bg-red-50 border border-red-200' : 'bg-white/90 border border-white/50'
             )}
             style={{ pointerEvents: 'auto' }}
           >
             <Heart
+              aria-hidden="true"
               className={cn(
                 'w-4 h-4 transition-all duration-300',
                 isFav ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-400'
@@ -203,20 +218,22 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
                 ) : (
                   <motion.button
                     key="add"
+                    type="button"
                     initial={{ scale: 0.8 }}
                     animate={{ scale: 1 }}
                     whileHover={{ scale: 1.15 }}
                     whileTap={{ scale: 0.85 }}
                     onClick={handleQuickAdd}
                     disabled={isAdding}
-                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md"
+                    aria-label={`เพิ่ม ${item.name} ลงตะกร้า`}
+                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1"
                     style={{
                       background: 'linear-gradient(135deg, #FF6B00, #FF8C42)',
                       boxShadow: '0 4px 12px -2px rgba(255, 107, 0, 0.45)',
                       pointerEvents: 'auto',
                     }}
                   >
-                    <Plus className="w-5 h-5 text-white" strokeWidth={2.5} />
+                    <Plus className="w-5 h-5 text-white" strokeWidth={2.5} aria-hidden="true" />
                   </motion.button>
                 )}
               </AnimatePresence>

@@ -30,7 +30,9 @@ const categoryGradientMap: Record<string, [string, string]> = {
   amber: ['#D97706', '#F59E0B'],
   emerald: ['#059669', '#34D399'],
   pink: ['#EC4899', '#F472B6'],
-  purple: ['#059669', '#C084FC'],
+  purple: ['#7C3AED', '#C084FC'],
+  blue: ['#2563EB', '#60A5FA'],
+  teal: ['#0D9488', '#5EEAD4'],
   gray: ['#4B5563', '#9CA3AF'],
 }
 
@@ -54,7 +56,9 @@ export function CategoryTabs() {
       {/* Tabs */}
       <div
         ref={scrollRef}
-        className="flex gap-2 overflow-x-auto hide-scrollbar py-1.5 px-2"
+        role="tablist"
+        aria-label="หมวดหมู่เมนู"
+        className="flex gap-2 overflow-x-auto hide-scrollbar py-1.5 px-2 scroll-smooth"
       >
         {categories.map((category) => {
           const isActive = activeCategory === category.id
@@ -63,6 +67,9 @@ export function CategoryTabs() {
           return (
             <motion.button
               key={category.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
               onClick={() => {
                 setActiveCategory(category.id)
                 hapticLight()
@@ -72,13 +79,14 @@ export function CategoryTabs() {
               }}
               id={`cat-${category.id}`}
               whileTap={{ scale: 0.93 }}
+              whileHover={!isActive ? { y: -2 } : undefined}
               className={cn(
                 'flex items-center gap-1.5 px-4 py-2.5 rounded-2xl whitespace-nowrap flex-shrink-0',
                 'transition-all duration-300 font-bold text-sm',
-                'border-2',
+                'border-2 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1',
                 isActive
                   ? 'text-white border-transparent shadow-lg'
-                  : 'bg-white border-gray-100 text-gray-500 hover:border-gray-200 shadow-sm'
+                  : 'bg-white border-gray-100 text-gray-500 hover:border-gray-200 hover:text-gray-700 shadow-sm'
               )}
               style={
                 isActive

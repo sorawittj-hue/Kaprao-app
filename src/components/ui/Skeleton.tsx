@@ -1,35 +1,19 @@
-import { motion } from 'framer-motion'
 import { cn } from '@/utils/cn'
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   animate?: boolean
 }
 
+/**
+ * Skeleton placeholder. Uses the CSS `.skeleton` shimmer keyframe from globals.css
+ * (single animated layer is much cheaper than animating an inline gradient via JS).
+ */
 export function Skeleton({ className, animate = true, ...props }: SkeletonProps) {
-  if (!animate) {
-    return (
-      <div
-        className={cn('bg-gray-200 rounded-lg', className)}
-        {...props}
-      />
-    )
-  }
-
   return (
-    <motion.div
-      className={cn('bg-gray-200 rounded-lg', className)}
-      animate={{
-        background: [
-          'linear-gradient(90deg, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%)',
-          'linear-gradient(90deg, #e0e0e0 0%, #f0f0f0 50%, #e0e0e0 100%)',
-          'linear-gradient(90deg, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%)',
-        ],
-      }}
-      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-      style={{
-        backgroundSize: '200% 100%',
-      }}
-      {...props as any}
+    <div
+      aria-hidden="true"
+      className={cn('rounded-lg', animate ? 'skeleton' : 'bg-gray-200', className)}
+      {...props}
     />
   )
 }

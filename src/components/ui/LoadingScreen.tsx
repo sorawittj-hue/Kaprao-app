@@ -16,8 +16,11 @@ export function LoadingScreen() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.1, filter: 'blur(20px)' }}
-      transition={{ duration: 0.8, ease: 'easeInOut' }}
+      exit={{ opacity: 0, scale: 1.05, filter: 'blur(8px)' }}
+      transition={{ duration: 0.4, ease: 'easeInOut' }}
+      role="status"
+      aria-live="polite"
+      aria-label="กำลังโหลดแอป"
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-surface overflow-hidden"
     >
       {/* Background Glow */}
@@ -77,12 +80,16 @@ export function LoadingScreen() {
       </div>
 
       {/* Progress Bar */}
-      <div className="absolute bottom-20 w-48 h-1 bg-gray-100 rounded-full overflow-hidden">
+      <div
+        className="absolute bottom-20 w-48 h-1 bg-gray-100 rounded-full overflow-hidden"
+        role="progressbar"
+        aria-label="กำลังเตรียมหน้าหลัก"
+      >
         <motion.div
           initial={{ width: '0%' }}
           animate={{ width: '100%' }}
-          transition={{ duration: 1.8, ease: 'easeInOut' }}
-          className="h-full bg-brand-500"
+          transition={{ duration: 0.7, ease: 'easeInOut' }}
+          className="h-full bg-gradient-to-r from-brand-500 to-brand-600"
         />
       </div>
     </motion.div>
