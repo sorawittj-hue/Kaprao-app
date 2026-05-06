@@ -42,7 +42,9 @@ export function BottomNav() {
               key={item.path}
               to={item.path}
               onClick={() => hapticLight()}
-              className="relative flex flex-col items-center justify-center flex-1 h-full tap-highlight-transparent group"
+              aria-label={item.label}
+              end={item.path === '/'}
+              className="relative flex flex-col items-center justify-center flex-1 h-full min-h-[44px] tap-highlight-transparent group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-[28px]"
             >
               {({ isActive }) => (
                 <>
@@ -67,9 +69,11 @@ export function BottomNav() {
                     </motion.div>
 
                     {item.showBadge && totalItems > 0 && (
-                      <motion.span 
+                      <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
+                        role="status"
+                        aria-label={`${totalItems} รายการในตะกร้า`}
                         className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 border-2 border-white shadow-sm"
                       >
                         {totalItems > 99 ? '99+' : totalItems}

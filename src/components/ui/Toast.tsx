@@ -49,6 +49,9 @@ export function Toast({ toast }: ToastProps) {
       onDragEnd={(_, info) => {
         if (info.offset.x > 50) removeToast(toast.id)
       }}
+      role={toast.type === 'error' ? 'alert' : 'status'}
+      aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
+      aria-atomic="true"
       className="pointer-events-auto relative overflow-hidden rounded-2xl shadow-2xl min-w-[300px] max-w-sm"
       style={{
         background: config.bg,
@@ -68,7 +71,9 @@ export function Toast({ toast }: ToastProps) {
         {toast.imageUrl ? (
           <img
             src={getValidImageUrl(toast.imageUrl)}
-            alt=""
+            alt={toast.title || ''}
+            loading="lazy"
+            decoding="async"
             className="w-11 h-11 rounded-xl object-cover ring-2 ring-white/20 flex-shrink-0"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -99,10 +104,12 @@ export function Toast({ toast }: ToastProps) {
 
         {/* Close button */}
         <button
+          type="button"
           onClick={() => removeToast(toast.id)}
-          className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-white/15 transition-colors flex-shrink-0"
+          aria-label="ปิดการแจ้งเตือน"
+          className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-white/15 active:bg-white/25 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
         >
-          <X className="w-3.5 h-3.5 text-white" />
+          <X className="w-3.5 h-3.5 text-white" aria-hidden="true" />
         </button>
       </div>
 
