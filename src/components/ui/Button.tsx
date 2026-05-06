@@ -49,7 +49,7 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, fullWidth, asChild = false, isLoading, children, ...props }, ref) => {
+  ({ className, variant, size, fullWidth, asChild = false, isLoading, children, onClick, disabled, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button'
     const reducedMotion = useReducedMotion()
 
@@ -57,10 +57,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         className={cn(buttonVariants({ variant, size, fullWidth, className }))}
         ref={ref}
-        disabled={isLoading || props.disabled}
+        disabled={isLoading || disabled}
+        aria-busy={isLoading || undefined}
         onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+          if (isLoading || disabled) return
           hapticLight()
-          props.onClick?.(e as any)
+          onClick?.(e as any)
         }}
         {...props}
       >

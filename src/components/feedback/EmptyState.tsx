@@ -101,7 +101,7 @@ export function EmptyState({
       </motion.p>
 
       {/* Action button */}
-      {currentConfig.actionLabel && actionLabel !== undefined && (
+      {onAction && (actionLabel || currentConfig.actionLabel) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -129,23 +129,11 @@ export function EmptyState({
 
 // Preset empty states for common use cases
 export function CartEmpty({ onShopNow }: { onShopNow?: () => void }) {
-  return (
-    <EmptyState
-      type="cart"
-      actionLabel={onShopNow ? undefined : 'ไปเลือกเมนู'}
-      onAction={onShopNow}
-    />
-  )
+  return <EmptyState type="cart" onAction={onShopNow} />
 }
 
 export function OrdersEmpty({ onOrderNow }: { onOrderNow?: () => void }) {
-  return (
-    <EmptyState
-      type="orders"
-      actionLabel={onOrderNow ? undefined : 'สั่งเลย'}
-      onAction={onOrderNow}
-    />
-  )
+  return <EmptyState type="orders" onAction={onOrderNow} />
 }
 
 export function SearchEmpty() {

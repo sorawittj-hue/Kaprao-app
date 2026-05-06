@@ -62,6 +62,8 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -73,5 +75,11 @@ export default defineConfig({
         },
       },
     },
+  },
+  esbuild: {
+    // Strip console.* and debugger in production builds (keeps console.error/warn for visibility)
+    drop: process.env.NODE_ENV === 'production' ? ['debugger'] : [],
+    pure: process.env.NODE_ENV === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
+    legalComments: 'none',
   },
 })

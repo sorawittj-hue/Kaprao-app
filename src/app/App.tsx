@@ -8,8 +8,11 @@ function App() {
   const [isInitializing, setIsInitializing] = useState(true)
 
   useEffect(() => {
-    // Artificial delay to show beauty of the brand splash
-    const timer = setTimeout(() => setIsInitializing(false), 2200)
+    // Brief brand splash; skip for users who prefer reduced motion.
+    const reduce = typeof window !== 'undefined'
+      && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const delay = reduce ? 0 : 800
+    const timer = setTimeout(() => setIsInitializing(false), delay)
     return () => clearTimeout(timer)
   }, [])
 
