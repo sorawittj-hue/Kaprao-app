@@ -109,15 +109,21 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
     }
   }, [isOpen])
 
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
+
   const toggleExtra = useCallback((option: SelectedOption) => {
     hapticLight()
     setSelectedExtras(prev => {
       const exists = prev.find(o => o.optionId === option.optionId)
-      if (exists) {
-        console.log('➖ Removing extra:', option.name)
-        return prev.filter(o => o.optionId !== option.optionId)
-      }
-      console.log('➕ Adding extra:', option.name)
+      if (exists) return prev.filter(o => o.optionId !== option.optionId)
       return [...prev, option]
     })
   }, [])
@@ -142,12 +148,8 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
   }, [item, selectedMeat, selectedEgg, selectedExtras])
 
   const handleAddToCart = useCallback(() => {
-    if (isAdding || !item) {
-      console.log('⚠️ Add to cart blocked - already adding or no item')
-      return
-    }
+    if (isAdding || !item) return
 
-    console.log('🛒 Adding to cart:', item.name, 'x', quantity)
     setIsAdding(true)
     hapticAddToCart()
 
@@ -183,16 +185,12 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
     // Animate and close
     setTimeout(() => {
       setIsAdding(false)
-      console.log('✅ Item added, closing modal')
       onClose()
     }, 300)
   }, [isAdding, item, quantity, selectedMeat, selectedEgg, selectedSpice, selectedExtras, note, addItem, addToast, onClose])
 
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      console.log('👆 Backdrop clicked, closing modal')
-      onClose()
-    }
+    if (e.target === e.currentTarget) onClose()
   }, [onClose])
 
   const tabConfig = useMemo(() => ({
@@ -223,10 +221,13 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="menu-item-modal-title"
             className="fixed inset-x-0 bottom-0 z-[150] bg-white rounded-t-3xl max-h-[90vh] overflow-hidden"
           >
             {/* Handle Bar */}
-            <div className="flex justify-center pt-3 pb-1">
+            <div className="flex justify-center pt-3 pb-1" aria-hidden="true">
               <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
             </div>
 
@@ -236,6 +237,8 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                 <img
                   src={getValidImageUrl(item.imageUrl)}
                   alt={item.name}
+                  loading="eager"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
                 
@@ -243,10 +246,12 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent pointer-events-none" />
 
                 <button
+                  type="button"
                   onClick={onClose}
-                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all text-gray-600 hover:text-gray-900 z-10"
+                  aria-label="ปิดหน้าต่าง"
+                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all text-gray-600 hover:text-gray-900 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5" aria-hidden="true" />
                 </button>
 
                 {item.isRecommended && (
@@ -262,7 +267,7 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                 {/* Title & Price */}
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-xl font-black text-gray-800">{item.name}</h2>
+                    <h2 id="menu-item-modal-title" className="text-xl font-black text-gray-800">{item.name}</h2>
                     <p className="text-sm text-gray-500 mt-1">{item.description}</p>
                   </div>
                   <div className="text-right">

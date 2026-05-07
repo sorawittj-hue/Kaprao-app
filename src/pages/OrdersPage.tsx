@@ -68,15 +68,15 @@ export default function OrdersPage() {
         
         {/* Header Section */}
         <div className="flex items-center justify-between sticky top-4 z-50 mb-2">
-           <motion.button whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 border border-gray-100 shadow-sm">
-             <ArrowLeft className="w-5 h-5" />
+           <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 border border-gray-100 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
            </motion.button>
            <div className="text-center">
              <h1 className="text-lg font-black tracking-tight text-gray-900">ประวัติออเดอร์</h1>
              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Order History</p>
            </div>
-           <motion.button whileTap={{ scale: 0.9 }} onClick={() => { hapticMedium(); refetch() }} className={cn("w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 border border-gray-100 shadow-sm", isRefetching ? "opacity-50 pointer-events-none" : "")}>
-             <RefreshCw className={cn("w-5 h-5", isRefetching ? "animate-spin" : "")} />
+           <motion.button type="button" aria-label="โหลดข้อมูลใหม่" aria-busy={isRefetching} whileTap={{ scale: 0.9 }} onClick={() => { hapticMedium(); refetch() }} className={cn("w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 border border-gray-100 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400", isRefetching ? "opacity-50 pointer-events-none" : "")}>
+             <RefreshCw className={cn("w-5 h-5", isRefetching ? "animate-spin" : "")} aria-hidden="true" />
            </motion.button>
         </div>
 
@@ -90,8 +90,8 @@ export default function OrdersPage() {
                          <p className="font-black text-gray-900 text-sm">ผู้เยี่ยมชมระบบ</p>
                          <p className="text-gray-500 text-[10px] font-bold mt-0.5">เชื่อมต่อ LINE เพื่อบันทึกประวัติถาวร</p>
                       </div>
-                      <button onClick={handleLogin} className="bg-[#00B900] text-white px-4 py-2.5 rounded-xl font-black text-xs shadow-sm active:scale-95 transition-transform flex items-center gap-1.5 flex-shrink-0">
-                         <Smartphone className="w-4 h-4"/> Login
+                      <button type="button" onClick={handleLogin} aria-label="เข้าสู่ระบบด้วย LINE" className="bg-[#00B900] text-white px-4 py-2.5 rounded-xl font-black text-xs shadow-sm active:scale-95 transition-transform flex items-center gap-1.5 flex-shrink-0 hover:bg-[#00A300] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00B900] focus-visible:ring-offset-2">
+                         <Smartphone className="w-4 h-4" aria-hidden="true"/> Login
                       </button>
                    </div>
                 </div>
@@ -111,7 +111,7 @@ export default function OrdersPage() {
               <h2 className="font-black text-xl text-gray-900 tracking-tight mb-2">หิวรึยังคะ?</h2>
               <p className="text-sm font-medium text-gray-500 mb-8 max-w-[240px] mx-auto leading-relaxed">ดูเหมือนคุณจะยังไม่เคยสั่งอาหารกับกะเพรา 52 เลย มาลองเมนูเด็ดๆ กัน!</p>
               
-              <button onClick={() => { hapticHeavy(); navigate('/') }} className="w-full h-14 bg-gray-900 text-white rounded-[20px] shadow-md font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform relative overflow-hidden group">
+              <button type="button" onClick={() => { hapticHeavy(); navigate('/') }} className="w-full h-14 bg-gray-900 text-white rounded-[20px] shadow-md font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform relative overflow-hidden group hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2">
                  ดูเมนูอาหารทั้งหมด
               </button>
            </motion.div>
@@ -143,7 +143,7 @@ export default function OrdersPage() {
 
               {/* Past Orders */}
               {pastOrders.length > 0 && (
-                <motion.section variants={slideUpItem} className={cn("pt-4", activeOrders.length > 0 ? "border-t border-gray-200/50 dashed" : "")}>
+                <motion.section variants={slideUpItem} className={cn("pt-4", activeOrders.length > 0 ? "border-t border-dashed border-gray-200/70" : "")}>
                    <div className="flex items-center gap-3 mb-4 px-2">
                       <div className="w-10 h-10 rounded-[14px] bg-gray-50 flex items-center justify-center border border-gray-100/50 shadow-inner">
                          <CheckCircle className="w-5 h-5 text-gray-400" />

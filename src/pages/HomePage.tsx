@@ -139,7 +139,7 @@ export default function HomePage() {
                       รับพอยต์ทุกออเดอร์ • ลุ้นหวยกินฟรี
                     </p>
                   </div>
-                  <motion.button onClick={async () => { hapticHeavy(); try { const { loginWithLine } = await import('@/lib/auth'); await loginWithLine() } catch (e) { console.error('Login failed', e) } }} whileTap={{ scale: 0.9 }} className="bg-[#00B900] text-white font-black text-xs px-5 py-2.5 rounded-full shadow-md shadow-green-500/20 flex-shrink-0 active:scale-95 transition-transform flex items-center gap-1.5">
+                  <motion.button type="button" aria-label="เข้าสู่ระบบด้วย LINE" onClick={async () => { hapticHeavy(); try { const { loginWithLine } = await import('@/lib/auth'); await loginWithLine() } catch (e) { console.error('Login failed', e) } }} whileTap={{ scale: 0.9 }} className="bg-[#00B900] text-white font-black text-xs px-5 py-2.5 rounded-full shadow-md shadow-green-500/20 flex-shrink-0 active:scale-95 transition-transform flex items-center gap-1.5 hover:bg-[#00A300] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00B900] focus-visible:ring-offset-2">
                      LINE Login
                   </motion.button>
                 </div>

@@ -19,13 +19,15 @@ export function FloatingCart() {
           className="fixed left-4 right-4 bottom-[104px] z-40"
         >
           <motion.button
+            type="button"
             onClick={() => navigate('/cart')}
             whileHover={{
               scale: 1.02,
               boxShadow: '0 20px 50px -8px rgba(255, 107, 0, 0.6)',
             }}
             whileTap={{ scale: 0.97 }}
-            className="relative w-full overflow-hidden rounded-2xl text-white flex justify-between items-center px-4 py-3.5"
+            aria-label={`ไปที่ตะกร้า ${totalItems} รายการ ยอดรวม ${formatPriceWithoutCurrency(finalTotal)} บาท`}
+            className="relative w-full overflow-hidden rounded-2xl text-white flex justify-between items-center px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
             style={{
               background: 'linear-gradient(135deg, #1C1917 0%, #292524 40%, #FF6B00 100%)',
               boxShadow: '0 12px 35px -6px rgba(255, 107, 0, 0.45)',
