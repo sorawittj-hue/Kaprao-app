@@ -594,8 +594,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // 2. Check if user has chosen guest this session already
         const isGuestSession = sessionStorage.getItem('kaprao_guest_mode')
         if (isGuestSession) {
-          console.log('👤 Guest session from sessionStorage')
           setGuest()
+          setLoading(false)
+          setIsInitializing(false)
+          return
+        }
+
+        // 2b. Returning guest: has a guest identity from a previous session — skip modal
+        const existingGuestIdentity = localStorage.getItem('kaprao_guest_identity')
+        if (existingGuestIdentity) {
+          setGuest()
+          sessionStorage.setItem('kaprao_guest_mode', 'true')
           setLoading(false)
           setIsInitializing(false)
           return
