@@ -50,6 +50,9 @@ export function validateCheckoutForm(
     if (!data.address || data.address.trim().length < 10) {
       errors.address = 'กรุณากรอกที่อยู่ให้ถูกต้อง (บ้านเลขที่, ซอย, ถนน)'
     }
+  } else if (data.phoneNumber && data.phoneNumber.trim().length > 0 && !phoneRegex.test(data.phoneNumber)) {
+    // Optional phone provided but wrong format
+    errors.phoneNumber = 'เบอร์โทรศัพท์ต้องขึ้นต้นด้วย 0 และมี 10 หลัก'
   }
 
   // Payment method is always required

@@ -242,7 +242,7 @@ export default function CheckoutPage() {
   const { mutateAsync: addPoints } = useAddPoints()
   const { calculateEarned } = usePointsCalculator()
 
-  const [customerName, setCustomerName] = useState(user?.displayName || (isGuest ? 'Guest' : ''))
+  const [customerName, setCustomerName] = useState(user?.displayName || '')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [address, setAddress] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'transfer' | 'promptpay'>('cod')
@@ -354,12 +354,18 @@ export default function CheckoutPage() {
              <div className="p-6 space-y-5">
                 <div>
                    <label className="block text-[11px] font-black text-gray-500 mb-2 uppercase tracking-widest pl-1">ชื่อ-นามสกุล {deliveryMethod === 'village' && <span className="text-red-500">*</span>}</label>
-                   <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={user?.displayName ? user.displayName : (isGuest ? 'Guest' : 'กรอกชื่อของคุณ')} readOnly={deliveryMethod === 'workplace' && !!user?.displayName} className={cn("w-full h-14 px-5 rounded-[20px] border-2 font-bold focus:border-blue-500 outline-none transition-all", (deliveryMethod === 'workplace' && !!user?.displayName) ? "bg-gray-100/50 text-gray-400 border-transparent cursor-not-allowed" : "bg-[#FAFAF9] border-gray-100 focus:bg-white focus:shadow-sm")} />
+                   <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={user?.displayName ? user.displayName : 'ระบุชื่อของคุณ เช่น สมชาย'} readOnly={deliveryMethod === 'workplace' && !!user?.displayName} className={cn("w-full h-14 px-5 rounded-[20px] border-2 font-bold focus:border-blue-500 outline-none transition-all", (deliveryMethod === 'workplace' && !!user?.displayName) ? "bg-gray-100/50 text-gray-400 border-transparent cursor-not-allowed" : "bg-[#FAFAF9] border-gray-100 focus:bg-white focus:shadow-sm")} />
                 </div>
                 <AnimatePresence>
-                  {deliveryMethod === 'village' && (
+                  {(deliveryMethod === 'village' || (deliveryMethod === 'workplace' && isGuest)) && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                      <label className="block text-[11px] font-black text-gray-500 mb-2 uppercase tracking-widest pl-1 mt-4">เบอร์โทรศัพท์ <span className="text-red-500">*</span></label>
+                      <label className="block text-[11px] font-black text-gray-500 mb-2 uppercase tracking-widest pl-1 mt-4">
+                        เบอร์โทรศัพท์{' '}
+                        {deliveryMethod === 'village'
+                          ? <span className="text-red-500">*</span>
+                          : <span className="text-gray-400 text-[9px] normal-case font-medium">(ไม่บังคับ)</span>
+                        }
+                      </label>
                       <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="เช่น 0812345678" className="w-full h-14 px-5 rounded-[20px] border-2 font-bold bg-[#FAFAF9] border-gray-100 focus:bg-white focus:border-blue-500 focus:shadow-sm outline-none transition-all" />
                     </motion.div>
                   )}
@@ -415,6 +421,24 @@ export default function CheckoutPage() {
                 <CouponInputCompact orderTotal={subtotal} menuItemIds={items.map(i => i.menuItem.id)} onApply={(res) => applyCoupon(res.code, res.discount)} onRemove={removeCoupon} appliedCoupon={couponCode ? { couponId: 0, code: couponCode, name: couponCode, discount: discountAmount } : null} disabled={isProcessing} />
              </div>
           </motion.div>
+
+          {/* Guest conversion nudge — shown before placing order */}
+          {isGuest && pointsToEarn > 0 && (
+            <motion.div variants={slideUpItem}>
+              <GuestConversionPanel
+                pointsToEarn={pointsToEarn}
+                ticketsToEarn={ticketsToEarn}
+                onLogin={async () => {
+                  hapticHeavy()
+                  const guestIdentity = getOrCreateGuestIdentity()
+                  localStorage.setItem('kaprao_guest_identity', JSON.stringify(guestIdentity))
+                  const { loginWithLine } = await import('@/lib/auth')
+                  await loginWithLine()
+                }}
+                variant="checkout"
+              />
+            </motion.div>
+          )}
 
           {/* Gamification preview */}
           {!isGuest && user && (

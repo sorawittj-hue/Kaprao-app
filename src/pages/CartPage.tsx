@@ -16,6 +16,7 @@ import {
   Ban
 } from 'lucide-react'
 import { useCartStore, useAuthStore, useUIStore } from '@/store'
+import { CouponInput } from '@/features/coupons/components/CouponInput'
 import { Container } from '@/components/layout/Container'
 import { EmptyState } from '@/components/feedback/EmptyState'
 import { SmartUpsell } from '@/features/cart/components/SmartUpsell'
@@ -50,7 +51,11 @@ export default function CartPage() {
     setDeliveryMethod,
     updateQuantity,
     removeItem,
-    clearCart
+    clearCart,
+    applyCoupon,
+    removeCoupon,
+    couponCode,
+    discountAmount,
   } = useCartStore()
   const { user, isGuest } = useAuthStore()
   const { addToast } = useUIStore()
@@ -306,20 +311,19 @@ export default function CartPage() {
               </div>
             )}
 
-            <div className="bg-white p-5 rounded-[32px] shadow-sm border border-gray-100 flex flex-col justify-between">
-               <div>
-                  <div className="w-10 h-10 bg-brand-50 rounded-2xl flex items-center justify-center mb-3">
-                     <Tag className="w-5 h-5 text-[#FF6B00]" />
-                  </div>
-                  <h3 className="font-black text-gray-900 text-base mb-1">คูปองส่วนลด</h3>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">เพิ่มโค้ดลดราคา</p>
+            <div className="bg-white p-5 rounded-[32px] shadow-sm border border-gray-100">
+               <div className="w-10 h-10 bg-brand-50 rounded-2xl flex items-center justify-center mb-3">
+                  <Tag className="w-5 h-5 text-[#FF6B00]" />
                </div>
-               <div className="mt-4 flex bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
-                  <input type="text" placeholder="CODE" className="w-full bg-transparent text-sm font-black px-2 uppercase outline-none placeholder:text-gray-300 min-w-0" />
-                  <button className="bg-gray-900 text-white w-10 h-10 rounded-xl flex items-center justify-center active:scale-95 transition-transform flex-shrink-0">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-               </div>
+               <h3 className="font-black text-gray-900 text-base mb-1">คูปองส่วนลด</h3>
+               <p className="text-[10px] text-gray-400 font-bold uppercase mb-4">เพิ่มโค้ดลดราคา</p>
+               <CouponInput
+                 orderTotal={subtotal}
+                 menuItemIds={items.map(i => i.menuItem.id)}
+                 onApply={(res) => applyCoupon(res.code, res.discount)}
+                 onRemove={removeCoupon}
+                 appliedCoupon={couponCode ? { couponId: 0, code: couponCode, name: couponCode, discount: discountAmount } : null}
+               />
             </div>
           </motion.div>
 
