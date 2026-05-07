@@ -5,11 +5,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#FDFBF7" />
+  <meta name="theme-color" content="#FF6B00" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1C1917" media="(prefers-color-scheme: dark)" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Kaprao52" />
+  <meta name="msapplication-TileColor" content="#FF6B00" />
+  <meta name="msapplication-tap-highlight" content="no" />
   <meta name="description" content="Kaprao52 - สั่งอาหารออนไลน์จากร้านกะเพรา52 อร่อยทุกเมนู สดใหม่ทุกวัน" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="color-scheme" content="light" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Kaprao52" />
+  <meta property="og:title" content="Kaprao52 - กะเพราอร่อยที่สุดในซอย" />
+  <meta property="og:description" content="สั่งอาหารออนไลน์ สะสมแต้ม ลุ้นหวยกินฟรี" />
+  <meta property="og:image" content="/assets/icons/icon-512x512.png" />
+  <meta property="og:locale" content="th_TH" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Kaprao52 - กะเพราอร่อยที่สุดในซอย" />
+  <meta name="twitter:description" content="สั่งอาหารออนไลน์ สะสมแต้ม ลุ้นหวยกินฟรี" />
+  <meta name="twitter:image" content="/assets/icons/icon-512x512.png" />
 
   <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,16 +39,18 @@
     href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap"
     rel="stylesheet" />
 
-  <!-- PWA Manifest automatically injected by vite-plugin-pwa -->
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
 
   <!-- Icons -->
-  <link rel="icon" type="image/png" href="/Kaprao-app/assets/icons/icon-192x192.png" />
-  <link rel="apple-touch-icon" href="/Kaprao-app/assets/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/icon-512x512.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/icon-192x192.png" />
 
   <!-- Google Analytics -->
   <script>
     // Only load GA if ID is configured
-    const gaId = '';
+    const gaId = '%VITE_GA_ID%';
     if (gaId && !gaId.includes('VITE_GA_ID')) {
       const script = document.createElement('script');
       script.async = true;
@@ -46,14 +66,14 @@
 
   <title>Kaprao52 - กะเพราอร่อย</title>
 
-  <!-- Critical CSS moved to external file -->
-  <script type="module" crossorigin src="/Kaprao-app/assets/index-CDjUx6Zi.js"></script>
-  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-react-7b8ENrfa.js">
-  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-query-DMMGQG64.js">
-  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-ui-C_ALX6dB.js">
-  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-animation-B5KzGM5w.js">
-  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-charts-CUJ_K8T4.js">
-  <link rel="stylesheet" crossorigin href="/Kaprao-app/assets/index-DeBaJ3QL.css">
+  <!-- Critical CSS moved to external file -->
+  <script type="module" crossorigin src="/Kaprao-app/assets/index-BT0DtJC-.js"></script>
+  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-react-B6Cwrgkk.js">
+  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-query-DFCJ8cIX.js">
+  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-ui-DsYsreYb.js">
+  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-animation-BwqjJc8s.js">
+  <link rel="modulepreload" crossorigin href="/Kaprao-app/assets/vendor-charts-D5uUbN0K.js">
+  <link rel="stylesheet" crossorigin href="/Kaprao-app/assets/index-DAPGv37d.css">
 </head>
 
 <body>
@@ -72,7 +92,7 @@
         <div class="loading-dot"></div>
       </div>
     </div>
-  </div>
+  </div>
 </body>
 
 </html>
