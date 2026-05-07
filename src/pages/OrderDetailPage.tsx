@@ -111,11 +111,13 @@ export default function OrderDetailPage() {
         {/* Dynamic Nav */}
         <div className="flex items-center justify-between sticky top-4 z-50">
           <motion.button
+            type="button"
+            aria-label="ย้อนกลับ"
             whileTap={{ scale: 0.9 }}
             onClick={() => { hapticLight(); navigate(-1); }}
-            className="w-12 h-12 rounded-2xl bg-white/80 backdrop-blur-xl flex items-center justify-center text-gray-700 shadow-lg shadow-gray-200/50 border border-white/50"
+            className="w-12 h-12 rounded-2xl bg-white/80 backdrop-blur-xl flex items-center justify-center text-gray-700 shadow-lg shadow-gray-200/50 border border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </motion.button>
           
           <div className="flex flex-col items-center">
@@ -126,11 +128,15 @@ export default function OrderDetailPage() {
           </div>
 
           <motion.button
+            type="button"
+            aria-label="ตัวเลือกเพิ่มเติม"
+            aria-expanded={showOptions}
+            aria-haspopup="menu"
             whileTap={{ scale: 0.9 }}
             onClick={() => { hapticLight(); setShowOptions(!showOptions); }}
-            className="w-12 h-12 rounded-2xl bg-white/80 backdrop-blur-xl flex items-center justify-center text-gray-700 shadow-lg shadow-gray-200/50 border border-white/50 relative"
+            className="w-12 h-12 rounded-2xl bg-white/80 backdrop-blur-xl flex items-center justify-center text-gray-700 shadow-lg shadow-gray-200/50 border border-white/50 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
           >
-            <MoreVertical className="w-5 h-5" />
+            <MoreVertical className="w-5 h-5" aria-hidden="true" />
             
             {/* Context Menu */}
             <AnimatePresence>

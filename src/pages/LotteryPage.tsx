@@ -66,8 +66,8 @@ export default function LotteryPage() {
       <div className="min-h-screen bg-[#F4F4F5] safe-area-pt flex flex-col items-center">
         <div className="absolute top-0 inset-x-0 h-[200px] bg-gradient-to-b from-emerald-50 to-transparent pointer-events-none z-0" />
         <Container className="py-4 relative z-10 flex-1 flex flex-col px-6">
-           <motion.button whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1); }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 shadow-sm border border-gray-100 self-start">
-             <ArrowLeft className="w-5 h-5" />
+           <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1); }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 shadow-sm border border-gray-100 self-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
            </motion.button>
              
            <div className="flex-1 flex flex-col items-center justify-center -mt-20">
@@ -78,8 +78,8 @@ export default function LotteryPage() {
              <p className="text-gray-500 text-sm font-medium leading-relaxed text-center px-6 max-w-sm mb-8">
                พื้นที่นี้สงวนไว้ให้เฉพาะสมาชิกเท่านั้น ล็อกอินผ่าน LINE เพื่อลุ้นกินฟรีทุกงวด ยิ่งสั่งมาก ยิ่งมีสิทธิ์มาก!
              </p>
-             <button onClick={() => { hapticHeavy(); navigate('/profile'); }} className="h-14 px-8 bg-gray-900 text-white rounded-[20px] shadow-md font-black text-sm active:scale-95 transition-transform flex items-center gap-2">
-                เข้าสู่ระบบผ่าน LINE <ChevronRight className="w-4 h-4" />
+             <button type="button" onClick={() => { hapticHeavy(); navigate('/profile'); }} className="h-14 px-8 bg-gray-900 text-white rounded-[20px] shadow-md font-black text-sm active:scale-95 transition-transform flex items-center gap-2 hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2">
+                เข้าสู่ระบบผ่าน LINE <ChevronRight className="w-4 h-4" aria-hidden="true" />
              </button>
            </div>
         </Container>
@@ -98,8 +98,8 @@ export default function LotteryPage() {
       <Container className="py-4 relative z-10 max-w-2xl mx-auto space-y-8">
         {/* Navigation */}
         <div className="flex items-center justify-between sticky top-4 z-50">
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1); }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 shadow-sm border border-gray-100">
-            <ArrowLeft className="w-5 h-5" />
+          <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1); }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 shadow-sm border border-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </motion.button>
           
           <div className="text-center">

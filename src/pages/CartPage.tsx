@@ -115,8 +115,8 @@ export default function CartPage() {
       <div className="min-h-screen bg-[#F4F4F5] safe-area-pt flex flex-col">
         <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-white to-transparent pointer-events-none z-0" />
         <Container className="py-4 relative z-10 flex-1 flex flex-col px-6">
-          <motion.button whileHover={{ x: -4 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-lg flex items-center justify-center text-gray-800 shadow-sm border border-black/5 self-start">
-            <ArrowLeft className="w-5 h-5" />
+          <motion.button type="button" aria-label="ย้อนกลับ" whileHover={{ x: -4 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-lg flex items-center justify-center text-gray-800 shadow-sm border border-black/5 self-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </motion.button>
           <div className="flex-1 flex items-center justify-center">
              <EmptyState type="cart" onAction={() => navigate('/')} />
@@ -134,10 +134,10 @@ export default function CartPage() {
       <Container className="py-4 relative z-10 space-y-6 max-w-2xl mx-auto">
         {/* Apple-style Navigation */}
         <div className="flex items-center justify-between sticky top-4 z-50">
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-2xl flex items-center justify-center text-gray-800 shadow-xl shadow-gray-200/50 border border-white/60">
-            <ArrowLeft className="w-6 h-6" />
+          <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-2xl flex items-center justify-center text-gray-800 shadow-xl shadow-gray-200/50 border border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+            <ArrowLeft className="w-6 h-6" aria-hidden="true" />
           </motion.button>
-          
+
           <div className="text-center">
             <h1 className="text-xl font-black text-gray-900 tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">ตะกร้าสินค้า</h1>
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-1">
@@ -145,8 +145,8 @@ export default function CartPage() {
             </p>
           </div>
 
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => { hapticMedium(); setShowClearConfirm(true) }} className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-2xl flex items-center justify-center text-red-500 shadow-xl shadow-gray-200/50 border border-white/60">
-            <Trash2 className="w-5 h-5" />
+          <motion.button type="button" aria-label="ล้างตะกร้า" whileTap={{ scale: 0.9 }} onClick={() => { hapticMedium(); setShowClearConfirm(true) }} className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-2xl flex items-center justify-center text-red-500 shadow-xl shadow-gray-200/50 border border-white/60 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+            <Trash2 className="w-5 h-5" aria-hidden="true" />
           </motion.button>
         </div>
 

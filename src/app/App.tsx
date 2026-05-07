@@ -3,6 +3,8 @@ import { RouterProvider } from 'react-router-dom'
 import { router } from './router'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LoadingScreen } from '@/components/ui/LoadingScreen'
+import { GlobalErrorBoundary } from '@/components/feedback/GlobalErrorBoundary'
+import { OfflineIndicator } from '@/components/ui/OfflineIndicator'
 
 function App() {
   const [isInitializing, setIsInitializing] = useState(true)
@@ -17,21 +19,24 @@ function App() {
   }, [])
 
   return (
-    <AnimatePresence mode="wait">
-      {isInitializing ? (
-        <LoadingScreen key="loader" />
-      ) : (
-        <motion.div
-          key="app"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="w-full h-full"
-        >
-          <RouterProvider router={router} />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <GlobalErrorBoundary>
+      <OfflineIndicator />
+      <AnimatePresence mode="wait">
+        {isInitializing ? (
+          <LoadingScreen key="loader" />
+        ) : (
+          <motion.div
+            key="app"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="w-full h-full"
+          >
+            <RouterProvider router={router} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </GlobalErrorBoundary>
   )
 }
 

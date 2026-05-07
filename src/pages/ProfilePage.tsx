@@ -304,7 +304,7 @@ export default function ProfilePage() {
                     </div>
                     <h3 className="font-black text-xl mb-2 text-gray-900">อัปเกรดบัญชีฟรี! 🎉</h3>
                     <p className="text-gray-500 text-sm font-medium mb-6">เชื่อมต่อกับ LINE วันนี้ รับพอยต์ทันที ลุ้นหวยกินฟรี และแลกของรางวัลได้ไม่อั้น!</p>
-                    <button onClick={handleLineLogin} className="w-full bg-[#00B900] text-white font-black text-sm py-4 rounded-[24px] shadow-sm active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    <button type="button" onClick={handleLineLogin} className="w-full bg-[#00B900] text-white font-black text-sm py-4 rounded-[24px] shadow-sm active:scale-95 transition-transform flex items-center justify-center gap-2 hover:bg-[#00A300] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00B900] focus-visible:ring-offset-2">
                        เข้าสู่ระบบผ่าน LINE อย่างรวดเร็ว
                     </button>
                   </div>
@@ -329,7 +329,7 @@ export default function ProfilePage() {
             )}
 
             <motion.div variants={slideUpItem}>
-               <button onClick={handleLogout} className="w-full py-4 text-sm font-black text-red-500 bg-white rounded-[24px] border border-gray-100 flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-transform">
+               <button type="button" onClick={handleLogout} className="w-full py-4 text-sm font-black text-red-500 bg-white rounded-[24px] border border-gray-100 flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-transform hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
                   <LogOut className="w-4 h-4" /> ออกจากระบบ
                </button>
             </motion.div>
@@ -357,8 +357,8 @@ export default function ProfilePage() {
                     {activeModal === 'settings' && 'ตั้งค่าระบบ'}
                     {activeModal === 'help' && 'ช่วยเหลือ'}
                   </h3>
-                  <button onClick={() => setActiveModal(null)} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors">
-                     <X className="w-5 h-5"/>
+                  <button type="button" onClick={() => setActiveModal(null)} aria-label="ปิด" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+                     <X className="w-5 h-5" aria-hidden="true"/>
                   </button>
                </div>
                
@@ -453,7 +453,7 @@ export default function ProfilePage() {
                                 <p className="font-black text-gray-900 text-sm">การสั่นตอบสนอง (Haptics)</p>
                                 <p className="text-xs text-gray-500 mt-1 font-medium">สั่นเมื่อกดปุ่มต่างๆ เพื่อประสบการณ์ที่ดี</p>
                               </div>
-                              <button onClick={() => { hapticLight(); setHaptics(!haptics) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border", haptics ? "bg-[#00C300] border-transparent" : "bg-gray-100 border-gray-200")}>
+                              <button type="button" role="switch" aria-checked={haptics} aria-label="สั่นเมื่อกดปุ่ม" onClick={() => { hapticLight(); setHaptics(!haptics) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1", haptics ? "bg-[#00C300] border-transparent" : "bg-gray-100 border-gray-200")}>
                                 <div className={cn("w-6 h-6 bg-white rounded-full shadow-md transition-transform", haptics ? "translate-x-6" : "translate-x-0")} />
                               </button>
                            </div>
@@ -463,7 +463,7 @@ export default function ProfilePage() {
                                 <p className="font-black text-gray-900 text-sm">แจ้งเตือนออเดอร์</p>
                                 <p className="text-xs text-gray-500 mt-1 font-medium">เมื่อสถานะอาหารเปลี่ยน</p>
                               </div>
-                              <button onClick={() => { hapticLight(); setNotifOrders(!notifOrders) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border", notifOrders ? "bg-[#FF6B00] border-transparent" : "bg-gray-100 border-gray-200")}>
+                              <button type="button" role="switch" aria-checked={notifOrders} aria-label="แจ้งเตือนออเดอร์" onClick={() => { hapticLight(); setNotifOrders(!notifOrders) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1", notifOrders ? "bg-[#FF6B00] border-transparent" : "bg-gray-100 border-gray-200")}>
                                 <div className={cn("w-6 h-6 bg-white rounded-full shadow-md transition-transform", notifOrders ? "translate-x-6" : "translate-x-0")} />
                               </button>
                            </div>
@@ -473,7 +473,7 @@ export default function ProfilePage() {
                                 <p className="font-black text-gray-900 text-sm">โปรโมชัน</p>
                                 <p className="text-xs text-gray-500 mt-1 font-medium">รับโค้ดลับก่อนใคร</p>
                               </div>
-                              <button onClick={() => { hapticLight(); setNotifPromos(!notifPromos) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border", notifPromos ? "bg-[#FF6B00] border-transparent" : "bg-gray-100 border-gray-200")}>
+                              <button type="button" role="switch" aria-checked={notifPromos} aria-label="แจ้งเตือนโปรโมชัน" onClick={() => { hapticLight(); setNotifPromos(!notifPromos) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1", notifPromos ? "bg-[#FF6B00] border-transparent" : "bg-gray-100 border-gray-200")}>
                                 <div className={cn("w-6 h-6 bg-white rounded-full shadow-md transition-transform", notifPromos ? "translate-x-6" : "translate-x-0")} />
                               </button>
                            </div>

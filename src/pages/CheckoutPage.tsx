@@ -334,8 +334,8 @@ export default function CheckoutPage() {
       
       <Container className="py-4 relative z-10 max-w-2xl mx-auto space-y-6">
         <div className="flex items-center justify-between sticky top-4 z-50">
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-2xl flex items-center justify-center text-gray-800 shadow-xl shadow-gray-200/50 border border-white/60">
-            <ArrowLeft className="w-6 h-6" />
+          <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-2xl flex items-center justify-center text-gray-800 shadow-xl shadow-gray-200/50 border border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+            <ArrowLeft className="w-6 h-6" aria-hidden="true" />
           </motion.button>
           <div className="text-center">
             <h1 className="text-xl font-black text-gray-900 tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-r from-[#FF6B00] to-orange-400">ชำระเงิน</h1>

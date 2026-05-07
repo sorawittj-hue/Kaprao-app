@@ -117,17 +117,17 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="flex items-center gap-3 relative z-10">
-          <div className="flex bg-[#FAFAF9] border border-gray-100 rounded-[20px] p-1.5 shadow-inner">
+          <div className="flex bg-[#FAFAF9] border border-gray-100 rounded-[20px] p-1.5 shadow-inner" role="tablist" aria-label="ช่วงเวลา">
             {(['today', 'week', 'month'] as const).map((period) => (
-              <button key={period} onClick={() => { hapticLight(); setSelectedPeriod(period); }} className={cn("px-5 py-2.5 rounded-[16px] text-sm font-black transition-all", selectedPeriod === period ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600")}>
+              <button type="button" role="tab" aria-selected={selectedPeriod === period} key={period} onClick={() => { hapticLight(); setSelectedPeriod(period); }} className={cn("px-5 py-2.5 rounded-[16px] text-sm font-black transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400", selectedPeriod === period ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600")}>
                 {period === 'today' && 'วันนี้'}
                 {period === 'week' && 'สัปดาห์'}
                 {period === 'month' && 'เดือน'}
               </button>
             ))}
           </div>
-          <button onClick={handleRefresh} disabled={isLoading || isRefetching} className="w-14 h-14 bg-gray-900 text-white rounded-[20px] shadow-lg shadow-gray-900/20 font-black flex items-center justify-center active:scale-95 transition-transform disabled:opacity-50">
-            <RefreshCw className={cn("w-5 h-5", (isLoading || isRefetching) ? "animate-spin" : "")} />
+          <button type="button" aria-label="รีเฟรชข้อมูล" aria-busy={isLoading || isRefetching} onClick={handleRefresh} disabled={isLoading || isRefetching} className="w-14 h-14 bg-gray-900 text-white rounded-[20px] shadow-lg shadow-gray-900/20 font-black flex items-center justify-center active:scale-95 transition-transform disabled:opacity-50 hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2">
+            <RefreshCw className={cn("w-5 h-5", (isLoading || isRefetching) ? "animate-spin" : "")} aria-hidden="true" />
           </button>
         </div>
       </div>
