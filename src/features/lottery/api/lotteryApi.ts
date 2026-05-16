@@ -77,28 +77,7 @@ export async function fetchLottoResults(): Promise<LottoResult[]> {
 }
 
 export async function fetchLatestResult(): Promise<LottoResult | null> {
-  try {
-    // 1. Fetch real Thai lottery data
-    const res = await fetch('https://lotto.api.rayriffy.com/latest')
-    const json = await res.json()
-    if (json.status === 'success') {
-      const respData = json.response
-      const last2 = respData.runningNumbers.find((n: any) => n.id === 'runningNumberBackTwo')?.number[0] || ''
-      const first3 = respData.runningNumbers.find((n: any) => n.id === 'runningNumberFrontThree')?.number || []
-
-      return {
-        // We use the current date so it renders nicely in standard JS Date
-        drawDate: new Date().toISOString(),
-        last2,
-        first3,
-        createdAt: new Date().toISOString(),
-      }
-    }
-  } catch (e) {
-    console.warn('Error fetching real lotto results from API:', e)
-  }
-
-  // 2. Fallback to Supabase if API fails
+  // lotto.api.rayriffy.com blocks CORS from github.io — use Supabase directly
   try {
     const { data, error } = await supabase
       .from('lotto_results')
