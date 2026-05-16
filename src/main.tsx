@@ -18,3 +18,24 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       .catch((err) => console.error('SW registration failed:', err))
   })
 }
+
+// One-shot recovery: if a previous SW left the user with stale HTML pointing
+// at deleted JS bundles, the dynamic import will throw with "Failed to fetch
+// dynamically imported module". Detect that, unregister the SW, clear caches
+// and force a fresh reload so the user gets the live bundle list.
+if (typeof window !== 'undefined') {
+  let recovered = false
+  window.addEventListener('error', async (e) => {
+    const msg = String((e as ErrorEvent).message || '')
+    if (!recovered && (msg.includes('Failed to fetch dynamically imported module') || msg.includes('Importing a module script failed'))) {
+      recovered = true
+      try {
+        const regs = await navigator.serviceWorker?.getRegistrations?.()
+        await Promise.all((regs || []).map((r) => r.unregister()))
+        const keys = await caches?.keys?.()
+        await Promise.all((keys || []).map((k) => caches.delete(k)))
+      } catch { /* noop */ }
+      location.reload()
+    }
+  })
+}

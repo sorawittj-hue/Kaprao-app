@@ -1,13 +1,14 @@
 // sw.js - Enhanced Service Worker for Kaprao52 PWA
-const CACHE_NAME = 'kaprao52-v27-cache-v1';
-const STATIC_CACHE = 'kaprao52-static-v2';
-const IMAGE_CACHE = 'kaprao52-images-v2';
-const API_CACHE = 'kaprao52-api-v1';
+const CACHE_NAME = 'kaprao52-v28-shell';
+const STATIC_CACHE = 'kaprao52-v28-static';
+const IMAGE_CACHE = 'kaprao52-v28-images';
+const API_CACHE = 'kaprao52-v28-api';
 
 // URLs to cache immediately on install
+// IMPORTANT: do NOT pre-cache index.html — its <script> tags reference
+// hashed JS bundles that get replaced on every deploy. Pre-caching would
+// leave users on stale HTML pointing to deleted assets after a deploy.
 const urlsToCache = [
-  './',
-  './index.html',
   './manifest.json'
 ];
 
@@ -59,26 +60,21 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - Clean old caches
+// Activate event - Nuke ALL old caches (any name not in current allowlist).
+// This recovers users stuck on stale pre-cached HTML from prior SW versions.
 self.addEventListener('activate', (event) => {
+  const allowlist = new Set([CACHE_NAME, STATIC_CACHE, IMAGE_CACHE, API_CACHE]);
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          // Delete old versions of our caches
-          if (cacheName !== CACHE_NAME &&
-            cacheName !== STATIC_CACHE &&
-            cacheName !== IMAGE_CACHE &&
-            cacheName !== API_CACHE) {
+          if (!allowlist.has(cacheName)) {
             console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => {
-      console.log('[SW] Activation completed');
-      return self.clients.claim();
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
@@ -121,17 +117,34 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Strategy 4: Network First for navigation requests (HTML)
+  // Strategy 4: Network ONLY for navigation requests (HTML).
+  // The HTML references hashed JS assets that change every deploy; serving
+  // stale HTML would 404 the bundle and break the whole app. Only fall back
+  // to cache if completely offline.
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).then((response) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, response.clone());
-          return response;
-        });
-      }).catch(() => {
-        return caches.match('./index.html');
-      })
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        return response;
+      }).catch(() => caches.match(request).then((c) => c || caches.match('./')))
+    );
+    return;
+  }
+
+  // Strategy 4b: hashed JS/CSS bundles — network first; if 404 (asset deleted
+  // after a deploy), force a page reload to fetch the new bundle list.
+  if (url.pathname.includes('/assets/') && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+    event.respondWith(
+      fetch(request).then((response) => {
+        if (response.status === 404) {
+          // Stale bundle reference — kick clients to reload the shell
+          self.clients.matchAll().then((clients) => {
+            clients.forEach((c) => c.navigate(c.url));
+          });
+        }
+        return response;
+      }).catch(() => caches.match(request))
     );
     return;
   }
