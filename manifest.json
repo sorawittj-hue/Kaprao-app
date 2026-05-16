@@ -28,50 +28,18 @@
             "purpose": "any maskable"
         }
     ],
-    "screenshots": [
-        {
-            "src": "/screenshots/screenshot1.png",
-            "sizes": "750x1334",
-            "type": "image/png",
-            "form_factor": "narrow"
-        },
-        {
-            "src": "/screenshots/screenshot2.png",
-            "sizes": "1280x720",
-            "type": "image/png",
-            "form_factor": "wide"
-        }
-    ],
     "shortcuts": [
         {
             "name": "สั่งอาหาร",
             "short_name": "สั่งอาหาร",
             "description": "สั่งอาหารทันที",
-            "url": "/index.html?action=order",
-            "icons": [
-                {
-                    "src": "/icons/shortcut-order.png",
-                    "sizes": "96x96"
-                }
-            ]
+            "url": "./"
         },
         {
             "name": "ตะกร้า",
             "short_name": "ตะกร้า",
             "description": "ดูตะกร้าสินค้า",
-            "url": "/index.html?action=cart",
-            "icons": [
-                {
-                    "src": "/icons/shortcut-cart.png",
-                    "sizes": "96x96"
-                }
-            ]
-        }
-    ],
-    "related_applications": [
-        {
-            "platform": "play",
-            "url": "https://play.google.com/store/apps/details?id=com.kaprao52.app"
+            "url": "./cart"
         }
     ],
     "prefer_related_applications": false
