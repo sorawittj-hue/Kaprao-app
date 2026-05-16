@@ -10,14 +10,14 @@ interface OrderCardProps {
   onClick?: () => void
 }
 
-const statusConfig: Record<string, { label: string, badgeBg: string, badgeText: string, icon: string, border: string }> = {
-  pending: { label: 'รอดำเนินการ', badgeBg: 'bg-yellow-500/10', badgeText: 'text-yellow-600', icon: '⏳', border: 'border-yellow-200' },
-  placed: { label: 'สั่งอาหารแล้ว', badgeBg: 'bg-blue-500/10', badgeText: 'text-blue-600', icon: '📝', border: 'border-blue-200' },
-  confirmed: { label: 'ยืนยันออเดอร์', badgeBg: 'bg-indigo-500/10', badgeText: 'text-indigo-600', icon: '✅', border: 'border-indigo-200' },
-  preparing: { label: 'กำลังทำอาหาร', badgeBg: 'bg-orange-500/10', badgeText: 'text-orange-600', icon: '👨‍🍳', border: 'border-orange-200' },
-  ready: { label: 'พร้อมรับ', badgeBg: 'bg-green-500/10', badgeText: 'text-green-600', icon: '🛎️', border: 'border-green-200' },
-  delivered: { label: 'เสร็จสิ้น', badgeBg: 'bg-gray-500/10', badgeText: 'text-gray-600', icon: '✨', border: 'border-gray-200' },
-  cancelled: { label: 'ยกเลิก', badgeBg: 'bg-red-500/10', badgeText: 'text-red-600', icon: '❌', border: 'border-red-200' },
+const statusConfig: Record<string, { label: string, badgeBg: string, badgeText: string, dotBg: string, icon: string, border: string }> = {
+  pending: { label: 'รอดำเนินการ', badgeBg: 'bg-yellow-500/10', badgeText: 'text-yellow-600', dotBg: 'bg-yellow-600', icon: '⏳', border: 'border-yellow-200' },
+  placed: { label: 'สั่งอาหารแล้ว', badgeBg: 'bg-blue-500/10', badgeText: 'text-blue-600', dotBg: 'bg-blue-600', icon: '📝', border: 'border-blue-200' },
+  confirmed: { label: 'ยืนยันออเดอร์', badgeBg: 'bg-indigo-500/10', badgeText: 'text-indigo-600', dotBg: 'bg-indigo-600', icon: '✅', border: 'border-indigo-200' },
+  preparing: { label: 'กำลังทำอาหาร', badgeBg: 'bg-orange-500/10', badgeText: 'text-orange-600', dotBg: 'bg-orange-600', icon: '👨‍🍳', border: 'border-orange-200' },
+  ready: { label: 'พร้อมรับ', badgeBg: 'bg-green-500/10', badgeText: 'text-green-600', dotBg: 'bg-green-600', icon: '🛎️', border: 'border-green-200' },
+  delivered: { label: 'เสร็จสิ้น', badgeBg: 'bg-gray-500/10', badgeText: 'text-gray-600', dotBg: 'bg-gray-600', icon: '✨', border: 'border-gray-200' },
+  cancelled: { label: 'ยกเลิก', badgeBg: 'bg-red-500/10', badgeText: 'text-red-600', dotBg: 'bg-red-600', icon: '❌', border: 'border-red-200' },
 }
 
 export function OrderCard({ order, onClick }: OrderCardProps) {
@@ -25,6 +25,7 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
   const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0)
   const firstItem = order.items[0]?.name || 'เมนูอาหาร'
   const otherItemsCount = itemCount - 1
+  const isLive = ['placed', 'confirmed', 'preparing', 'ready'].includes(order.status)
 
   return (
     <motion.div
@@ -50,7 +51,14 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
           "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white shadow-sm",
           status.badgeBg
         )}>
-          <span className="text-sm drop-shadow-sm">{status.icon}</span>
+          {isLive ? (
+            <span className="relative flex w-2 h-2" aria-hidden="true">
+              <span className="absolute inset-0 rounded-full bg-current opacity-60 animate-ping" />
+              <span className={cn("relative inline-flex w-2 h-2 rounded-full", status.dotBg)} />
+            </span>
+          ) : (
+            <span className="text-sm drop-shadow-sm">{status.icon}</span>
+          )}
           <span className={cn("text-xs font-bold tracking-wide", status.badgeText)}>
             {status.label}
           </span>

@@ -46,8 +46,8 @@ const SPICE_OPTIONS: SelectedOption[] = [
 ]
 
 const EXTRA_OPTIONS: SelectedOption[] = [
-  { optionId: 'extra_rice', name: 'พิเศษ ข้าว', price: 10 },
-  { optionId: 'extra_meat', name: 'พิเศษ เนื้อสัตว์', price: 15 },
+  { optionId: 'extra_rice', name: 'เพิ่มข้าว', price: 10 },
+  { optionId: 'extra_meat', name: 'เพิ่มเนื้อ', price: 15 },
 ]
 
 import { useGlobalOptions, isOptionAvailable } from '../hooks/useGlobalOptions'

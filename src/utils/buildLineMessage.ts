@@ -1,8 +1,3 @@
-/**
- * Build a comprehensive LINE message for the order
- * Sends formatted order details to LINE OA including items, pricing,
- * delivery info, points, lottery tickets, and guest conversion CTA
- */
 import type { Order } from '@/types'
 
 interface BuildLineMessageParams {
@@ -34,84 +29,56 @@ export function buildLineOrderMessage({
     year: 'numeric',
   })
 
-  // Payment & Delivery labels
-  const paymentLabel = order.paymentMethod === 'cod' ? '💵 เงินสด' : '💳 โอน/พร้อมเพย์'
-  const deliveryLabel = order.deliveryMethod === 'workplace' ? '🏢 ที่ทำงาน' : '🏘️ ในหมู่บ้าน'
+  const paymentLabel = order.paymentMethod === 'cod' ? 'เงินสด' : 'โอน/พร้อมเพย์'
+  const deliveryLabel = order.deliveryMethod === 'workplace' ? 'ส่งที่ทำงาน' : 'ส่งในหมู่บ้าน'
 
-  // ====================
-  // BUILD MESSAGE (Readable Version)
-  // ====================
-  let msg = `� ออเดอร์ใหม่ #${order.id}\n`
-  msg += `══════════════════\n`
-  msg += `👤 คุณ${order.customerName}\n`
-  msg += `📱 ${order.phoneNumber || '-'}\n`
-  msg += `📍 ${deliveryLabel}${order.address ? ` — ${order.address}` : ''}\n`
-  msg += `💰 ${formatPrice(order.totalPrice)} บาท | ${paymentLabel}\n`
-  msg += `🕒 ${dateStr} เวลา ${timeStr} น.\n`
+  let msg = `ออเดอร์ใหม่ #${order.id}\n`
+  msg += `==================\n`
+  msg += `ลูกค้า: ${order.customerName}\n`
+  if (order.phoneNumber) msg += `โทร: ${order.phoneNumber}\n`
+  msg += `ส่ง: ${deliveryLabel}${order.address ? ` - ${order.address}` : ''}\n`
+  msg += `ชำระ: ${paymentLabel}\n`
+  msg += `ยอด: ${formatPrice(order.totalPrice)} บาท\n`
+  msg += `เวลา: ${dateStr} ${timeStr} น.\n`
 
-  // 📝 ITEMS SECTION
-  msg += `\n📋 รายการอาหาร:\n`
-  msg += `──────────────────\n`
-  
+  msg += `\n-- รายการ --\n`
+
   order.items.forEach((item, index) => {
-    const qty = item.quantity > 1 ? ` (x${item.quantity})` : ''
-    msg += `${index + 1}. ${item.name}${qty}\n`
-    msg += `   💵 ${formatPrice(item.subtotal)} บาท\n`
+    const qty = item.quantity > 1 ? ` x${item.quantity}` : ''
+    msg += `${index + 1}. ${item.name}${qty} (${formatPrice(item.subtotal)} บ.)\n`
 
-    // Options with bullet points
-    if (item.options && item.options.length > 0) {
-      item.options.forEach(opt => {
-        msg += `      • ${opt.name}\n`
-      })
-    }
-
-    if (item.note) msg += `      📝 หมายเหตุ: ${item.note}\n`
-    
-    // Add spacing between items
-    if (index < order.items.length - 1) {
-      msg += `\n`
+    if (item.note) {
+      const parts = item.note.split(' | หมายเหตุ: ')
+      if (parts[0]) msg += `   > ${parts[0]}\n`
+      if (parts[1]) msg += `   หมายเหตุ: ${parts[1]}\n`
     }
   })
 
-  // 🎁 REWARDS & LOTTO SECTION
   const ptsEarned = pointsEarned ?? order.pointsEarned ?? 0
   const tickets = ticketsEarned ?? Math.floor(order.totalPrice / 100)
 
   if (ptsEarned > 0 || tickets > 0 || lottoNumber) {
-    msg += `\n🎁 สิทธิพิเศษ:\n`
-    msg += `──────────────────\n`
-    if (ptsEarned > 0) msg += `⭐ ได้รับ ${ptsEarned} พอยต์\n`
-    if (tickets > 0) msg += `🎟️ ตั๋วหวย ${tickets} ใบ\n`
-    if (lottoNumber) msg += `🍀 เลขนำโชค: ${lottoNumber}\n`
-    if (drawDate) msg += `📅 งวด: ${drawDate}\n`
+    msg += `\n-- พิเศษ --\n`
+    if (ptsEarned > 0) msg += `พอยต์: +${ptsEarned}\n`
+    if (tickets > 0) msg += `ตั๋วหวย: ${tickets} ใบ\n`
+    if (lottoNumber) msg += `เลขนำโชค: ${lottoNumber}\n`
+    if (drawDate) msg += `งวด: ${drawDate}\n`
   }
 
-  // ⚠️ GUEST CTA
   if (isGuest) {
-    msg += `\n⚠️ แจ้งเตือน:\n`
-    msg += `──────────────────\n`
-    msg += `ล็อกอิน LINE เพื่อสะสมพอยต์!\n`
+    msg += `\n[ยังไม่ได้ล็อกอิน LINE]\n`
   }
 
-  // 💖 FOOTER
-  msg += `\n══════════════════\n`
-  msg += `🙏 ขอบคุณที่สั่งกะเพรา 52 ครับ!`
+  msg += `==================\n`
+  msg += `ขอบคุณที่ใช้บริการกะเพรา 52!`
 
   return msg
 }
 
-/**
- * Generate lottery number from order ID
- * Uses last 2 digits of the order ID
- */
 export function generateLottoNumber(orderId: number): string {
   return String(orderId).slice(-2).padStart(2, '0')
 }
 
-/**
- * Get Thai lottery draw date
- * Returns the next 1st or 16th of the month
- */
 export function getThaiLotteryDrawDate(date: Date = new Date()): string {
   const day = date.getDate()
   const month = date.getMonth()
@@ -144,17 +111,11 @@ export function getThaiLotteryDrawDate(date: Date = new Date()): string {
   })
 }
 
-/**
- * Redirect to LINE OA with order message
- * Uses line_oa_id from shop_config
- */
 export async function redirectToLineOA(message: string): Promise<void> {
   const { getContactInfo } = await import('@/features/config/api/configApi')
   const contactInfo = await getContactInfo()
   const lineOAId = contactInfo.line_oa_id || '@772ysswn'
   const encodedMsg = encodeURIComponent(message)
   const lineUrl = `https://line.me/R/oaMessage/${lineOAId}/?${encodedMsg}`
-
-  console.log('📱 Redirecting to LINE OA...')
   window.location.href = lineUrl
 }

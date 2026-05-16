@@ -68,9 +68,8 @@ export function EmptyState({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className={cn('flex flex-col items-center justify-center py-16 px-4 text-center', className)}
+      className={cn('relative flex flex-col items-center justify-center py-16 px-4 text-center overflow-hidden', className)}
     >
-      {/* Icon with animation */}
       <motion.div
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
