@@ -70,32 +70,6 @@ export function EmptyState({
       transition={{ duration: 0.4 }}
       className={cn('relative flex flex-col items-center justify-center py-16 px-4 text-center overflow-hidden', className)}
     >
-      {/* Ambient decorative orbs */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 w-[280px] h-[280px] rounded-full bg-gradient-to-br from-brand-200/30 via-orange-100/20 to-transparent blur-3xl pointer-events-none" aria-hidden="true" />
-      <div className="absolute bottom-12 right-12 w-32 h-32 rounded-full bg-amber-200/20 blur-2xl pointer-events-none" aria-hidden="true" />
-
-      {/* Floating particles around the icon */}
-      <div className="absolute top-12 left-0 right-0 flex justify-center pointer-events-none" aria-hidden="true">
-        <div className="relative w-32 h-32">
-          {[
-            { left: '-15%', top: '10%', size: 'w-2 h-2', color: 'bg-brand-400/40', delay: 0 },
-            { left: '105%', top: '20%', size: 'w-1.5 h-1.5', color: 'bg-amber-400/50', delay: 0.6 },
-            { left: '-5%', top: '85%', size: 'w-1 h-1', color: 'bg-orange-400/40', delay: 1.2 },
-            { left: '95%', top: '90%', size: 'w-2 h-2', color: 'bg-brand-300/40', delay: 0.3 },
-            { left: '50%', top: '-15%', size: 'w-1.5 h-1.5', color: 'bg-yellow-400/50', delay: 0.9 },
-          ].map((p, i) => (
-            <motion.div
-              key={i}
-              className={cn('absolute rounded-full', p.size, p.color)}
-              style={{ left: p.left, top: p.top }}
-              animate={{ y: [0, -8, 0], opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 3, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Icon with breathing animation */}
       <motion.div
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
