@@ -285,8 +285,8 @@ export default function CartPage() {
              </div>
           </motion.div>
 
-          {/* Points & Coupons */}
-          <motion.div variants={slideUpItem} className="grid grid-cols-2 gap-4">
+          {/* Points & Coupons — stack on mobile, side-by-side on tablet+ */}
+          <motion.div variants={slideUpItem} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {!isGuest && user ? (
               <div className="bg-amber-50 p-5 rounded-[32px] border border-amber-100 relative overflow-hidden flex flex-col justify-between shadow-sm">
                  <div className="relative z-10">
@@ -295,7 +295,7 @@ export default function CartPage() {
                     <p className="text-[10px] text-gray-500 font-bold uppercase">มี {user.points} pts</p>
                  </div>
                  <div className="mt-4 relative z-10">
-                    <button 
+                    <button
                       onClick={() => { hapticMedium(); useCartStore.getState().setPointsUsed(pointsUsed > 0 ? 0 : Math.min(user.points, 50)); }}
                       className={cn("w-full py-3 rounded-2xl font-black text-[11px] transition-all", pointsUsed > 0 ? "bg-amber-500 text-white shadow-md shadow-amber-500/20" : "bg-white text-gray-900 border border-amber-200 hover:bg-amber-100")}
                     >
@@ -304,19 +304,30 @@ export default function CartPage() {
                  </div>
               </div>
             ) : (
-              <div className="bg-gray-50 p-5 rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-                 <ShieldCheck className="w-6 h-6 text-gray-400 mb-2" />
-                 <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Login for Points</p>
-                 <button onClick={() => navigate('/profile')} className="bg-white hover:bg-gray-100 text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-colors border border-gray-200 shadow-sm">Login LINE</button>
+              <div className="bg-gray-50 p-5 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between gap-3">
+                 <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                       <ShieldCheck className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <div className="min-w-0">
+                       <p className="font-black text-gray-800 text-sm truncate">สะสมพอยต์</p>
+                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">เข้าสู่ระบบเพื่อใช้</p>
+                    </div>
+                 </div>
+                 <button onClick={() => navigate('/profile')} className="bg-[#00B900] hover:bg-[#00A300] text-white px-3 py-2 rounded-xl text-[11px] font-black transition-colors flex-shrink-0">Login</button>
               </div>
             )}
 
             <div className="bg-white p-5 rounded-[32px] shadow-sm border border-gray-100">
-               <div className="w-10 h-10 bg-brand-50 rounded-2xl flex items-center justify-center mb-3">
-                  <Tag className="w-5 h-5 text-[#FF6B00]" />
+               <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-10 h-10 bg-brand-50 rounded-2xl flex items-center justify-center flex-shrink-0">
+                     <Tag className="w-5 h-5 text-[#FF6B00]" />
+                  </div>
+                  <div>
+                     <h3 className="font-black text-gray-900 text-base leading-tight">คูปองส่วนลด</h3>
+                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">เพิ่มโค้ดลดราคา</p>
+                  </div>
                </div>
-               <h3 className="font-black text-gray-900 text-base mb-1">คูปองส่วนลด</h3>
-               <p className="text-[10px] text-gray-400 font-bold uppercase mb-4">เพิ่มโค้ดลดราคา</p>
                <CouponInput
                  orderTotal={subtotal}
                  menuItemIds={items.map(i => i.menuItem.id)}
