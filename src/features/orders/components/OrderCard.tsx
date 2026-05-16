@@ -25,6 +25,7 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
   const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0)
   const firstItem = order.items[0]?.name || 'เมนูอาหาร'
   const otherItemsCount = itemCount - 1
+  const isLive = ['placed', 'confirmed', 'preparing', 'ready'].includes(order.status)
 
   return (
     <motion.div
@@ -50,7 +51,14 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
           "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white shadow-sm",
           status.badgeBg
         )}>
-          <span className="text-sm drop-shadow-sm">{status.icon}</span>
+          {isLive ? (
+            <span className="relative flex w-2 h-2" aria-hidden="true">
+              <span className="absolute inset-0 rounded-full bg-current opacity-60 animate-ping" />
+              <span className={cn("relative inline-flex w-2 h-2 rounded-full", status.badgeText.replace('text-', 'bg-'))} />
+            </span>
+          ) : (
+            <span className="text-sm drop-shadow-sm">{status.icon}</span>
+          )}
           <span className={cn("text-xs font-bold tracking-wide", status.badgeText)}>
             {status.label}
           </span>
