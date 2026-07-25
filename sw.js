@@ -136,10 +136,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip placeholder API URLs
+  if (url.hostname.includes('placeholder')) {
+    return;
+  }
+
   // Default: Network with cache fallback
   event.respondWith(
-    fetch(request).catch(() => {
-      return caches.match(request);
+    fetch(request).catch(async () => {
+      const cached = await caches.match(request);
+      if (cached) return cached;
+      return new Response('Offline - Resource unavailable', { status: 503 });
     })
   );
 });

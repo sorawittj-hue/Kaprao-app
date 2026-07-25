@@ -1,15 +1,20 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, isConfigured } from '@/lib/supabase'
 import type { ContactInfo, ShopHours, OrderLimits, PaymentConfig } from '@/types'
 
 export async function getShopConfig<T>(key: string): Promise<T | null> {
-  const { data, error } = await supabase
-    .from('shop_config')
-    .select('value')
-    .eq('key', key)
-    .single()
+  if (!isConfigured) return null
+  try {
+    const { data, error } = await supabase
+      .from('shop_config')
+      .select('value')
+      .eq('key', key)
+      .single()
 
-  if (error || !data) return null
-  return data.value as T
+    if (error || !data) return null
+    return data.value as T
+  } catch {
+    return null
+  }
 }
 
 export async function updateShopConfig<T>(key: string, value: T): Promise<void> {
@@ -62,13 +67,21 @@ export async function getPaymentConfig(): Promise<PaymentConfig> {
 }
 
 export async function isShopOpen(): Promise<boolean> {
-  const { data, error } = await (supabase.rpc as any)('is_shop_open')
-  if (error) {
-    // Fallback: check manually
+  if (!isConfigured) {
     const hours = await getShopHours()
     return checkShopOpenLocal(hours)
   }
-  return data || false
+  try {
+    const { data, error } = await (supabase.rpc as any)('is_shop_open')
+    if (error) {
+      const hours = await getShopHours()
+      return checkShopOpenLocal(hours)
+    }
+    return data || false
+  } catch {
+    const hours = await getShopHours()
+    return checkShopOpenLocal(hours)
+  }
 }
 
 export async function getNextOpeningTime(): Promise<string | null> {

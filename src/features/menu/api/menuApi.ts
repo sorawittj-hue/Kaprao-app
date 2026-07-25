@@ -1,10 +1,127 @@
 import { supabase, isConfigured } from '@/lib/supabase'
 import type { MenuItem, MenuCategory, CategoryType } from '@/types'
 
+export const FALLBACK_MENU_ITEMS: MenuItem[] = [
+  {
+    id: 1,
+    name: 'กะเพราหมูสับ',
+    description: 'หมูสับเนื้อแน่น ผัดกะเพราพริกสด หอมร้อนแรง',
+    price: 55,
+    category: 'kaprao',
+    imageUrl: '/images/kaprao-moo-sap.jpg',
+    requiresMeat: true,
+    isRecommended: true,
+    isAvailable: true,
+    spiceLevels: [1, 2, 3],
+  },
+  {
+    id: 2,
+    name: 'กะเพราหมูกรอบ',
+    description: 'หมูกรอบเหลืองอร่าม ผัดกะเพราสูตรเด็ด',
+    price: 65,
+    category: 'kaprao',
+    imageUrl: '/images/kaprao-moo-krob.jpg',
+    requiresMeat: true,
+    isRecommended: true,
+    isAvailable: true,
+    spiceLevels: [1, 2, 3],
+  },
+  {
+    id: 3,
+    name: 'กะเพราไข่เยี่ยวม้า',
+    description: 'ไข่เยี่ยวม้าทอดกรอบ ผัดกะเพราพริกแห้ง เมนูยอดฮิต',
+    price: 75,
+    category: 'kaprao',
+    imageUrl: '/images/kaprao-kai-yiao-ma.jpg',
+    requiresMeat: true,
+    isRecommended: true,
+    isAvailable: true,
+    spiceLevels: [1, 2, 3],
+  },
+  {
+    id: 4,
+    name: 'กะเพรากุ้ง',
+    description: 'กุ้งสดตัวใหญ่ ผัดกะเพราพริกสด กลิ่นหอมฟุ้ง',
+    price: 85,
+    category: 'kaprao',
+    imageUrl: '/images/kaprao-kung.jpg',
+    requiresMeat: false,
+    isRecommended: true,
+    isAvailable: true,
+    spiceLevels: [1, 2, 3],
+  },
+  {
+    id: 5,
+    name: 'หมูสับกระเทียม',
+    description: 'หมูสับผัดกระเทียมพริกไทย โรยกระเทียมเจียว',
+    price: 60,
+    category: 'garlic',
+    imageUrl: '/images/kung-kra-thiam.jpg',
+    requiresMeat: true,
+    isRecommended: true,
+    isAvailable: true,
+  },
+  {
+    id: 6,
+    name: 'กุ้งกระเทียม',
+    description: 'กุ้งทอดกรอบ ราดกระเทียมเจียวสูตรพิเศษ',
+    price: 90,
+    category: 'garlic',
+    imageUrl: '/images/kung-kra-thiam.jpg',
+    requiresMeat: true,
+    isRecommended: true,
+    isAvailable: true,
+  },
+  {
+    id: 7,
+    name: 'พริกแกงหมูชิ้น',
+    description: 'ผัดพริกแกงเผ็ดร้อน หมูชิ้นนุ่มๆ ถั่วฝักยาว',
+    price: 60,
+    category: 'curry',
+    imageUrl: '/images/prik-kang-moo-chin.jpg',
+    requiresMeat: false,
+    isRecommended: true,
+    isAvailable: true,
+  },
+  {
+    id: 8,
+    name: 'ไข่ดาวซอสมะขาม',
+    description: 'ไข่ดาวกรอบร้อน ราดซอสมะขามหวานอมเปรี้ยว',
+    price: 45,
+    category: 'others',
+    imageUrl: '/images/khai-dao-rod-sot-makham.jpg',
+    requiresMeat: true,
+    isRecommended: true,
+    isAvailable: true,
+  },
+  {
+    id: 9,
+    name: 'มาม่าผัดกะเพรา',
+    description: 'มาม่าผัดแห้ง กะเพราสด หมูชิ้น เผ็ดจัดจ้าน',
+    price: 50,
+    category: 'noodle',
+    imageUrl: '/images/mama-pad-kaprao.jpg',
+    requiresMeat: true,
+    isRecommended: true,
+    isAvailable: true,
+  },
+  {
+    id: 10,
+    name: 'ข้าวผัดหมูชิ้น',
+    description: 'ข้าวผัดหอมกระเทียม หมูชิ้นนุ่ม ผักคะน้า ไข่',
+    price: 55,
+    category: 'others',
+    imageUrl: '/images/khao-pad-moo-chin.jpg',
+    requiresMeat: true,
+    isRecommended: true,
+    isAvailable: true,
+  },
+]
+
 export async function fetchMenuItems(): Promise<MenuItem[]> {
   if (!isConfigured) {
-    console.error('Supabase not configured — cannot fetch menu items')
-    return []
+    console.warn('Supabase not configured — using fallback menu data')
+    return FALLBACK_MENU_ITEMS
   }
 
   try {
@@ -15,19 +132,18 @@ export async function fetchMenuItems(): Promise<MenuItem[]> {
 
     if (error) {
       console.error('Error fetching menu items:', error)
-      return []
+      return FALLBACK_MENU_ITEMS
     }
 
     if (!data || data.length === 0) {
-      console.warn('No menu items found in database')
-      return []
+      console.warn('No menu items found in database — using fallback menu data')
+      return FALLBACK_MENU_ITEMS
     }
 
-    // Map snake_case database columns to camelCase component properties
     return data.map(mapMenuItem)
   } catch (err) {
     console.error('Fetch menu error:', err)
-    return []
+    return FALLBACK_MENU_ITEMS
   }
 }
 
