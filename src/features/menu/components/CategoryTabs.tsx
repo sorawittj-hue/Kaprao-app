@@ -22,10 +22,9 @@ const iconMap: Record<string, string> = {
   bamboo: '🎋',
 }
 
-// Map color names to actual gradient values
 const categoryGradientMap: Record<string, [string, string]> = {
   red: ['#EF4444', '#F87171'],
-  orange: ['#FF6B00', '#FB923C'],
+  orange: ['#FF5E00', '#FF8C42'],
   yellow: ['#F59E0B', '#FBBF24'],
   amber: ['#D97706', '#F59E0B'],
   emerald: ['#059669', '#34D399'],
@@ -33,7 +32,7 @@ const categoryGradientMap: Record<string, [string, string]> = {
   purple: ['#7C3AED', '#C084FC'],
   blue: ['#2563EB', '#60A5FA'],
   teal: ['#0D9488', '#5EEAD4'],
-  gray: ['#4B5563', '#9CA3AF'],
+  gray: ['#374151', '#6B7280'],
 }
 
 export function CategoryTabs() {
@@ -44,13 +43,13 @@ export function CategoryTabs() {
     <div className="relative">
       {/* Left fade */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none"
-        style={{ background: 'linear-gradient(to right, rgb(250 250 249), transparent)' }}
+        className="absolute left-0 top-0 bottom-0 w-10 z-10 pointer-events-none"
+        style={{ background: 'linear-gradient(to right, var(--page-bg, #fdf6f2), transparent)' }}
       />
       {/* Right fade */}
       <div
-        className="absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none"
-        style={{ background: 'linear-gradient(to left, rgb(250 250 249), transparent)' }}
+        className="absolute right-0 top-0 bottom-0 w-10 z-10 pointer-events-none"
+        style={{ background: 'linear-gradient(to left, var(--page-bg, #fdf6f2), transparent)' }}
       />
 
       {/* Tabs */}
@@ -62,7 +61,7 @@ export function CategoryTabs() {
       >
         {categories.map((category) => {
           const isActive = activeCategory === category.id
-          const [colorStart, colorEnd] = categoryGradientMap[category.color] || ['#FF6B00', '#FB923C']
+          const [colorStart, colorEnd] = categoryGradientMap[category.color] || ['#FF5E00', '#FF8C42']
 
           return (
             <motion.button
@@ -73,35 +72,37 @@ export function CategoryTabs() {
               onClick={() => {
                 setActiveCategory(category.id)
                 hapticLight()
-                // Scroll this tab into view
                 const btn = document.getElementById(`cat-${category.id}`)
                 btn?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
               }}
               id={`cat-${category.id}`}
-              whileTap={{ scale: 0.93 }}
-              whileHover={!isActive ? { y: -2 } : undefined}
+              whileTap={{ scale: 0.92 }}
+              whileHover={!isActive ? { y: -2, scale: 1.02 } : undefined}
               className={cn(
-                'flex items-center gap-1.5 px-4 py-2.5 rounded-2xl whitespace-nowrap flex-shrink-0',
-                'transition-all duration-300 font-bold text-sm',
-                'border-2 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1',
+                'flex items-center gap-1.5 px-4 py-2.5 rounded-[16px] whitespace-nowrap flex-shrink-0',
+                'transition-all duration-250 font-bold text-[13px]',
+                'min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5E00] focus-visible:ring-offset-1',
                 isActive
-                  ? 'text-white border-transparent shadow-lg'
-                  : 'bg-white border-gray-100 text-gray-500 hover:border-gray-200 hover:text-gray-700 shadow-sm'
+                  ? 'text-white'
+                  : 'text-gray-500 hover:text-gray-700'
               )}
               style={
                 isActive
                   ? {
                     background: `linear-gradient(135deg, ${colorStart}, ${colorEnd})`,
-                    boxShadow: `0 6px 20px -4px ${colorStart}60`,
+                    boxShadow: `0 6px 20px -5px ${colorStart}70, 0 0 0 1px ${colorStart}20`,
                   }
-                  : undefined
+                  : {
+                    background: 'rgba(255,255,255,0.85)',
+                    boxShadow: '0 2px 8px -3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
+                    backdropFilter: 'blur(8px)'
+                  }
               }
             >
-              {/* Animated icon */}
               <motion.span
-                animate={isActive ? { rotate: [0, -10, 10, 0], scale: [1, 1.2, 1] } : {}}
+                animate={isActive ? { rotate: [0, -12, 12, 0], scale: [1, 1.25, 1] } : {}}
                 transition={{ duration: 0.4 }}
-                className="text-base leading-none"
+                className="text-[15px] leading-none"
               >
                 {iconMap[category.icon]}
               </motion.span>

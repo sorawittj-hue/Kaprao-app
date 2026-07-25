@@ -6,7 +6,6 @@ import { useOrders } from '@/features/orders/hooks/useOrders'
 import { fadeInUp } from '@/animations/variants'
 import { useCountUp } from '@/hooks/useAdvancedAnimations'
 
-
 export function StatsRow() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
@@ -28,42 +27,33 @@ export function StatsRow() {
       {/* Active Orders Card */}
       <motion.button
         onClick={() => navigate('/orders')}
-        whileHover={{ y: -3, scale: 1.02 }}
-        whileTap={{ scale: 0.97 }}
-        className="relative overflow-hidden rounded-2xl p-4 text-left"
+        whileHover={{ y: -4, scale: 1.02 }}
+        whileTap={{ scale: 0.96 }}
+        className="relative overflow-hidden rounded-[22px] p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
         style={{
           background: hasActiveOrder
-            ? 'linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%)'
+            ? 'linear-gradient(145deg, #2563EB 0%, #0284C7 60%, #0891B2 100%)'
             : 'white',
           boxShadow: hasActiveOrder
-            ? '0 8px 25px -5px rgba(59, 130, 246, 0.45)'
-            : '0 4px 20px -4px rgba(0,0,0,0.08)',
-          border: hasActiveOrder ? 'none' : '1px solid rgba(0,0,0,0.04)',
+            ? '0 10px 28px -6px rgba(37, 99, 235, 0.5), inset 0 1px 0 rgba(255,255,255,0.15)'
+            : '0 4px 20px -6px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
         }}
       >
-        {/* Background decoration */}
         {hasActiveOrder && (
           <>
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-              className="absolute -right-6 -top-6 w-20 h-20 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.1)' }}
-            />
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-              className="absolute -right-2 -bottom-8 w-16 h-16 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.07)' }}
-            />
+            <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-20 blur-xl"
+              style={{ background: '#60A5FA' }} />
+            <div className="absolute -left-4 -bottom-6 w-18 h-18 rounded-full opacity-15 blur-xl"
+              style={{ background: '#0EA5E9' }} />
           </>
         )}
 
         <div className="relative flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            className="w-10 h-10 rounded-[14px] flex items-center justify-center flex-shrink-0"
             style={{
-              background: hasActiveOrder ? 'rgba(255,255,255,0.2)' : '#EFF6FF',
+              background: hasActiveOrder ? 'rgba(255,255,255,0.18)' : 'rgba(37,99,235,0.08)',
+              border: hasActiveOrder ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(37,99,235,0.12)'
             }}
           >
             <ClipboardList
@@ -73,16 +63,16 @@ export function StatsRow() {
           </div>
           <div>
             <p
-              className="text-[11px] font-semibold mb-0.5"
-              style={{ color: hasActiveOrder ? 'rgba(255,255,255,0.75)' : '#9CA3AF' }}
+              className="text-[10px] font-bold mb-0.5"
+              style={{ color: hasActiveOrder ? 'rgba(255,255,255,0.65)' : '#9CA3AF' }}
             >
               สถานะออเดอร์
             </p>
             <div className="flex items-center gap-1.5">
               {hasActiveOrder && (
                 <motion.span
-                  animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
+                  animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 1.4, repeat: Infinity }}
                   className="w-2 h-2 rounded-full bg-white"
                 />
               )}
@@ -100,34 +90,37 @@ export function StatsRow() {
       {/* Points Card */}
       <motion.button
         onClick={() => navigate('/profile')}
-        whileHover={{ y: -3, scale: 1.02 }}
-        whileTap={{ scale: 0.97 }}
-        className="relative overflow-hidden rounded-2xl p-4 text-left"
+        whileHover={{ y: -4, scale: 1.02 }}
+        whileTap={{ scale: 0.96 }}
+        className="relative overflow-hidden rounded-[22px] p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
         style={{
           background: points > 0
-            ? 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)'
+            ? 'linear-gradient(145deg, #FF8C00 0%, #FF5E00 55%, #DC2626 100%)'
             : 'white',
           boxShadow: points > 0
-            ? '0 8px 25px -5px rgba(245, 158, 11, 0.45)'
-            : '0 4px 20px -4px rgba(0,0,0,0.08)',
-          border: points > 0 ? 'none' : '1px solid rgba(0,0,0,0.04)',
+            ? '0 10px 28px -6px rgba(255, 94, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.15)'
+            : '0 4px 20px -6px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
         }}
       >
-        {/* Shine effect for points > 0 */}
         {points > 0 && (
-          <motion.div
-            animate={{ x: ['−100%', '200%'] }}
-            transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
-            className="absolute inset-0 -skew-x-12 pointer-events-none"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }}
-          />
+          <>
+            <motion.div
+              animate={{ x: ['-100%', '200%'] }}
+              transition={{ duration: 2.8, repeat: Infinity, repeatDelay: 4.5, ease: 'easeInOut' }}
+              className="absolute inset-0 -skew-x-12 pointer-events-none"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }}
+            />
+            <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-20 blur-xl"
+              style={{ background: '#FCD34D' }} />
+          </>
         )}
 
         <div className="relative flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            className="w-10 h-10 rounded-[14px] flex items-center justify-center flex-shrink-0"
             style={{
-              background: points > 0 ? 'rgba(255,255,255,0.2)' : '#FFFBEB',
+              background: points > 0 ? 'rgba(255,255,255,0.18)' : 'rgba(245,158,11,0.08)',
+              border: points > 0 ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(245,158,11,0.15)'
             }}
           >
             <Star
@@ -140,8 +133,8 @@ export function StatsRow() {
           </div>
           <div>
             <p
-              className="text-[11px] font-semibold mb-0.5"
-              style={{ color: points > 0 ? 'rgba(255,255,255,0.75)' : '#9CA3AF' }}
+              className="text-[10px] font-bold mb-0.5"
+              style={{ color: points > 0 ? 'rgba(255,255,255,0.65)' : '#9CA3AF' }}
             >
               พอยต์สะสม
             </p>
@@ -155,7 +148,7 @@ export function StatsRow() {
               </span>
               <span
                 className="text-[11px] font-bold"
-                style={{ color: points > 0 ? 'rgba(255,255,255,0.8)' : '#9CA3AF' }}
+                style={{ color: points > 0 ? 'rgba(255,255,255,0.65)' : '#9CA3AF' }}
               >
                 pts
               </span>

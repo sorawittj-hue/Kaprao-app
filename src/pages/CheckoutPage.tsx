@@ -90,8 +90,8 @@ function OrderSuccess({ order, onContinue }: { order: OrderWithLotto; onContinue
   }
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] flex flex-col items-center p-4 pb-32 overflow-y-auto relative safe-area-pt">
-      <div className="absolute top-0 inset-x-0 h-[60vh] bg-gradient-to-b from-green-500 via-emerald-600 to-[#F4F4F5] pointer-events-none -z-10" />
+    <div className="min-h-screen safe-area-pt flex flex-col items-center p-4 pb-32 overflow-y-auto relative" style={{ background: 'var(--page-bg)' }}>
+      <div className="absolute top-0 inset-x-0 h-[60vh] bg-gradient-to-b from-green-500 via-emerald-600 to-transparent pointer-events-none -z-10" />
       <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-white/20 rounded-full blur-[100px] pointer-events-none mix-blend-overlay" />
 
       <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ type: "spring", stiffness: 300, damping: 25 }} className="w-full max-w-md w-full relative z-10 pt-10">
@@ -329,8 +329,8 @@ export default function CheckoutPage() {
   if (showSuccess && createdOrder) return <OrderSuccess order={createdOrder} onContinue={() => navigate('/orders')} />
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] safe-area-pt pb-48 relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-[40vh] bg-gradient-to-b from-[#FFF5F0] to-[#F4F4F5] pointer-events-none z-0" />
+    <div className="min-h-screen safe-area-pt pb-48 relative overflow-hidden" style={{ background: 'var(--page-bg)' }}>
+      <div className="absolute top-0 left-0 right-0 h-[40vh] bg-gradient-to-b from-[#FFF5F0] to-transparent pointer-events-none z-0" />
       
       <Container className="py-4 relative z-10 max-w-2xl mx-auto space-y-6">
         <div className="flex items-center justify-between sticky top-4 z-50">

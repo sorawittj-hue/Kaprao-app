@@ -63,7 +63,7 @@ export default function LotteryPage() {
 
   if (isGuest || !user) {
     return (
-      <div className="min-h-screen bg-[#F4F4F5] safe-area-pt flex flex-col items-center">
+      <div className="min-h-screen safe-area-pt flex flex-col items-center" style={{ background: 'var(--page-bg)' }}>
         <div className="absolute top-0 inset-x-0 h-[200px] bg-gradient-to-b from-emerald-50 to-transparent pointer-events-none z-0" />
         <Container className="py-4 relative z-10 flex-1 flex flex-col px-6">
            <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1); }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 shadow-sm border border-gray-100 self-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
@@ -91,7 +91,7 @@ export default function LotteryPage() {
   const pastTickets = tickets?.filter(t => new Date(t.drawDate) < new Date()) || []
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] safe-area-pt pb-32 relative overflow-hidden">
+    <div className="min-h-screen safe-area-pt pb-32 relative overflow-hidden" style={{ background: 'var(--page-bg)' }}>
       {/* Clean Background */}
       <div className="absolute top-0 left-0 right-0 h-[30vh] bg-gradient-to-b from-emerald-50/50 to-transparent pointer-events-none z-0" />
 

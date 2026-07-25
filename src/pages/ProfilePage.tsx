@@ -166,9 +166,9 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] pb-32">
+    <div className="min-h-screen pb-32" style={{ background: 'var(--page-bg)' }}>
       {/* Clean Header Aesthetic */}
-      <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-gray-100 to-[#F4F4F5] pointer-events-none z-0 rounded-b-[48px]" />
+      <div className="absolute top-0 inset-x-0 h-64 pointer-events-none z-0 rounded-b-[48px]" style={{ background: 'linear-gradient(180deg, rgba(255,235,215,0.6) 0%, transparent 100%)' }} />
 
       <Container className="py-4 relative z-10 px-5 space-y-6">
         <h1 className="text-2xl font-black text-gray-900 tracking-tight drop-shadow-sm sticky top-4 mb-2">My Profile</h1>

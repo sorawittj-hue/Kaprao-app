@@ -117,7 +117,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#F4F4F5] safe-area-pt flex flex-col">
+      <div className="min-h-screen safe-area-pt flex flex-col" style={{ background: 'var(--page-bg)' }}>
         <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-white to-transparent pointer-events-none z-0" />
         <Container className="py-4 relative z-10 flex-1 flex flex-col px-6">
           <motion.button type="button" aria-label="ย้อนกลับ" whileHover={{ x: -4 }} onClick={() => { hapticLight(); navigate(-1) }} className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-lg flex items-center justify-center text-gray-800 shadow-sm border border-black/5 self-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
@@ -132,7 +132,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] safe-area-pt pb-48 relative overflow-hidden">
+    <div className="min-h-screen safe-area-pt pb-48 relative overflow-hidden" style={{ background: 'var(--page-bg)' }}>
       {/* Clean Background */}
       <div className="absolute top-0 left-0 right-0 h-[200px] bg-gradient-to-b from-orange-50/50 to-transparent pointer-events-none z-0" />
 
