@@ -101,9 +101,9 @@ export default function PrivacyPolicyPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-[var(--bg-surface)] pb-20">
       {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-10">
+      <header className="bg-[var(--bg-card)] border-b sticky top-0 z-10">
         <Container className="py-4">
           <div className="flex items-center gap-4">
             <button
@@ -113,7 +113,7 @@ export default function PrivacyPolicyPage() {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-xl font-black text-gray-900">นโยบายความเป็นส่วนตัว</h1>
+              <h1 className="text-xl font-black text-white">นโยบายความเป็นส่วนตัว</h1>
               <p className="text-sm text-gray-500">Privacy Policy</p>
             </div>
           </div>
@@ -142,14 +142,14 @@ export default function PrivacyPolicyPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-2xl p-6 shadow-sm"
+                className="bg-[var(--bg-card)] rounded-2xl p-6 shadow-sm"
               >
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center flex-shrink-0">
                     <section.icon className="w-6 h-6 text-brand-600" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-lg font-bold text-gray-900 mb-3">
+                    <h2 className="text-lg font-bold text-white mb-3">
                       {section.title}
                     </h2>
                     <div className="text-gray-600 whitespace-pre-line leading-relaxed">
@@ -168,7 +168,7 @@ export default function PrivacyPolicyPage() {
             transition={{ delay: 0.6 }}
             className="mt-8 p-6 bg-brand-50 rounded-2xl text-center"
           >
-            <h3 className="font-bold text-gray-900 mb-2">มีคำถาม?</h3>
+            <h3 className="font-bold text-white mb-2">มีคำถาม?</h3>
             <p className="text-gray-600 mb-4">
               หากคุณมีข้อสงสัยเกี่ยวกับนโยบายความเป็นส่วนตัว กรุณาติดต่อเรา
             </p>

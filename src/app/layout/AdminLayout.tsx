@@ -124,7 +124,7 @@ export function AdminLayout() {
   // Show loading state only briefly
   if (isAdmin === null) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-surface)] flex items-center justify-center">
         <div className="flex items-center gap-3 text-gray-500">
           <Loader2 className="w-6 h-6 animate-spin" />
           <span>กำลังโหลด...</span>
@@ -139,7 +139,7 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-[var(--bg-surface)] flex">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -156,17 +156,17 @@ export function AdminLayout() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed md:relative inset-y-0 left-0 w-72 bg-white text-gray-900 border-r border-gray-100 z-30 transition-transform duration-300 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)]",
+          "fixed md:relative inset-y-0 left-0 w-72 bg-[var(--bg-card)] text-white border-r border-white/10 z-30 transition-transform duration-300 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)]",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
         {/* Header */}
-        <div className="h-20 flex items-center px-6 border-b border-gray-100">
+        <div className="h-20 flex items-center px-6 border-b border-white/10">
           <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center text-white font-black text-xl mr-3 shadow-md">
             K
           </div>
           <div>
-            <h1 className="font-black text-lg tracking-tight text-gray-900">KAPRAO52</h1>
+            <h1 className="font-black text-lg tracking-tight text-white">KAPRAO52</h1>
             <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Admin Panel</p>
           </div>
         </div>
@@ -188,7 +188,7 @@ export function AdminLayout() {
                   "w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-all relative",
                   isActive
                     ? "bg-gray-900 text-white shadow-md shadow-gray-900/10"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                    : "text-gray-500 hover:bg-[var(--bg-surface)] hover:text-white"
                 )
               }
             >
@@ -214,8 +214,8 @@ export function AdminLayout() {
                 cn(
                   "w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-all",
                   isActive
-                    ? "bg-gray-100 text-gray-900"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-gray-100 text-white"
+                    : "text-gray-500 hover:bg-[var(--bg-surface)] hover:text-white"
                 )
               }
             >
@@ -234,13 +234,13 @@ export function AdminLayout() {
         </nav>
 
         {/* User Info */}
-        <div className="p-6 border-t border-gray-100">
+        <div className="p-6 border-t border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[14px] bg-gray-100 text-gray-900 border border-gray-200 flex items-center justify-center text-lg font-black shadow-sm">
+            <div className="w-10 h-10 rounded-[14px] bg-gray-100 text-white border border-white/10 flex items-center justify-center text-lg font-black shadow-sm">
               {user?.displayName?.[0] || 'A'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm text-gray-900 truncate">{user?.displayName || 'Admin'}</p>
+              <p className="font-bold text-sm text-white truncate">{user?.displayName || 'Admin'}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
                 <p className="text-xs text-emerald-600 font-bold">ออนไลน์</p>
@@ -253,7 +253,7 @@ export function AdminLayout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-h-screen overflow-hidden">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 sticky top-0 z-10">
+        <header className="h-16 bg-[var(--bg-card)] border-b border-white/10 flex items-center justify-between px-4 md:px-6 sticky top-0 z-10">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -262,7 +262,7 @@ export function AdminLayout() {
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <h2 className="text-xl font-bold text-gray-800">{getPageTitle()}</h2>
+              <h2 className="text-xl font-bold text-gray-200">{getPageTitle()}</h2>
               <p className="text-xs text-gray-500 hidden sm:block">
                 {new Date().toLocaleDateString('th-TH', {
                   weekday: 'long',
@@ -301,10 +301,10 @@ export function AdminLayout() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-20 overflow-hidden"
+                      className="absolute right-0 top-full mt-2 w-80 bg-[var(--bg-card)] rounded-2xl shadow-xl border border-white/10 z-20 overflow-hidden"
                     >
-                      <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                        <h3 className="font-bold text-gray-800">การแจ้งเตือน</h3>
+                      <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                        <h3 className="font-bold text-gray-200">การแจ้งเตือน</h3>
                         {notifications.length > 0 && (
                           <button
                             onClick={() => setNotifications([])}
@@ -328,14 +328,14 @@ export function AdminLayout() {
                                 navigate('/admin/orders')
                                 setShowNotifications(false)
                               }}
-                              className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                              className="p-4 border-b border-white/10 hover:bg-[var(--bg-surface)] cursor-pointer"
                             >
                               <div className="flex items-start gap-3">
                                 <div className="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                   <Package className="w-4 h-4 text-brand-600" />
                                 </div>
                                 <div className="flex-1">
-                                  <p className="text-sm font-medium text-gray-800">{notif.message}</p>
+                                  <p className="text-sm font-medium text-gray-200">{notif.message}</p>
                                   <p className="text-xs text-gray-400">{notif.time}</p>
                                 </div>
                               </div>
@@ -353,7 +353,7 @@ export function AdminLayout() {
             <div className="hidden lg:flex items-center gap-4 text-sm">
               {stats && (
                 <>
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-base)]mber-100 text-amber-700 rounded-lg">
                     <Package className="w-4 h-4" />
                     <span className="font-bold">{stats.pendingOrders}</span>
                     <span className="text-xs">รอดำเนินการ</span>

@@ -155,23 +155,23 @@ export default function ProfilePage() {
   const menuItems: MenuItemConfig[] = [
     { icon: Clock, label: 'ประวัติการสั่งซื้อ', onClick: () => { hapticLight(); navigate('/orders') }, iconBg: 'bg-blue-500/10', iconColor: 'text-blue-500' },
     { icon: Ticket, label: 'ตั๋วหวยของฉัน', onClick: () => { hapticLight(); navigate('/lottery') }, iconBg: 'bg-emerald-500/10', iconColor: 'text-emerald-500' },
-    { icon: Star, label: 'ระดับสมาชิกของคุณ', sublabel: `สถานะ: ${tierInfo?.name || 'MEMBER'}`, onClick: () => { hapticLight(); setActiveModal('points') }, iconBg: 'bg-amber-500/10', iconColor: 'text-amber-500' },
+    { icon: Star, label: 'ระดับสมาชิกของคุณ', sublabel: `สถานะ: ${tierInfo?.name || 'MEMBER'}`, onClick: () => { hapticLight(); setActiveModal('points') }, iconBg: 'bg-[var(--bg-base)]mber-500/10', iconColor: 'text-amber-500' },
     { icon: Gift, label: 'แลกของรางวัล', sublabel: 'สิทธิพิเศษตามพอยต์ที่มี', onClick: () => { hapticLight(); setActiveModal('rewards') }, iconBg: 'bg-rose-500/10', iconColor: 'text-rose-500' },
   ]
 
   const settingsItems: MenuItemConfig[] = [
-    { icon: Settings, label: 'การตั้งค่าระบบ', onClick: () => { hapticLight(); setActiveModal('settings') }, iconBg: 'bg-gray-500/10', iconColor: 'text-gray-600' },
-    { icon: HelpCircle, label: 'ต้องการความช่วยเหลือ', onClick: () => { hapticLight(); setActiveModal('help') }, iconBg: 'bg-gray-500/10', iconColor: 'text-gray-600' },
+    { icon: Settings, label: 'การตั้งค่าระบบ', onClick: () => { hapticLight(); setActiveModal('settings') }, iconBg: 'bg-[var(--bg-surface)]0/10', iconColor: 'text-gray-600' },
+    { icon: HelpCircle, label: 'ต้องการความช่วยเหลือ', onClick: () => { hapticLight(); setActiveModal('help') }, iconBg: 'bg-[var(--bg-surface)]0/10', iconColor: 'text-gray-600' },
     ...(isAdmin ? [{ icon: Shield, label: 'จัดการหลังบ้าน (Admin)', sublabel: 'ตั้งค่าร้านค้า เมนู ออเดอร์', onClick: () => { hapticLight(); navigate('/admin') }, iconBg: 'bg-indigo-500/10', iconColor: 'text-indigo-600' }] : []),
   ]
 
   return (
-    <div className="min-h-screen pb-32" style={{ background: 'var(--page-bg)' }}>
+    <div className="min-h-screen pb-32" style={{ background: 'var(--bg-base)' }}>
       {/* Clean Header Aesthetic */}
       <div className="absolute top-0 inset-x-0 h-64 pointer-events-none z-0 rounded-b-[48px]" style={{ background: 'linear-gradient(180deg, rgba(255,235,215,0.6) 0%, transparent 100%)' }} />
 
       <Container className="py-4 relative z-10 px-5 space-y-6">
-        <h1 className="text-2xl font-black text-gray-900 tracking-tight drop-shadow-sm sticky top-4 mb-2">My Profile</h1>
+        <h1 className="text-2xl font-black text-white tracking-tight drop-shadow-sm sticky top-4 mb-2">My Profile</h1>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
@@ -183,14 +183,14 @@ export default function ProfilePage() {
             {/* Membership Card (Holographic Design) */}
             <motion.div variants={slideUpItem} className="relative z-10" style={{ perspective: 1000 }}>
               {isGuest || !user ? (
-                <div className="rounded-[32px] overflow-hidden p-6 bg-white shadow-xl shadow-black/5 border border-white">
+                <div className="rounded-[32px] overflow-hidden p-6 bg-[var(--bg-card)] shadow-xl shadow-black/5 border border-white">
                   <div className="flex items-center gap-5">
-                    <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-4xl shadow-inner border border-gray-200">
+                    <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-4xl shadow-inner border border-white/10">
                       👤
                     </div>
                     <div>
-                      <h2 className="text-xl font-black text-gray-800 leading-tight">โปรไฟล์ผู้เยี่ยมชม</h2>
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mt-2 bg-gray-50 border border-gray-100">
+                      <h2 className="text-xl font-black text-gray-200 leading-tight">โปรไฟล์ผู้เยี่ยมชม</h2>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mt-2 bg-[var(--bg-surface)] border border-white/10">
                         <Star className="w-3 h-3 text-gray-400" />
                         <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest">Guest Account</span>
                       </div>
@@ -199,7 +199,7 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <motion.div
-                  className="rounded-[32px] overflow-hidden p-6 relative border border-gray-100 bg-white"
+                  className="rounded-[32px] overflow-hidden p-6 relative border border-white/10 bg-[var(--bg-card)]"
                   style={{
                     boxShadow: `0 20px 40px -15px ${tier.glow}`,
                   }}
@@ -210,12 +210,12 @@ export default function ProfilePage() {
                   
                   <div className="relative z-10 flex justify-between items-start mb-6">
                     <div className="flex items-center gap-4">
-                       <div className="w-16 h-16 rounded-[20px] overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0">
+                       <div className="w-16 h-16 rounded-[20px] overflow-hidden border border-white/10 bg-[var(--bg-surface)] flex-shrink-0">
                          {user.pictureUrl ? <img src={user.pictureUrl} alt="" className="w-full h-full object-cover"/> : <div className="w-full h-full flex items-center justify-center text-2xl">👤</div>}
                        </div>
                        <div>
-                         <h2 className="text-xl font-black text-gray-900 tracking-tight">{user.displayName}</h2>
-                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mt-1.5 bg-gray-50 border border-gray-100 text-gray-700">
+                         <h2 className="text-xl font-black text-white tracking-tight">{user.displayName}</h2>
+                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mt-1.5 bg-[var(--bg-surface)] border border-white/10 text-gray-700">
                             {tier.icon}
                             <span className="text-[10px] font-black uppercase tracking-widest">{tier.label}</span>
                          </div>
@@ -224,23 +224,23 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="grid grid-cols-3 gap-3 mb-6 relative z-10">
-                     <div className="bg-gray-50 rounded-2xl p-3 border border-gray-100 flex flex-col items-center justify-center text-gray-900">
+                     <div className="bg-[var(--bg-surface)] rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-white">
                         <span className="text-xl font-black">{userPoints}</span>
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Points</span>
                      </div>
-                     <div className="bg-gray-50 rounded-2xl p-3 border border-gray-100 flex flex-col items-center justify-center text-gray-900">
+                     <div className="bg-[var(--bg-surface)] rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-white">
                         <span className="text-xl font-black">{user.totalOrders || 0}</span>
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Orders</span>
                      </div>
-                     <div className="bg-gray-50 rounded-2xl p-3 border border-gray-100 flex flex-col items-center justify-center text-gray-900">
+                     <div className="bg-[var(--bg-surface)] rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-white">
                         <span className="text-xl font-black">Lvl{gameState?.level || 1}</span>
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Rank</span>
                      </div>
                   </div>
 
                   {nextTier && (
-                    <div className="bg-gray-50 rounded-[20px] p-4 border border-gray-100 relative z-10">
-                       <div className="flex justify-between items-end mb-2 text-gray-800">
+                    <div className="bg-[var(--bg-surface)] rounded-[20px] p-4 border border-white/10 relative z-10">
+                       <div className="flex justify-between items-end mb-2 text-gray-200">
                          <span className="text-[10px] font-bold uppercase tracking-wider">Progress to {nextTier.name}</span>
                          <span className="text-[10px] font-black">{nextTier.pointsNeeded} pts left</span>
                        </div>
@@ -259,9 +259,9 @@ export default function ProfilePage() {
                   <StreakTracker currentStreak={gameState?.currentStreak || 0} longestStreak={gameState?.longestStreak || 0} lastOrderDate={new Date().toISOString()} />
                   
                   {gameState?.achievements && gameState.achievements.length > 0 && (
-                     <div className="bg-white rounded-[32px] p-5 shadow-sm border border-gray-100">
+                     <div className="bg-[var(--bg-card)] rounded-[32px] p-5 shadow-sm border border-white/10">
                         <div className="flex items-center justify-between mb-4 px-2">
-                           <h3 className="font-black text-gray-800 flex items-center gap-2 text-sm">
+                           <h3 className="font-black text-gray-200 flex items-center gap-2 text-sm">
                              <Target className="w-5 h-5 text-[#FF6B00]" /> ภารกิจ & ความสำเร็จ
                            </h3>
                            <span className="text-[10px] font-black text-[#FF6B00] bg-[#FF6B00]/10 px-2.5 py-1 rounded-full">{gameState.achievements.filter(a => a.progress >= a.maxProgress).length} Unlocked</span>
@@ -271,19 +271,19 @@ export default function ProfilePage() {
                              const isUnlocked = acc.progress >= acc.maxProgress;
                              const pct = Math.min(100, (acc.progress/acc.maxProgress)*100);
                              return (
-                               <div key={i} className={cn("p-4 rounded-2xl flex gap-4 transition-all border", isUnlocked ? "bg-emerald-50/50 border-emerald-100" : "bg-gray-50 border-gray-100")}>
-                                  <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-white flex-shrink-0", isUnlocked ? "bg-white" : "bg-gray-200 grayscale opacity-40")}>
+                               <div key={i} className={cn("p-4 rounded-2xl flex gap-4 transition-all border", isUnlocked ? "bg-emerald-50/50 border-emerald-100" : "bg-[var(--bg-surface)] border-white/10")}>
+                                  <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-white flex-shrink-0", isUnlocked ? "bg-[var(--bg-card)]" : "bg-gray-200 grayscale opacity-40")}>
                                      {acc.icon}
                                   </div>
                                   <div className="flex-1">
-                                    <h4 className={cn("font-black text-sm", isUnlocked ? "text-gray-800" : "text-gray-500")}>{acc.name}</h4>
+                                    <h4 className={cn("font-black text-sm", isUnlocked ? "text-gray-200" : "text-gray-500")}>{acc.name}</h4>
                                     <p className="text-[11px] text-gray-400 mt-1 mb-2 leading-snug">{acc.description}</p>
                                     {!isUnlocked ? (
                                       <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
                                          <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${pct}%` }} />
                                       </div>
                                     ) : (
-                                      <span className="text-[10px] font-black text-emerald-600 bg-white shadow-sm border border-emerald-50 px-2 py-0.5 rounded-md inline-block">+{acc.reward.points} Pts</span>
+                                      <span className="text-[10px] font-black text-emerald-600 bg-[var(--bg-card)] shadow-sm border border-emerald-50 px-2 py-0.5 rounded-md inline-block">+{acc.reward.points} Pts</span>
                                     )}
                                   </div>
                                </div>
@@ -298,11 +298,11 @@ export default function ProfilePage() {
             {/* Guest Promo */}
              {(isGuest || !user) && (
                <motion.div variants={slideUpItem}>
-                  <div className="bg-white rounded-[32px] p-6 text-gray-900 shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                  <div className="bg-[var(--bg-card)] rounded-[32px] p-6 text-white shadow-sm border border-white/10 flex flex-col items-center text-center">
                     <div className="w-16 h-16 bg-[#00B900]/10 text-[#00B900] rounded-full flex items-center justify-center mb-4">
                        <Gift className="w-8 h-8" />
                     </div>
-                    <h3 className="font-black text-xl mb-2 text-gray-900">อัปเกรดบัญชีฟรี! 🎉</h3>
+                    <h3 className="font-black text-xl mb-2 text-white">อัปเกรดบัญชีฟรี! 🎉</h3>
                     <p className="text-gray-500 text-sm font-medium mb-6">เชื่อมต่อกับ LINE วันนี้ รับพอยต์ทันที ลุ้นหวยกินฟรี และแลกของรางวัลได้ไม่อั้น!</p>
                     <button type="button" onClick={handleLineLogin} className="w-full bg-[#00B900] text-white font-black text-sm py-4 rounded-[24px] shadow-sm active:scale-95 transition-transform flex items-center justify-center gap-2 hover:bg-[#00A300] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00B900] focus-visible:ring-offset-2">
                        เข้าสู่ระบบผ่าน LINE อย่างรวดเร็ว
@@ -329,7 +329,7 @@ export default function ProfilePage() {
             )}
 
             <motion.div variants={slideUpItem}>
-               <button type="button" onClick={handleLogout} className="w-full py-4 text-sm font-black text-red-500 bg-white rounded-[24px] border border-gray-100 flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-transform hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+               <button type="button" onClick={handleLogout} className="w-full py-4 text-sm font-black text-red-500 bg-[var(--bg-card)] rounded-[24px] border border-white/10 flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-transform hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
                   <LogOut className="w-4 h-4" /> ออกจากระบบ
                </button>
             </motion.div>
@@ -348,10 +348,10 @@ export default function ProfilePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.95, y: 100 }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className="bg-white rounded-[40px] w-full max-w-lg mx-auto relative z-10 overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
+              className="bg-[var(--bg-card)] rounded-[40px] w-full max-w-lg mx-auto relative z-10 overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
             >
-               <div className="p-6 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-xl z-20">
-                  <h3 className="font-black text-gray-900 text-xl tracking-tight">
+               <div className="p-6 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-[var(--bg-card)] backdrop-blur-xl z-20">
+                  <h3 className="font-black text-white text-xl tracking-tight">
                     {activeModal === 'points' && 'ระดับสมาชิก'}
                     {activeModal === 'rewards' && 'แลกของรางวัล'}
                     {activeModal === 'settings' && 'ตั้งค่าระบบ'}
@@ -370,10 +370,10 @@ export default function ProfilePage() {
                         {Object.entries(tierConfig).map(([key, config]) => {
                           const isCurrent = userTier === key
                           return (
-                            <div key={key} className={cn("p-5 rounded-[28px] border-2 flex items-start gap-4 transition-all", isCurrent ? "bg-white border-[#FF6B00] shadow-lg shadow-[#FF6B00]/10" : "bg-white border-transparent shadow-sm")}>
-                               <div className="w-14 h-14 bg-gradient-to-br from-gray-50 to-gray-100 rounded-[20px] flex items-center justify-center shadow-inner border border-gray-200">{config.icon}</div>
+                            <div key={key} className={cn("p-5 rounded-[28px] border-2 flex items-start gap-4 transition-all", isCurrent ? "bg-[var(--bg-card)] border-[#FF6B00] shadow-lg shadow-[#FF6B00]/10" : "bg-[var(--bg-card)] border-transparent shadow-sm")}>
+                               <div className="w-14 h-14 bg-gradient-to-br from-gray-50 to-gray-100 rounded-[20px] flex items-center justify-center shadow-inner border border-white/10">{config.icon}</div>
                                <div className="flex-1">
-                                  <h4 className="font-black text-gray-900 flex items-center gap-2 mb-1">
+                                  <h4 className="font-black text-white flex items-center gap-2 mb-1">
                                     {config.label}
                                     {isCurrent && <span className="text-[9px] font-black uppercase text-white bg-[#FF6B00] px-2 py-0.5 rounded-md">Current</span>}
                                   </h4>
@@ -415,9 +415,9 @@ export default function ProfilePage() {
                               { label: 'โกโก้เย็น', desc: '1 แก้ว', pts: 300, emoji: '🥤' },
                               { label: 'ส่งฟรี', desc: 'ระยะทาง 5km', pts: 200, emoji: '🛵' },
                            ].map((item, idx) => (
-                             <div key={idx} className="bg-white rounded-[28px] p-5 shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                             <div key={idx} className="bg-[var(--bg-card)] rounded-[28px] p-5 shadow-sm border border-white/10 flex flex-col items-center text-center">
                                 <span className="text-4xl mb-3 drop-shadow-md">{item.emoji}</span>
-                                <h4 className="font-black text-gray-900 text-sm mb-1">{item.label}</h4>
+                                <h4 className="font-black text-white text-sm mb-1">{item.label}</h4>
                                 <p className="text-[10px] font-medium text-gray-400 mb-4">{item.desc}</p>
                                 
                                 <button
@@ -447,34 +447,34 @@ export default function ProfilePage() {
                   {/* Settings Modal */}
                   {activeModal === 'settings' && (
                      <div className="space-y-6">
-                        <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 space-y-6">
+                        <div className="bg-[var(--bg-card)] rounded-[32px] p-6 shadow-sm border border-white/10 space-y-6">
                            <div className="flex items-center justify-between">
                               <div>
-                                <p className="font-black text-gray-900 text-sm">การสั่นตอบสนอง (Haptics)</p>
+                                <p className="font-black text-white text-sm">การสั่นตอบสนอง (Haptics)</p>
                                 <p className="text-xs text-gray-500 mt-1 font-medium">สั่นเมื่อกดปุ่มต่างๆ เพื่อประสบการณ์ที่ดี</p>
                               </div>
-                              <button type="button" role="switch" aria-checked={haptics} aria-label="สั่นเมื่อกดปุ่ม" onClick={() => { hapticLight(); setHaptics(!haptics) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1", haptics ? "bg-[#00C300] border-transparent" : "bg-gray-100 border-gray-200")}>
-                                <div className={cn("w-6 h-6 bg-white rounded-full shadow-md transition-transform", haptics ? "translate-x-6" : "translate-x-0")} />
+                              <button type="button" role="switch" aria-checked={haptics} aria-label="สั่นเมื่อกดปุ่ม" onClick={() => { hapticLight(); setHaptics(!haptics) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1", haptics ? "bg-[#00C300] border-transparent" : "bg-gray-100 border-white/10")}>
+                                <div className={cn("w-6 h-6 bg-[var(--bg-card)] rounded-full shadow-md transition-transform", haptics ? "translate-x-6" : "translate-x-0")} />
                               </button>
                            </div>
                            <div className="h-px w-full bg-gray-100" />
                            <div className="flex items-center justify-between">
                               <div>
-                                <p className="font-black text-gray-900 text-sm">แจ้งเตือนออเดอร์</p>
+                                <p className="font-black text-white text-sm">แจ้งเตือนออเดอร์</p>
                                 <p className="text-xs text-gray-500 mt-1 font-medium">เมื่อสถานะอาหารเปลี่ยน</p>
                               </div>
-                              <button type="button" role="switch" aria-checked={notifOrders} aria-label="แจ้งเตือนออเดอร์" onClick={() => { hapticLight(); setNotifOrders(!notifOrders) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1", notifOrders ? "bg-[#FF6B00] border-transparent" : "bg-gray-100 border-gray-200")}>
-                                <div className={cn("w-6 h-6 bg-white rounded-full shadow-md transition-transform", notifOrders ? "translate-x-6" : "translate-x-0")} />
+                              <button type="button" role="switch" aria-checked={notifOrders} aria-label="แจ้งเตือนออเดอร์" onClick={() => { hapticLight(); setNotifOrders(!notifOrders) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1", notifOrders ? "bg-[#FF6B00] border-transparent" : "bg-gray-100 border-white/10")}>
+                                <div className={cn("w-6 h-6 bg-[var(--bg-card)] rounded-full shadow-md transition-transform", notifOrders ? "translate-x-6" : "translate-x-0")} />
                               </button>
                            </div>
                            <div className="h-px w-full bg-gray-100" />
                            <div className="flex items-center justify-between">
                               <div>
-                                <p className="font-black text-gray-900 text-sm">โปรโมชัน</p>
+                                <p className="font-black text-white text-sm">โปรโมชัน</p>
                                 <p className="text-xs text-gray-500 mt-1 font-medium">รับโค้ดลับก่อนใคร</p>
                               </div>
-                              <button type="button" role="switch" aria-checked={notifPromos} aria-label="แจ้งเตือนโปรโมชัน" onClick={() => { hapticLight(); setNotifPromos(!notifPromos) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1", notifPromos ? "bg-[#FF6B00] border-transparent" : "bg-gray-100 border-gray-200")}>
-                                <div className={cn("w-6 h-6 bg-white rounded-full shadow-md transition-transform", notifPromos ? "translate-x-6" : "translate-x-0")} />
+                              <button type="button" role="switch" aria-checked={notifPromos} aria-label="แจ้งเตือนโปรโมชัน" onClick={() => { hapticLight(); setNotifPromos(!notifPromos) }} className={cn("w-14 h-8 rounded-full flex items-center px-1 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1", notifPromos ? "bg-[#FF6B00] border-transparent" : "bg-gray-100 border-white/10")}>
+                                <div className={cn("w-6 h-6 bg-[var(--bg-card)] rounded-full shadow-md transition-transform", notifPromos ? "translate-x-6" : "translate-x-0")} />
                               </button>
                            </div>
                         </div>
@@ -488,14 +488,14 @@ export default function ProfilePage() {
                            <div className="absolute inset-0 bg-[#00C300] rounded-full animate-ping opacity-20" />
                            <HelpCircle className="w-10 h-10" />
                         </div>
-                        <h3 className="text-xl font-black text-gray-900 tracking-tight mb-2">แอดมินใจดี พร้อมตอบ!</h3>
+                        <h3 className="text-xl font-black text-white tracking-tight mb-2">แอดมินใจดี พร้อมตอบ!</h3>
                         <p className="text-sm font-medium text-gray-500 mb-8 max-w-[260px] mx-auto">สอบถามเมนู ยกเลิกออเดอร์ หรือเรื่องอื่นๆ ทักมาได้เลยครับ เราเปิดตลอด 24ชม.</p>
                         
                         <div className="space-y-3">
                            <button onClick={() => { hapticHeavy(); window.open('https://line.me/R/ti/p/@kaprao52', '_blank') }} className="w-full h-16 bg-[#00C300] text-white rounded-[24px] shadow-xl shadow-[#00C300]/30 font-black text-lg flex items-center justify-center gap-3 active:scale-95 transition-transform">
                               แชทผ่าน LINE
                            </button>
-                           <button onClick={() => { hapticLight(); window.location.href='tel:0812345678' }} className="w-full h-14 bg-white text-gray-700 border border-gray-200 rounded-[20px] font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform hover:bg-gray-50">
+                           <button onClick={() => { hapticLight(); window.location.href='tel:0812345678' }} className="w-full h-14 bg-[var(--bg-card)] text-gray-700 border border-white/10 rounded-[20px] font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform hover:bg-[var(--bg-surface)]">
                               <Smartphone className="w-5 h-5"/> โทร 081-234-5678
                            </button>
                         </div>
@@ -512,18 +512,18 @@ export default function ProfilePage() {
 
 function MenuSection({ title, items }: { title: string, items: MenuItemConfig[] }) {
   return (
-    <div className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-gray-100">
-      <div className="px-6 py-5 border-b border-gray-50/50 bg-gray-50/30">
+    <div className="bg-[var(--bg-card)] rounded-[32px] overflow-hidden shadow-sm border border-white/10">
+      <div className="px-6 py-5 border-b border-gray-50/50 bg-[var(--bg-surface)]/30">
         <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">{title}</h3>
       </div>
       <div className="divide-y divide-gray-50 px-2 py-2">
          {items.map((item, idx) => (
-           <button key={idx} onClick={item.onClick} className="w-full p-4 flex items-center gap-4 hover:bg-gray-50 rounded-2xl transition-colors active:scale-95 group">
-             <div className={cn("w-12 h-12 rounded-[16px] flex items-center justify-center border border-gray-100 shadow-inner group-hover:scale-110 transition-transform", item.iconBg, item.iconColor)}>
+           <button key={idx} onClick={item.onClick} className="w-full p-4 flex items-center gap-4 hover:bg-[var(--bg-surface)] rounded-2xl transition-colors active:scale-95 group">
+             <div className={cn("w-12 h-12 rounded-[16px] flex items-center justify-center border border-white/10 shadow-inner group-hover:scale-110 transition-transform", item.iconBg, item.iconColor)}>
                <item.icon className="w-6 h-6" />
              </div>
              <div className="flex-1 text-left">
-               <h4 className="font-black text-gray-900 border-none text-[15px]">{item.label}</h4>
+               <h4 className="font-black text-white border-none text-[15px]">{item.label}</h4>
                {item.sublabel && <p className="text-[11px] font-medium text-gray-400 mt-0.5">{item.sublabel}</p>}
              </div>
              <ChevronRight className="w-5 h-5 text-gray-300" />

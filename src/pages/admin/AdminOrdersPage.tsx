@@ -21,7 +21,7 @@ const staggerList = { hidden: { opacity: 0 }, visible: { opacity: 1, transition:
 
 const statusTabs: { status: OrderStatus | 'all'; label: string; color: string; bg: string }[] = [
   { status: 'all', label: 'ทั้งหมด', color: 'text-gray-500', bg: 'bg-gray-100' },
-  { status: 'placed', label: 'รอดำเนินการ', color: 'text-amber-500', bg: 'bg-amber-100' },
+  { status: 'placed', label: 'รอดำเนินการ', color: 'text-amber-500', bg: 'bg-[var(--bg-base)]mber-100' },
   { status: 'preparing', label: 'กำลังทำ', color: 'text-orange-500', bg: 'bg-orange-100' },
   { status: 'ready', label: 'พร้อมเสิร์ฟ', color: 'text-blue-500', bg: 'bg-blue-100' },
   { status: 'delivered', label: 'ส่งสำเร็จ', color: 'text-green-500', bg: 'bg-green-100' },
@@ -30,7 +30,7 @@ const statusTabs: { status: OrderStatus | 'all'; label: string; color: string; b
 
 const statusConfigs = {
   pending: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', icon: Clock, label: 'รอชำระ' },
-  placed: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: Package, label: 'รอดำเนินการ' },
+  placed: { bg: 'bg-[var(--bg-base)]mber-50', text: 'text-amber-700', border: 'border-amber-200', icon: Package, label: 'รอดำเนินการ' },
   confirmed: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', icon: CheckCircle, label: 'รับออเดอร์แล้ว' },
   preparing: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', icon: Flame, label: 'กำลังปรุงด่วน!' },
   ready: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: Package, label: 'พร้อมจัดส่ง/รับ' },
@@ -135,20 +135,20 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-6 pb-24">
       {/* Immersive Header */}
-      <div className="bg-white p-6 rounded-[32px] shadow-sm border border-gray-100 flex flex-col lg:flex-row justify-between lg:items-center gap-6 relative overflow-hidden">
+      <div className="bg-[var(--bg-card)] p-6 rounded-[32px] shadow-sm border border-white/10 flex flex-col lg:flex-row justify-between lg:items-center gap-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF6B00]/5 rounded-full blur-3xl" />
         <div className="relative z-10 flex-1">
            <div className="flex items-center gap-3 mb-1">
              <div className="w-12 h-12 bg-[#FF6B00]/10 rounded-2xl flex items-center justify-center text-[#FF6B00] border border-[#FF6B00]/20"><Package className="w-6 h-6"/></div>
              <div>
-                <h1 className="text-2xl font-black text-gray-900 tracking-tight">ออเดอร์ทั้งหมด</h1>
+                <h1 className="text-2xl font-black text-white tracking-tight">ออเดอร์ทั้งหมด</h1>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Manage your orders seamlessly</p>
              </div>
            </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 relative z-10">
-          <select value={dateFilter} onChange={(e) => { hapticLight(); setDateFilter(e.target.value as any) }} className="h-12 px-4 bg-[#FAFAF9] border-none rounded-2xl font-black text-sm text-gray-700 outline-none focus:ring-2 ring-[#FF6B00]/20 transition-all cursor-pointer">
+          <select value={dateFilter} onChange={(e) => { hapticLight(); setDateFilter(e.target.value as any) }} className="h-12 px-4 bg-[var(--bg-base)] border-none rounded-2xl font-black text-sm text-gray-700 outline-none focus:ring-2 ring-[#FF6B00]/20 transition-all cursor-pointer">
             <option value="all">ทุกช่วงเวลา</option>
             <option value="today">เฉพาะวันนี้ (แนะนำ)</option>
             <option value="week">7 วันล่าสุด</option>
@@ -156,7 +156,7 @@ export default function AdminOrdersPage() {
           </select>
           <div className="relative flex-1 sm:min-w-[240px]">
              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-             <input type="text" placeholder="ค้นหารหัส, ชื่อลูกค้า, เบอร์โทร..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full h-12 pl-11 pr-4 bg-[#FAFAF9] border-none rounded-2xl font-bold text-sm text-gray-900 outline-none focus:ring-2 ring-[#FF6B00]/20 transition-all" />
+             <input type="text" placeholder="ค้นหารหัส, ชื่อลูกค้า, เบอร์โทร..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full h-12 pl-11 pr-4 bg-[var(--bg-base)] border-none rounded-2xl font-bold text-sm text-white outline-none focus:ring-2 ring-[#FF6B00]/20 transition-all" />
           </div>
         </div>
       </div>
@@ -164,8 +164,8 @@ export default function AdminOrdersPage() {
       {/* KPI Overview */}
       {stats && (
         <motion.div variants={staggerList} initial="hidden" animate="visible" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <StatMini label="ทั้งหมด" value={stats.total} bg="bg-gray-100" text="text-gray-900" />
-          <StatMini label="รอดำเนินการ" value={stats.pending} bg="bg-amber-100" text="text-amber-700" pulse />
+          <StatMini label="ทั้งหมด" value={stats.total} bg="bg-gray-100" text="text-white" />
+          <StatMini label="รอดำเนินการ" value={stats.pending} bg="bg-[var(--bg-base)]mber-100" text="text-amber-700" pulse />
           <StatMini label="กำลังทำ" value={stats.preparing} bg="bg-orange-100" text="text-orange-700" pulse />
           <StatMini label="พร้อมส่ง" value={stats.ready} bg="bg-blue-100" text="text-blue-700" pulse />
           <StatMini label="ส่งสำเร็จ" value={stats.delivered} bg="bg-green-100" text="text-green-700" />
@@ -180,11 +180,11 @@ export default function AdminOrdersPage() {
       {/* Extreme Visual Tabs */}
       <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 pt-2 px-1">
         {statusTabs.map((tab) => (
-          <button key={tab.status} onClick={() => handleTabChange(tab.status)} className={cn("px-5 py-3 rounded-[20px] font-black text-[13px] whitespace-nowrap transition-all flex items-center gap-2 relative", activeTab === tab.status ? "bg-gray-900 text-white shadow-lg shadow-gray-900/20 scale-105" : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-100")}>
+          <button key={tab.status} onClick={() => handleTabChange(tab.status)} className={cn("px-5 py-3 rounded-[20px] font-black text-[13px] whitespace-nowrap transition-all flex items-center gap-2 relative", activeTab === tab.status ? "bg-gray-900 text-white shadow-lg shadow-gray-900/20 scale-105" : "bg-[var(--bg-card)] text-gray-500 hover:bg-[var(--bg-surface)] border border-white/10")}>
             {activeTab !== tab.status && <span className={cn("w-2 h-2 rounded-full", tab.bg.replace('bg-', 'bg-').replace('-100', '-500'))} />}
             {tab.label}
             {tab.status !== 'all' && orders && (
-               <span className={cn("ml-1.5 px-2 py-0.5 rounded-full text-[10px]", activeTab === tab.status ? "bg-white/20 text-white" : "bg-gray-100 text-gray-600")}>
+               <span className={cn("ml-1.5 px-2 py-0.5 rounded-full text-[10px]", activeTab === tab.status ? "bg-[var(--bg-card)]/20 text-white" : "bg-gray-100 text-gray-600")}>
                   {orders.filter(o => o.status === tab.status).length}
                </span>
             )}
@@ -198,11 +198,11 @@ export default function AdminOrdersPage() {
            {[...Array(6)].map((_, i) => <OrderCardSkeleton key={i} />)}
         </div>
       ) : filteredOrders?.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-[40px] border border-gray-100 shadow-sm mt-4">
-           <div className="w-24 h-24 bg-gray-50 rounded-[24px] flex items-center justify-center mx-auto mb-4 border border-gray-100 shadow-inner">
+        <div className="text-center py-20 bg-[var(--bg-card)] rounded-[40px] border border-white/10 shadow-sm mt-4">
+           <div className="w-24 h-24 bg-[var(--bg-surface)] rounded-[24px] flex items-center justify-center mx-auto mb-4 border border-white/10 shadow-inner">
              <AlertCircle className="w-10 h-10 text-gray-300" />
            </div>
-           <p className="font-black text-2xl text-gray-800 tracking-tight mb-2">ไม่พบออเดอร์</p>
+           <p className="font-black text-2xl text-gray-200 tracking-tight mb-2">ไม่พบออเดอร์</p>
            <p className="text-sm font-medium text-gray-400">ในหน้าต่างปัจจุบัน คุณอาจต้องเปลี่ยนตัวกรองค้นหา</p>
         </div>
       ) : (
@@ -243,7 +243,7 @@ const AdminOrderCard = forwardRef<HTMLDivElement, any>(({ order, onView, onPrint
   
   return (
      <motion.div ref={ref} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="h-full">
-        <div className={cn("h-full bg-white rounded-[32px] border-2 shadow-sm hover:shadow-xl transition-all flex flex-col overflow-hidden relative group", Config.border, `hover:${Config.border}`)}>
+        <div className={cn("h-full bg-[var(--bg-card)] rounded-[32px] border-2 shadow-sm hover:shadow-xl transition-all flex flex-col overflow-hidden relative group", Config.border, `hover:${Config.border}`)}>
            
            <div className={cn("absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-30 transition-transform group-hover:scale-150 pointer-events-none", Config.bg.replace('50', '500') )} />
 
@@ -251,7 +251,7 @@ const AdminOrderCard = forwardRef<HTMLDivElement, any>(({ order, onView, onPrint
               {/* Header section */}
               <div className="flex items-start justify-between mb-4">
                  <div>
-                    <h3 className="font-black text-gray-900 text-lg leading-tight flex items-center gap-1.5">
+                    <h3 className="font-black text-white text-lg leading-tight flex items-center gap-1.5">
                       {order.customerName}
                     </h3>
                     <p className="text-[11px] font-bold text-gray-400">ID: #{order.id} <span className="mx-1">•</span> {formatOrderDate(order.createdAt)}</p>
@@ -263,19 +263,19 @@ const AdminOrderCard = forwardRef<HTMLDivElement, any>(({ order, onView, onPrint
               </div>
 
               {/* Order quick info */}
-              <div className="bg-gray-50 rounded-[20px] p-4 mb-4 flex-1">
+              <div className="bg-[var(--bg-surface)] rounded-[20px] p-4 mb-4 flex-1">
                  <div className="flex items-start gap-3 mb-3">
                     <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
                     <p className="text-xs font-bold text-gray-700 leading-snug">{order.deliveryMethod === 'workplace' ? 'ส่งที่ทำงาน' : order.address || 'ไม่ระบุที่อยู่'}</p>
                  </div>
-                 <div className="flex items-center justify-between text-xs font-bold border-t border-gray-200/50 pt-3">
+                 <div className="flex items-center justify-between text-xs font-bold border-t border-white/10/50 pt-3">
                     <span className="text-gray-500">{order.items.length} รายการอาหาร</span>
                     <span className="text-[#FF6B00] text-lg">{formatPrice(order.totalPrice)}</span>
                  </div>
               </div>
 
               {order.specialInstructions && (
-                 <div className="bg-amber-50 rounded-[14px] p-3 mb-4 border border-amber-100 flex items-start gap-2">
+                 <div className="bg-[var(--bg-base)]mber-50 rounded-[14px] p-3 mb-4 border border-amber-100 flex items-start gap-2">
                     <Flame className="w-4 h-4 text-amber-500 mt-0.5" />
                     <p className="text-[11px] font-bold text-amber-700 leading-relaxed">{order.specialInstructions}</p>
                  </div>
@@ -294,14 +294,14 @@ const AdminOrderCard = forwardRef<HTMLDivElement, any>(({ order, onView, onPrint
                     </div>
                  )}
 
-                 <button onClick={onView} className="w-12 h-12 bg-white border border-gray-200 rounded-[16px] flex items-center justify-center hover:bg-gray-50 text-gray-700 active:scale-95 transition-transform"><Eye className="w-5 h-5"/></button>
-                 <button onClick={onPrint} className="w-12 h-12 bg-white border border-gray-200 rounded-[16px] flex items-center justify-center hover:bg-gray-50 text-gray-700 active:scale-95 transition-transform"><Printer className="w-5 h-5"/></button>
+                 <button onClick={onView} className="w-12 h-12 bg-[var(--bg-card)] border border-white/10 rounded-[16px] flex items-center justify-center hover:bg-[var(--bg-surface)] text-gray-700 active:scale-95 transition-transform"><Eye className="w-5 h-5"/></button>
+                 <button onClick={onPrint} className="w-12 h-12 bg-[var(--bg-card)] border border-white/10 rounded-[16px] flex items-center justify-center hover:bg-[var(--bg-surface)] text-gray-700 active:scale-95 transition-transform"><Printer className="w-5 h-5"/></button>
                  
                  <div className="relative">
-                    <button onClick={() => setShowOptions(!showOptions)} className="w-12 h-12 bg-gray-50 rounded-[16px] flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors"><MoreVertical className="w-5 h-5"/></button>
+                    <button onClick={() => setShowOptions(!showOptions)} className="w-12 h-12 bg-[var(--bg-surface)] rounded-[16px] flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors"><MoreVertical className="w-5 h-5"/></button>
                     <AnimatePresence>
                        {showOptions && (
-                          <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 10 }} className="absolute bottom-full right-0 mb-2 w-48 bg-white/90 backdrop-blur-xl rounded-[24px] shadow-2xl border border-gray-100 overflow-hidden transform-gpu z-50 p-2">
+                          <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 10 }} className="absolute bottom-full right-0 mb-2 w-48 bg-[var(--bg-card)]/90 backdrop-blur-xl rounded-[24px] shadow-2xl border border-white/10 overflow-hidden transform-gpu z-50 p-2">
                              {order.status !== 'cancelled' && order.status !== 'delivered' && (
                                 <button onClick={() => { setShowOptions(false); onCancel(); }} className="w-full text-left px-4 py-3 text-xs font-black text-red-600 hover:bg-red-50 rounded-xl flex items-center gap-2 transition-colors"><X className="w-4 h-4"/> บังคับยกเลิก</button>
                              )}
@@ -326,15 +326,15 @@ function OrderDetailModal({ order, onClose, onStats, onPrint, isWait }: any) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-white rounded-[40px] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col relative z-10 shadow-2xl border border-white">
+      <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-[var(--bg-card)] rounded-[40px] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col relative z-10 shadow-2xl border border-white">
         
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-[var(--bg-surface)]/50">
            <div className="flex items-center gap-4">
               <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center border shadow-inner", Config.bg, Config.text, Config.border)}>
                 <Config.icon className="w-6 h-6" />
               </div>
               <div>
-                 <h2 className="text-xl font-black text-gray-900">ออเดอร์ #{order.id}</h2>
+                 <h2 className="text-xl font-black text-white">ออเดอร์ #{order.id}</h2>
                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{Config.label}</p>
               </div>
            </div>
@@ -343,32 +343,32 @@ function OrderDetailModal({ order, onClose, onStats, onPrint, isWait }: any) {
 
         <div className="p-6 overflow-y-auto flex-1 h-[50vh] space-y-6">
            {/* Section: Customer */}
-           <div className="bg-[#FAFAF9] rounded-[24px] p-5 border border-gray-100/50">
-              <h3 className="font-black text-sm text-gray-900 mb-3 flex items-center gap-2"><User className="w-4 h-4 text-[#FF6B00]"/> ข้อมูลลูกค้าและการจัดส่ง</h3>
+           <div className="bg-[var(--bg-base)] rounded-[24px] p-5 border border-white/10/50">
+              <h3 className="font-black text-sm text-white mb-3 flex items-center gap-2"><User className="w-4 h-4 text-[#FF6B00]"/> ข้อมูลลูกค้าและการจัดส่ง</h3>
               <div className="grid grid-cols-2 gap-4 text-sm font-bold text-gray-600">
-                 <div><span className="text-gray-400 block text-[10px] uppercase tracking-widest mb-0.5">ชื่อลูกค้า</span><p className="text-gray-900">{order.customerName}</p></div>
-                 <div><span className="text-gray-400 block text-[10px] uppercase tracking-widest mb-0.5">เบอร์ติดต่อ</span><p className="text-gray-900">{order.phoneNumber || '-'}</p></div>
-                 <div className="col-span-2"><span className="text-gray-400 block text-[10px] uppercase tracking-widest mb-0.5">สถานที่จัดส่ง</span><p className="text-gray-900">{order.deliveryMethod === 'workplace' ? 'จัดส่งที่ทำงาน' : order.address || 'ไม่ระบุ'}</p></div>
+                 <div><span className="text-gray-400 block text-[10px] uppercase tracking-widest mb-0.5">ชื่อลูกค้า</span><p className="text-white">{order.customerName}</p></div>
+                 <div><span className="text-gray-400 block text-[10px] uppercase tracking-widest mb-0.5">เบอร์ติดต่อ</span><p className="text-white">{order.phoneNumber || '-'}</p></div>
+                 <div className="col-span-2"><span className="text-gray-400 block text-[10px] uppercase tracking-widest mb-0.5">สถานที่จัดส่ง</span><p className="text-white">{order.deliveryMethod === 'workplace' ? 'จัดส่งที่ทำงาน' : order.address || 'ไม่ระบุ'}</p></div>
               </div>
            </div>
 
            {/* Section: Items */}
            <div>
-              <h3 className="font-black text-sm text-gray-900 mb-3 ml-2 flex items-center gap-2"><Package className="w-4 h-4 text-emerald-500"/> รายการอาหาร</h3>
+              <h3 className="font-black text-sm text-white mb-3 ml-2 flex items-center gap-2"><Package className="w-4 h-4 text-emerald-500"/> รายการอาหาร</h3>
               <div className="space-y-2">
                  {order.items.map((item: any, i: number) => (
-                    <div key={i} className="flex gap-4 p-4 rounded-2xl border border-gray-100 hover:bg-gray-50 transition-colors">
+                    <div key={i} className="flex gap-4 p-4 rounded-2xl border border-white/10 hover:bg-[var(--bg-surface)] transition-colors">
                        <div className="w-8 h-8 rounded-xl bg-gray-100 text-gray-600 font-black flex items-center justify-center flex-shrink-0 text-xs">{item.quantity}x</div>
                        <div className="flex-1">
-                          <p className="font-black text-gray-900 text-sm">{item.name}</p>
+                          <p className="font-black text-white text-sm">{item.name}</p>
                           {item.options && item.options.length > 0 && <p className="text-xs font-bold text-gray-500 mt-0.5">ตัวเลือก: {item.options.map((o:any)=>o.name).join(', ')}</p>}
                           {item.note && <p className="text-xs font-bold text-amber-600 mt-1">📝 เพิ่มเติม: {item.note}</p>}
                        </div>
-                       <div className="font-black text-gray-900">{formatPrice(item.subtotal)}</div>
+                       <div className="font-black text-white">{formatPrice(item.subtotal)}</div>
                     </div>
                  ))}
                  {order.specialInstructions && (
-                    <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-800 font-bold text-sm flex gap-3">
+                    <div className="p-4 bg-[var(--bg-base)]mber-50 rounded-2xl border border-amber-100 text-amber-800 font-bold text-sm flex gap-3">
                        <Flame className="w-5 h-5 flex-shrink-0" />
                        <p>หมายเหตุรวม: {order.specialInstructions}</p>
                     </div>
@@ -391,20 +391,20 @@ function OrderDetailModal({ order, onClose, onStats, onPrint, isWait }: any) {
                   </div>
                   <div className="text-right">
                      <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">ช่องทางชำระ</p>
-                     <span className="bg-white/10 px-3 py-1.5 rounded-lg text-xs font-black inline-block backdrop-blur-md">{order.paymentMethod.toUpperCase()}</span>
+                     <span className="bg-[var(--bg-card)]/10 px-3 py-1.5 rounded-lg text-xs font-black inline-block backdrop-blur-md">{order.paymentMethod.toUpperCase()}</span>
                   </div>
                </div>
            </div>
         </div>
 
-        <div className="p-4 border-t border-gray-100 bg-white grid grid-cols-2 gap-2">
+        <div className="p-4 border-t border-white/10 bg-[var(--bg-card)] grid grid-cols-2 gap-2">
            <button onClick={onPrint} className="h-16 rounded-[20px] bg-gray-100 text-gray-700 font-black flex items-center justify-center gap-2 active:scale-95 transition-transform"><Printer className="w-5 h-5"/> ปริ้นท์ใบเสร็จ</button>
            {nextTarget ? (
               <button disabled={isWait} onClick={() => { onStats(order.id, nextTarget); onClose(); }} className="h-16 rounded-[20px] bg-gray-900 text-white font-black flex items-center justify-center gap-2 shadow-lg shadow-gray-900/20 active:scale-95 transition-transform disabled:opacity-50 tracking-wide outline-none">
                  <Check className="w-5 h-5"/> กดเพื่ออัพเดตทันที
               </button>
            ) : (
-              <div className="h-16 rounded-[20px] bg-gray-50 flex items-center justify-center text-sm font-black text-gray-400">ไม่มีสถานะถัดไป</div>
+              <div className="h-16 rounded-[20px] bg-[var(--bg-surface)] flex items-center justify-center text-sm font-black text-gray-400">ไม่มีสถานะถัดไป</div>
            )}
         </div>
       </motion.div>
@@ -416,12 +416,12 @@ function CancelModal({ reason, setReason, onConf, onCan, isWait }: any) {
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCan} />
-      <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="bg-white rounded-[40px] w-full max-w-sm p-8 flex flex-col items-center relative z-10 text-center shadow-2xl">
+      <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="bg-[var(--bg-card)] rounded-[40px] w-full max-w-sm p-8 flex flex-col items-center relative z-10 text-center shadow-2xl">
          <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-6 border-[6px] border-white shadow-xl shadow-red-500/10"><X className="w-10 h-10" /></div>
-         <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tight">คุณแน่ใจหรือไม่?</h3>
+         <h3 className="text-xl font-black text-white mb-2 tracking-tight">คุณแน่ใจหรือไม่?</h3>
          <p className="text-sm text-gray-500 font-medium mb-6">หากยกเลิกออเดอร์นี้จะไม่สามารถนำกลับมาได้อีก โปรดระบุเหตุผลในการทิ้งออเดอร์</p>
          
-         <textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="เช่น วัตถุดิบหมด หรือลูกค้ายกเลิกเอง..." className="w-full p-4 bg-[#FAFAF9] border border-gray-200 rounded-[20px] text-sm font-bold focus:bg-white focus:border-red-500 outline-none transition-all resize-none shadow-inner mb-6" rows={3} />
+         <textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="เช่น วัตถุดิบหมด หรือลูกค้ายกเลิกเอง..." className="w-full p-4 bg-[var(--bg-base)] border border-white/10 rounded-[20px] text-sm font-bold focus:bg-[var(--bg-card)] focus:border-red-500 outline-none transition-all resize-none shadow-inner mb-6" rows={3} />
          
          <div className="flex gap-3 w-full">
             <button onClick={onCan} className="flex-1 h-14 rounded-[16px] bg-gray-100 text-gray-600 font-black">ปิดหน้าต่าง</button>

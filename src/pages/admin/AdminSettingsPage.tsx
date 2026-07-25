@@ -29,7 +29,7 @@ export default function AdminSettingsPage() {
           <Settings className="w-5 h-5 text-orange-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">ตั้งค่าร้านค้า</h1>
+          <h1 className="text-2xl font-bold text-gray-200">ตั้งค่าร้านค้า</h1>
           <p className="text-sm text-gray-500">จัดการเวลาทำการ ข้อมูลติดต่อ และการชำระเงิน</p>
         </div>
       </div>

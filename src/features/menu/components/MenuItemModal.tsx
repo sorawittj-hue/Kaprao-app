@@ -224,7 +224,7 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="menu-item-modal-title"
-            className="fixed inset-x-0 bottom-0 z-[150] bg-white rounded-t-3xl max-h-[90vh] overflow-hidden"
+            className="fixed inset-x-0 bottom-0 z-[150] bg-[var(--bg-card)] rounded-t-3xl max-h-[90vh] overflow-hidden"
           >
             {/* Handle Bar */}
             <div className="flex justify-center pt-3 pb-1" aria-hidden="true">
@@ -243,13 +243,13 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                 />
                 
                 {/* Smooth Gradient blend into content */}
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1A1A1E] to-transparent pointer-events-none" />
 
                 <button
                   type="button"
                   onClick={onClose}
                   aria-label="ปิดหน้าต่าง"
-                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all text-gray-600 hover:text-gray-900 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="absolute top-4 right-4 w-10 h-10 bg-[var(--bg-card)]/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all text-gray-600 hover:text-white z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                 >
                   <X className="w-5 h-5" aria-hidden="true" />
                 </button>
@@ -267,7 +267,7 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                 {/* Title & Price */}
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 id="menu-item-modal-title" className="text-xl font-black text-gray-800">{item.name}</h2>
+                    <h2 id="menu-item-modal-title" className="text-xl font-black text-gray-200">{item.name}</h2>
                     <p className="text-sm text-gray-500 mt-1">{item.description}</p>
                   </div>
                   <div className="text-right">
@@ -298,7 +298,7 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                           'flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm whitespace-nowrap transition-all border-2',
                           isActive
                             ? config.activeClass
-                            : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            : 'bg-[var(--bg-card)] border-white/10 text-gray-500 hover:bg-[var(--bg-surface)] hover:border-white/10'
                         )}
                       >
                         <Icon className="w-4 h-4" />
@@ -331,8 +331,8 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                                 isSelected
                                   ? 'border-red-500 bg-red-50/50 shadow-sm scale-[0.98]'
                                   : isAvailable
-                                    ? 'border-gray-100 bg-white hover:border-red-200 hover:shadow-sm active:scale-95'
-                                    : 'border-gray-50 bg-gray-50/50 opacity-60 grayscale cursor-not-allowed'
+                                    ? 'border-white/10 bg-[var(--bg-card)] hover:border-red-200 hover:shadow-sm active:scale-95'
+                                    : 'border-gray-50 bg-[var(--bg-surface)]/50 opacity-60 grayscale cursor-not-allowed'
                               )}
                             >
                               <div className="w-full flex justify-between items-start mb-1">
@@ -385,8 +385,8 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                                 isSelected
                                   ? 'border-yellow-500 bg-yellow-50/50 shadow-sm scale-[0.98]'
                                   : isAvailable
-                                    ? 'border-gray-100 bg-white hover:border-yellow-200 hover:shadow-sm active:scale-95'
-                                    : 'border-gray-50 bg-gray-50/50 opacity-60 grayscale cursor-not-allowed'
+                                    ? 'border-white/10 bg-[var(--bg-card)] hover:border-yellow-200 hover:shadow-sm active:scale-95'
+                                    : 'border-gray-50 bg-[var(--bg-surface)]/50 opacity-60 grayscale cursor-not-allowed'
                               )}
                             >
                               <div className="w-full flex justify-between items-start mb-1">
@@ -435,7 +435,7 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                                 'w-full p-4 rounded-2xl border-2 flex items-center justify-between transition-all',
                                 isSelected
                                   ? 'border-orange-500 bg-orange-50/50 shadow-sm scale-[0.98]'
-                                  : 'border-gray-100 bg-white hover:border-orange-200 hover:shadow-sm active:scale-95'
+                                  : 'border-white/10 bg-[var(--bg-card)] hover:border-orange-200 hover:shadow-sm active:scale-95'
                               )}
                             >
                               <div className="flex items-center gap-4">
@@ -481,7 +481,7 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                                 'p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between h-auto',
                                 isSelected
                                   ? 'border-brand-500 bg-brand-50/50 shadow-sm scale-[0.98]'
-                                  : 'border-gray-100 bg-white hover:border-brand-200 hover:shadow-sm active:scale-95'
+                                  : 'border-white/10 bg-[var(--bg-card)] hover:border-brand-200 hover:shadow-sm active:scale-95'
                               )}
                             >
                               <div className="w-full flex justify-between items-start mb-1">
@@ -518,12 +518,12 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="เช่น ไม่ใส่ผักชี, ผัดแห้งๆ..."
                     rows={2}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all resize-none text-sm"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-white/10 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all resize-none text-sm"
                   />
                 </div>
 
                 {/* Summary */}
-                <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                <div className="bg-[var(--bg-surface)] rounded-xl p-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">ราคาต่อชิ้น</span>
                     <span>{formatPrice(calculateUnitPrice)}</span>
@@ -532,7 +532,7 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
                     <span className="text-gray-500">จำนวน</span>
                     <span>x{quantity}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
+                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10">
                     <span>รวม</span>
                     <span className="text-brand-600">{formatPrice(calculateTotal)}</span>
                   </div>

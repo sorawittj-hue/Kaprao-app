@@ -238,7 +238,7 @@ export default function AdminMenuPage() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">จัดการเมนู</h1>
+          <h1 className="text-2xl font-bold text-gray-200">จัดการเมนู</h1>
           <p className="text-gray-500">เพิ่ม แก้ไข และจัดการรายการอาหาร</p>
         </div>
 
@@ -291,7 +291,7 @@ export default function AdminMenuPage() {
             placeholder="ค้นหาเมนู..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-500"
+            className="w-full pl-10 pr-4 py-3 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-brand-500"
           />
         </div>
 
@@ -305,7 +305,7 @@ export default function AdminMenuPage() {
                 'px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all flex items-center gap-2',
                 selectedCategory === cat.value
                   ? 'bg-brand-500 text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300'
+                  : 'bg-[var(--bg-card)] border border-white/10 text-gray-600 hover:border-gray-300'
               )}
             >
               <cat.icon className="w-4 h-4" />
@@ -318,7 +318,7 @@ export default function AdminMenuPage() {
         <select
           value={availabilityFilter}
           onChange={(e) => setAvailabilityFilter(e.target.value as typeof availabilityFilter)}
-          className="px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-500 bg-white"
+          className="px-4 py-3 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-brand-500 bg-[var(--bg-card)]"
         >
           <option value="all">ทุกสถานะ</option>
           <option value="available">พร้อมจำหน่าย</option>
@@ -374,7 +374,7 @@ export default function AdminMenuPage() {
       {isLoading ? (
         <MenuGridSkeleton count={8} />
       ) : filteredItems?.length === 0 ? (
-        <div className="text-center py-16 text-gray-400 bg-white rounded-2xl border border-gray-100">
+        <div className="text-center py-16 text-gray-400 bg-[var(--bg-card)] rounded-2xl border border-white/10">
           <ChefHat className="w-16 h-16 mx-auto mb-4 opacity-50" />
           <p className="text-lg font-bold">ไม่พบเมนู</p>
           <p className="text-sm">ลองเปลี่ยนตัวกรองหรือเพิ่มเมนูใหม่</p>
@@ -430,7 +430,7 @@ function StatCard({ label, value, icon: Icon, color }: {
         </div>
         <div>
           <p className="text-sm text-gray-500">{label}</p>
-          <p className="text-2xl font-black text-gray-800">{value}</p>
+          <p className="text-2xl font-black text-gray-200">{value}</p>
         </div>
       </div>
     </Card>
@@ -466,7 +466,7 @@ const MenuAdminCard = forwardRef<HTMLDivElement, MenuAdminCardProps>(
             <div className="absolute top-2 right-2 flex gap-2">
               <button
                 onClick={onEdit}
-                className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-600 hover:bg-white transition-colors"
+                className="w-8 h-8 bg-[var(--bg-card)]/90 rounded-full flex items-center justify-center text-gray-600 hover:bg-[var(--bg-card)] transition-colors"
                 type="button"
               >
                 <Edit2 className="w-4 h-4" />
@@ -496,7 +496,7 @@ const MenuAdminCard = forwardRef<HTMLDivElement, MenuAdminCardProps>(
             <div className="flex-1">
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="font-bold text-gray-800">{item.name}</h3>
+                  <h3 className="font-bold text-gray-200">{item.name}</h3>
                   <p className="text-sm text-gray-500 capitalize">{item.category}</p>
                 </div>
                 <span className="font-bold text-brand-600 text-lg">
@@ -510,7 +510,7 @@ const MenuAdminCard = forwardRef<HTMLDivElement, MenuAdminCardProps>(
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-3">
+            <div className="flex items-center justify-between pt-3 border-t border-white/10 mt-3">
               <div className="flex gap-2">
                 {item.requiresMeat && (
                   <Badge variant="default" className="text-[10px]">เลือกเนื้อได้</Badge>
@@ -587,11 +587,11 @@ function MenuModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+        className="bg-[var(--bg-card)] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
       >
         {/* Header */}
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-800">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-200">
             {isEditing ? 'แก้ไขเมนู' : 'เพิ่มเมนูใหม่'}
           </h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -637,7 +637,7 @@ function MenuModal({
                 required
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500"
+                className="w-full px-4 py-3 border border-white/10 rounded-xl focus:outline-none focus:border-brand-500"
                 placeholder="เช่น กะเพราหมูสับ"
               />
             </div>
@@ -648,7 +648,7 @@ function MenuModal({
               <select
                 value={formData.category}
                 onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as CategoryType }))}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500"
+                className="w-full px-4 py-3 border border-white/10 rounded-xl focus:outline-none focus:border-brand-500"
               >
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -669,7 +669,7 @@ function MenuModal({
                   min="0"
                   value={formData.price}
                   onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500"
+                  className="w-full pl-10 pr-4 py-3 border border-white/10 rounded-xl focus:outline-none focus:border-brand-500"
                   placeholder="59"
                 />
               </div>
@@ -681,7 +681,7 @@ function MenuModal({
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500 resize-none"
+                className="w-full px-4 py-3 border border-white/10 rounded-xl focus:outline-none focus:border-brand-500 resize-none"
                 rows={3}
                 placeholder="คำอธิบายเกี่ยวกับเมนู..."
               />
@@ -728,7 +728,7 @@ function MenuModal({
           </div>
 
           {/* Footer */}
-          <div className="flex gap-3 mt-8 pt-6 border-t border-gray-100">
+          <div className="flex gap-3 mt-8 pt-6 border-t border-white/10">
             <button
               type="button"
               onClick={onClose}

@@ -63,10 +63,10 @@ export default function LotteryPage() {
 
   if (isGuest || !user) {
     return (
-      <div className="min-h-screen safe-area-pt flex flex-col items-center" style={{ background: 'var(--page-bg)' }}>
+      <div className="min-h-screen safe-area-pt flex flex-col items-center" style={{ background: 'var(--bg-base)' }}>
         <div className="absolute top-0 inset-x-0 h-[200px] bg-gradient-to-b from-emerald-50 to-transparent pointer-events-none z-0" />
         <Container className="py-4 relative z-10 flex-1 flex flex-col px-6">
-           <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1); }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 shadow-sm border border-gray-100 self-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+           <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1); }} className="w-12 h-12 rounded-2xl bg-[var(--bg-card)] flex items-center justify-center text-gray-200 shadow-sm border border-white/10 self-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
            </motion.button>
              
@@ -74,7 +74,7 @@ export default function LotteryPage() {
              <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6 border border-emerald-100 shadow-sm">
                 <Lock className="w-10 h-10 text-emerald-500" />
              </div>
-             <h2 className="text-2xl font-black text-gray-900 tracking-tight mb-3">เจาะลึกความคุ้ม!</h2>
+             <h2 className="text-2xl font-black text-white tracking-tight mb-3">เจาะลึกความคุ้ม!</h2>
              <p className="text-gray-500 text-sm font-medium leading-relaxed text-center px-6 max-w-sm mb-8">
                พื้นที่นี้สงวนไว้ให้เฉพาะสมาชิกเท่านั้น ล็อกอินผ่าน LINE เพื่อลุ้นกินฟรีทุกงวด ยิ่งสั่งมาก ยิ่งมีสิทธิ์มาก!
              </p>
@@ -91,19 +91,19 @@ export default function LotteryPage() {
   const pastTickets = tickets?.filter(t => new Date(t.drawDate) < new Date()) || []
 
   return (
-    <div className="min-h-screen safe-area-pt pb-32 relative overflow-hidden" style={{ background: 'var(--page-bg)' }}>
+    <div className="min-h-screen safe-area-pt pb-32 relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       {/* Clean Background */}
       <div className="absolute top-0 left-0 right-0 h-[30vh] bg-gradient-to-b from-emerald-50/50 to-transparent pointer-events-none z-0" />
 
       <Container className="py-4 relative z-10 max-w-2xl mx-auto space-y-8">
         {/* Navigation */}
         <div className="flex items-center justify-between sticky top-4 z-50">
-          <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1); }} className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-gray-800 shadow-sm border border-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+          <motion.button type="button" aria-label="ย้อนกลับ" whileTap={{ scale: 0.9 }} onClick={() => { hapticLight(); navigate(-1); }} className="w-12 h-12 rounded-2xl bg-[var(--bg-card)] flex items-center justify-center text-gray-200 shadow-sm border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </motion.button>
           
           <div className="text-center">
-            <h1 className="text-lg font-black text-gray-900 tracking-tight leading-none drop-shadow-sm">สลากกะเพรา 52</h1>
+            <h1 className="text-lg font-black text-white tracking-tight leading-none drop-shadow-sm">สลากกะเพรา 52</h1>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">
               ลุ้นทุกวันที่ 1 และ 16 ของเดือน
             </p>
@@ -116,14 +116,14 @@ export default function LotteryPage() {
           
           {/* Hero Banner Clean */}
           <motion.div variants={slideUpItem} className="relative group">
-            <div className="bg-white rounded-[32px] p-1 border border-gray-100 shadow-sm overflow-hidden relative">
+            <div className="bg-[var(--bg-card)] rounded-[32px] p-1 border border-white/10 shadow-sm overflow-hidden relative">
               <div className="p-6 relative z-10">
                 <div className="flex items-start gap-4 mb-6">
                    <div className="w-14 h-14 rounded-[20px] bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 flex-shrink-0">
                       <Trophy className="w-6 h-6" />
                    </div>
                    <div className="pt-1">
-                      <h2 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2 line-clamp-2">
+                      <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-2 line-clamp-2">
                         ลุ้นกินฟรีทุกงวด! <span className="animate-bounce inline-block" style={{ animationDuration: '3s' }}>🤤</span>
                       </h2>
                       <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mt-2 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-lg w-fit">1 ออเดอร์ = สิทธิ์ลุ้น 1 ใบ</p>
@@ -131,7 +131,7 @@ export default function LotteryPage() {
                 </div>
 
                 {/* Countdown Timer */}
-                <div className="bg-gray-50 rounded-[24px] p-5 border border-gray-100/50">
+                <div className="bg-[var(--bg-surface)] rounded-[24px] p-5 border border-white/10/50">
                   <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center justify-center gap-2">
                     <Calendar className="w-4 h-4" /> หวยจะออกในอีก
                   </p>
@@ -142,8 +142,8 @@ export default function LotteryPage() {
                        { value: timeLeft.minutes, label: 'นาที' }
                     ].map((time, idx) => (
                       <div key={idx} className="flex-1 flex flex-col items-center">
-                        <div className="w-full h-16 bg-white rounded-[16px] shadow-sm border border-gray-100 flex items-center justify-center mb-2">
-                           <span className="text-3xl font-black text-gray-800">{String(time.value).padStart(2, '0')}</span>
+                        <div className="w-full h-16 bg-[var(--bg-card)] rounded-[16px] shadow-sm border border-white/10 flex items-center justify-center mb-2">
+                           <span className="text-3xl font-black text-gray-200">{String(time.value).padStart(2, '0')}</span>
                         </div>
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{time.label}</span>
                       </div>
@@ -158,7 +158,7 @@ export default function LotteryPage() {
           <motion.div variants={slideUpItem} className="bg-black/5 backdrop-blur-sm p-1.5 rounded-[28px] flex relative border border-white/10 shadow-inner overflow-hidden max-w-sm mx-auto">
              <motion.div 
                layoutId="active-tab"
-               className="absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white rounded-[22px] shadow-lg border border-black/5"
+               className="absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-[var(--bg-card)] rounded-[22px] shadow-lg border border-black/5"
                animate={{ x: activeTab === 'my' ? '0%' : '100%' }}
                transition={{ type: "spring", stiffness: 450, damping: 30 }}
              />
@@ -208,7 +208,7 @@ export default function LotteryPage() {
 
                           {pastTickets.length > 0 && (
                             <div className="opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-500">
-                               <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 px-2 pt-4 border-t border-gray-200/50">
+                               <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 px-2 pt-4 border-t border-white/10/50">
                                  📅 ตั๋วเก่า (ตรวจแล้ว)
                                </h3>
                                <div className="space-y-4">
@@ -220,7 +220,7 @@ export default function LotteryPage() {
                           )}
                        </div>
                      ) : (
-                       <EmptyState type="custom" icon={<div className="w-24 h-24 bg-white rounded-[32px] flex items-center justify-center shadow-xl mb-6"><Ticket className="w-10 h-10 text-emerald-500" /></div>} title="ยังไม่มีตั๋วเลย" description="สั่งอาหาร 1 ออเดอร์วันนี้ รับทันทีตั๋วหวย 1 ใบ ไว้ลุ้นเป็นผู้โชคดีกินฟรีมื้อหน้า!" actionLabel="สั่งเลย!" onAction={() => navigate('/')} />
+                       <EmptyState type="custom" icon={<div className="w-24 h-24 bg-[var(--bg-card)] rounded-[32px] flex items-center justify-center shadow-xl mb-6"><Ticket className="w-10 h-10 text-emerald-500" /></div>} title="ยังไม่มีตั๋วเลย" description="สั่งอาหาร 1 ออเดอร์วันนี้ รับทันทีตั๋วหวย 1 ใบ ไว้ลุ้นเป็นผู้โชคดีกินฟรีมื้อหน้า!" actionLabel="สั่งเลย!" onAction={() => navigate('/')} />
                      )}
                   </div>
                 )}
@@ -228,24 +228,24 @@ export default function LotteryPage() {
                 {activeTab === 'result' && (
                   <div>
                     {latestResult ? (
-                      <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-white">
+                      <div className="bg-[var(--bg-card)] rounded-[40px] shadow-2xl overflow-hidden border border-white">
                          <div className="bg-emerald-50 border border-emerald-100 p-8 relative flex flex-col items-center justify-center text-center">
                             <Trophy className="w-10 h-10 text-emerald-500 mb-3 relative z-10" />
-                            <h3 className="text-lg font-black text-gray-900 mb-1 relative z-10 tracking-tight">ผลรางวัลล่าสุด</h3>
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-gray-100 relative z-10">
+                            <h3 className="text-lg font-black text-white mb-1 relative z-10 tracking-tight">ผลรางวัลล่าสุด</h3>
+                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-[var(--bg-card)] px-3 py-1.5 rounded-lg border border-white/10 relative z-10">
                               งวด {new Date(latestResult.drawDate).toLocaleDateString('th-TH')}
                             </p>
                          </div>
                          
                          <div className="p-8 space-y-8 bg-[#FAFAF9]">
                             {/* เลขท้าย 2 ตัว */}
-                            <div className="bg-white rounded-[32px] p-8 text-center shadow-lg shadow-black/5 border border-indigo-50 relative overflow-hidden group">
+                            <div className="bg-[var(--bg-card)] rounded-[32px] p-8 text-center shadow-lg shadow-black/5 border border-indigo-50 relative overflow-hidden group">
                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 group-hover:opacity-100 opacity-0 transition-opacity" />
                                <span className="text-[11px] font-black text-emerald-600 bg-emerald-50 px-4 py-1.5 rounded-xl uppercase tracking-widest mb-6 inline-block shadow-sm">
                                   เลขท้าย 2 ตัว
                                </span>
                                <div className="flex justify-center">
-                                  <div className="w-48 h-32 bg-gradient-to-b from-white to-gray-50 rounded-[28px] shadow-inner border border-gray-100 flex items-center justify-center group-hover:-translate-y-1 transition-transform">
+                                  <div className="w-48 h-32 bg-gradient-to-b from-white to-gray-50 rounded-[28px] shadow-inner border border-white/10 flex items-center justify-center group-hover:-translate-y-1 transition-transform">
                                      <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-emerald-400 tracking-tighter">
                                         {latestResult.last2}
                                      </span>
@@ -258,7 +258,7 @@ export default function LotteryPage() {
                                <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-6 inline-block">เลขหน้า 3 ตัว</span>
                                <div className="flex justify-center gap-4">
                                  {latestResult.first3.map((num, idx) => (
-                                    <div key={idx} className="w-28 h-20 bg-white rounded-2xl flex items-center justify-center shadow-md border border-gray-100 transform hover:scale-105 transition-transform">
+                                    <div key={idx} className="w-28 h-20 bg-[var(--bg-card)] rounded-2xl flex items-center justify-center shadow-md border border-white/10 transform hover:scale-105 transition-transform">
                                        <span className="text-3xl font-black text-indigo-800 tracking-tighter">{num}</span>
                                     </div>
                                  ))}
@@ -267,7 +267,7 @@ export default function LotteryPage() {
                          </div>
                       </div>
                     ) : (
-                      <EmptyState type="custom" icon={<div className="w-24 h-24 bg-white rounded-[32px] flex items-center justify-center shadow-xl mb-6"><Trophy className="w-10 h-10 text-emerald-500" /></div>} title="รอประกาศผล" description="ยังไม่มีผลรางวัลในขณะนี้ ประกาศผลทุกวันที่ 1 และ 16 ของเดือน" />
+                      <EmptyState type="custom" icon={<div className="w-24 h-24 bg-[var(--bg-card)] rounded-[32px] flex items-center justify-center shadow-xl mb-6"><Trophy className="w-10 h-10 text-emerald-500" /></div>} title="รอประกาศผล" description="ยังไม่มีผลรางวัลในขณะนี้ ประกาศผลทุกวันที่ 1 และ 16 ของเดือน" />
                     )}
                   </div>
                 )}
@@ -294,8 +294,8 @@ function TicketCard({ ticket, latestResult }: { ticket: { id: number; number: st
 
   return (
     <div className={cn(
-       "bg-white rounded-[32px] shadow-sm overflow-hidden relative border",
-       isWinner ? "border-yellow-200 ring-4 ring-yellow-400/20" : "border-gray-100"
+       "bg-[var(--bg-card)] rounded-[32px] shadow-sm overflow-hidden relative border",
+       isWinner ? "border-yellow-200 ring-4 ring-yellow-400/20" : "border-white/10"
     )}>
        {isWinner && <div className="absolute inset-0 bg-yellow-50/50 pointer-events-none" />}
        
@@ -304,18 +304,18 @@ function TicketCard({ ticket, latestResult }: { ticket: { id: number; number: st
        <div className="absolute top-1/2 -mt-4 w-6 h-8 bg-[var(--bg-base)] rounded-l-2xl -right-1 border-l border-y border-black/5 shadow-inner z-10" />
 
        <div className="p-6">
-          <div className="flex items-center justify-between mb-6 pb-6 border-b-2 border-dashed border-gray-100">
+          <div className="flex items-center justify-between mb-6 pb-6 border-b-2 border-dashed border-white/10">
              <div className="flex items-center gap-3">
                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", isWinner ? "bg-yellow-100 text-yellow-600" : "bg-emerald-50 text-emerald-500")}>
                    <Ticket className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-black uppercase text-gray-500 tracking-widest bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                <span className="text-xs font-black uppercase text-gray-500 tracking-widest bg-[var(--bg-surface)] px-3 py-1.5 rounded-lg border border-white/10">
                   #ORD-{ticket.orderId}
                 </span>
              </div>
              {isWinner && (
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-[11px] font-black text-yellow-800 bg-yellow-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm uppercase tracking-wider relative overflow-hidden">
-                   <div className="absolute inset-0 bg-white/30 skew-x-12 translate-x-full animate-[shimmer_2s_infinite]" />
+                   <div className="absolute inset-0 bg-[var(--bg-card)]/30 skew-x-12 translate-x-full animate-[shimmer_2s_infinite]" />
                    <Sparkles className="w-3.5 h-3.5" />
                    {prize}
                 </motion.div>
@@ -328,7 +328,7 @@ function TicketCard({ ticket, latestResult }: { ticket: { id: number; number: st
                    <ScratchTicket width={280} height={90} onComplete={() => hapticHeavy()}>
                      <div className="flex items-center gap-3 w-full h-full justify-center">
                         {ticket.number.split('').map((digit, idx) => (
-                          <div key={idx} className={cn("w-12 h-16 rounded-[16px] flex items-center justify-center font-black text-3xl shadow-sm border border-black/5", isWinner ? "bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-yellow-500/40" : "bg-white text-emerald-800")}>
+                          <div key={idx} className={cn("w-12 h-16 rounded-[16px] flex items-center justify-center font-black text-3xl shadow-sm border border-black/5", isWinner ? "bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-yellow-500/40" : "bg-[var(--bg-card)] text-emerald-800")}>
                              {digit}
                           </div>
                         ))}
@@ -338,7 +338,7 @@ function TicketCard({ ticket, latestResult }: { ticket: { id: number; number: st
              ) : (
                 <div className="flex items-center gap-3">
                    {ticket.number.split('').map((digit, idx) => (
-                     <div key={idx} className={cn("w-14 h-20 rounded-[20px] flex items-center justify-center font-black text-4xl shadow-sm border border-black/5", isWinner ? "bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-yellow-500/40 transform scale-105" : "bg-gray-50 text-gray-400")}>
+                     <div key={idx} className={cn("w-14 h-20 rounded-[20px] flex items-center justify-center font-black text-4xl shadow-sm border border-black/5", isWinner ? "bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-yellow-500/40 transform scale-105" : "bg-[var(--bg-surface)] text-gray-400")}>
                         {digit}
                      </div>
                    ))}

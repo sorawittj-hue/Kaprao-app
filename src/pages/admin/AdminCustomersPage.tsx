@@ -147,7 +147,7 @@ export default function AdminCustomersPage() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">จัดการลูกค้า</h1>
+          <h1 className="text-2xl font-bold text-gray-200">จัดการลูกค้า</h1>
           <p className="text-gray-500">ระบบ CRM ดูข้อมูลและจัดการลูกค้า</p>
         </div>
         
@@ -159,7 +159,7 @@ export default function AdminCustomersPage() {
             placeholder="ค้นหาลูกค้า..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 w-full sm:w-64"
+            className="pl-10 pr-4 py-2 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 w-full sm:w-64"
           />
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function AdminCustomersPage() {
                 'px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all',
                 selectedTier === tier.value
                   ? 'bg-brand-500 text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300'
+                  : 'bg-[var(--bg-card)] border border-white/10 text-gray-600 hover:border-gray-300'
               )}
             >
               {tier.label}
@@ -226,7 +226,7 @@ export default function AdminCustomersPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-500 bg-white"
+            className="px-3 py-2 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-brand-500 bg-[var(--bg-card)]"
           >
             {sortOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -234,7 +234,7 @@ export default function AdminCustomersPage() {
           </select>
           <button
             onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-            className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50"
+            className="p-2 border border-white/10 rounded-xl hover:bg-[var(--bg-surface)]"
           >
             <ArrowUpDown className={`w-4 h-4 transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`} />
           </button>
@@ -244,7 +244,7 @@ export default function AdminCustomersPage() {
       {/* Customers Grid */}
       <motion.div variants={fadeInUp} initial="hidden" animate="visible">
         {filteredCustomers.length === 0 ? (
-          <div className="text-center py-16 text-gray-400 bg-white rounded-2xl border border-gray-100">
+          <div className="text-center py-16 text-gray-400 bg-[var(--bg-card)] rounded-2xl border border-white/10">
             <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-lg font-bold">ไม่พบลูกค้า</p>
             <p className="text-sm">ลองเปลี่ยนตัวกรองหรือค้นหาใหม่</p>
@@ -321,7 +321,7 @@ function StatCard({
           <Icon className="w-6 h-6" />
         </div>
         <p className="text-sm text-gray-500 font-medium">{label}</p>
-        <p className="text-2xl font-black text-gray-800 mt-1">{value}</p>
+        <p className="text-2xl font-black text-gray-200 mt-1">{value}</p>
       </div>
     </Card>
   )
@@ -362,7 +362,7 @@ function CustomerCard({ customer, index, onClick }: CustomerCardProps) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-gray-800 truncate text-lg">{customer.displayName}</h3>
+              <h3 className="font-bold text-gray-200 truncate text-lg">{customer.displayName}</h3>
               
               {customer.phoneNumber && (
                 <p className="text-sm text-gray-500 flex items-center gap-1">
@@ -387,14 +387,14 @@ function CustomerCard({ customer, index, onClick }: CustomerCardProps) {
           </div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/10">
             <div>
               <p className="text-xs text-gray-400">ยอดใช้จ่าย</p>
-              <p className="font-bold text-gray-800">{formatPrice(customer.totalSpent)}</p>
+              <p className="font-bold text-gray-200">{formatPrice(customer.totalSpent)}</p>
             </div>
             <div className="text-right">
               <p className="text-xs text-gray-400">ออเดอร์ล่าสุด</p>
-              <p className="font-bold text-gray-800">
+              <p className="font-bold text-gray-200">
                 {customer.lastOrderAt 
                   ? new Date(customer.lastOrderAt).toLocaleDateString('th-TH')
                   : '-'
@@ -411,7 +411,7 @@ function CustomerCard({ customer, index, onClick }: CustomerCardProps) {
 // Tier Badge Component
 function TierBadge({ tier, className = '' }: { tier: string; className?: string }) {
   const colors: Record<string, string> = {
-    MEMBER: 'bg-gray-100 text-gray-600 border-gray-200',
+    MEMBER: 'bg-gray-100 text-gray-600 border-white/10',
     SILVER: 'bg-gray-200 text-gray-700 border-gray-300',
     GOLD: 'bg-yellow-100 text-yellow-700 border-yellow-200',
     VIP: 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -440,10 +440,10 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+        className="bg-[var(--bg-card)] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
       >
         {/* Header */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-white/10">
           <div className="flex items-start gap-4">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-3xl">
               {customer.pictureUrl ? (
@@ -454,7 +454,7 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold text-gray-800">{customer.displayName}</h2>
+                <h2 className="text-2xl font-bold text-gray-200">{customer.displayName}</h2>
                 <TierBadge tier={customer.tier} />
               </div>
               <p className="text-gray-500">สมัครเมื่อ {new Date(customer.joinedAt).toLocaleDateString('th-TH')}</p>
@@ -488,7 +488,7 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
 
           {/* Contact Info */}
           <div className="mb-6">
-            <h3 className="font-bold text-gray-800 mb-3">ข้อมูลติดต่อ</h3>
+            <h3 className="font-bold text-gray-200 mb-3">ข้อมูลติดต่อ</h3>
             <div className="space-y-2">
               {customer.phoneNumber && (
                 <div className="flex items-center gap-3 text-sm">
@@ -507,7 +507,7 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
 
           {/* Tier Progress */}
           <div className="mb-6">
-            <h3 className="font-bold text-gray-800 mb-3">ระดับสมาชิก</h3>
+            <h3 className="font-bold text-gray-200 mb-3">ระดับสมาชิก</h3>
             <div className="bg-gray-100 rounded-full h-3 overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all"
@@ -521,16 +521,16 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
 
           {/* Recent Orders Preview */}
           <div>
-            <h3 className="font-bold text-gray-800 mb-3">ออเดอร์ล่าสุด</h3>
+            <h3 className="font-bold text-gray-200 mb-3">ออเดอร์ล่าสุด</h3>
             <div className="space-y-2">
               {customer.lastOrderAt ? (
-                <div className="p-3 bg-gray-50 rounded-xl flex items-center justify-between">
+                <div className="p-3 bg-[var(--bg-surface)] rounded-xl flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center">
                       <ShoppingBag className="w-5 h-5 text-brand-600" />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800">ออเดอร์ล่าสุด</p>
+                      <p className="font-bold text-gray-200">ออเดอร์ล่าสุด</p>
                       <p className="text-sm text-gray-500">
                         {new Date(customer.lastOrderAt).toLocaleDateString('th-TH')}
                       </p>
@@ -545,7 +545,7 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
         </div>
 
         {/* Actions */}
-        <div className="p-6 border-t border-gray-100 flex gap-3">
+        <div className="p-6 border-t border-white/10 flex gap-3">
           <button
             onClick={onUpdatePoints}
             className="flex-1 px-4 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2"
@@ -595,9 +595,9 @@ function PointsModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-2xl w-full max-w-md p-6"
+        className="bg-[var(--bg-card)] rounded-2xl w-full max-w-md p-6"
       >
-        <h3 className="text-xl font-bold text-gray-800 mb-2">ปรับพอยต์</h3>
+        <h3 className="text-xl font-bold text-gray-200 mb-2">ปรับพอยต์</h3>
         <p className="text-gray-500 mb-4">{customer.displayName}</p>
         
         <div className="bg-emerald-50 rounded-xl p-4 mb-4">
@@ -613,13 +613,13 @@ function PointsModal({
             type="number"
             value={pointsToAdd}
             onChange={(e) => onPointsChange(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-500"
+            className="w-full px-4 py-3 border border-white/10 rounded-xl focus:outline-none focus:border-brand-500"
             placeholder="เช่น 100 หรือ -50"
           />
         </div>
 
         {pointsToAdd && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-xl">
+          <div className="mb-4 p-3 bg-[var(--bg-surface)] rounded-xl">
             <p className="text-sm text-gray-500">พอยต์ใหม่</p>
             <p className={`text-xl font-bold ${newPoints >= customer.points ? 'text-green-600' : 'text-red-600'}`}>
               {newPoints.toLocaleString()} แต้ม
@@ -633,7 +633,7 @@ function PointsModal({
             value={reason}
             onChange={(e) => onReasonChange(e.target.value)}
             placeholder="เหตุผลในการปรับพอยต์..."
-            className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-500 resize-none"
+            className="w-full p-3 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-brand-500 resize-none"
             rows={2}
           />
         </div>
