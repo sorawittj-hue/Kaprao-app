@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Smartphone, Download, X, Share, PlusSquare, Sparkles } from 'lucide-react'
+import { Download, X, Share, PlusSquare, Sparkles } from 'lucide-react'
 import { showInstallPrompt, isPWA } from '@/lib/pwa'
 import { hapticLight, hapticHeavy } from '@/utils/haptics'
 
