@@ -23,14 +23,15 @@ export function FloatingCart() {
             onClick={() => navigate('/cart')}
             whileHover={{
               scale: 1.02,
-              boxShadow: '0 20px 50px -8px rgba(255, 107, 0, 0.6)',
+              boxShadow: '0 20px 50px rgba(255, 94, 0, 0.55)',
             }}
             whileTap={{ scale: 0.97 }}
             aria-label={`ไปที่ตะกร้า ${totalItems} รายการ ยอดรวม ${formatPriceWithoutCurrency(finalTotal)} บาท`}
-            className="relative w-full overflow-hidden rounded-2xl text-white flex justify-between items-center px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+            className="relative w-full overflow-hidden rounded-[22px] text-white flex justify-between items-center px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
             style={{
-              background: 'linear-gradient(135deg, #1C1917 0%, #292524 40%, #FF6B00 100%)',
-              boxShadow: '0 12px 35px -6px rgba(255, 107, 0, 0.45)',
+              background: 'linear-gradient(135deg, #1C1917 0%, #292524 40%, #FF5E00 100%)',
+              boxShadow: '0 12px 40px rgba(255, 94, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+              border: '1px solid rgba(255,94,0,0.3)',
             }}
           >
             {/* Animated shine */}
@@ -38,7 +39,7 @@ export function FloatingCart() {
               animate={{ x: ['-100%', '200%'] }}
               transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
               className="absolute inset-0 -skew-x-12 pointer-events-none"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)' }}
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }}
             />
 
             {/* Left: bag icon + count + total */}
@@ -48,8 +49,8 @@ export function FloatingCart() {
                 initial={{ scale: 0.5, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-                className="relative w-11 h-11 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.15)' }}
+                className="relative w-11 h-11 rounded-[14px] flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' }}
               >
                 <ShoppingBag className="w-5 h-5 text-white" />
                 <motion.span
@@ -57,35 +58,35 @@ export function FloatingCart() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', stiffness: 600, damping: 12, delay: 0.05 }}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-gray-900 shadow-lg"
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-[#1C1917]"
+                  style={{
+                    background: 'linear-gradient(135deg, #FF5E00, #FF2D00)',
+                    boxShadow: '0 2px 8px rgba(255,45,0,0.6)'
+                  }}
                 >
                   {totalItems > 99 ? '99+' : totalItems}
                 </motion.span>
               </motion.div>
 
-              <div className="flex flex-col items-start">
-                <span className="text-[11px] text-white/55 font-medium">ยอดรวม</span>
-                <motion.div
-                  key={finalTotal}
-                  initial={{ y: -8, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ type: 'spring', stiffness: 400 }}
-                  className="font-black text-lg leading-tight text-white"
-                >
-                  {formatPriceWithoutCurrency(finalTotal)} <span className="text-sm font-bold opacity-80">฿</span>
-                </motion.div>
+              <div className="text-left">
+                <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
+                  ตะกร้าของคุณ ({totalItems} รายการ)
+                </p>
+                <p className="font-black text-lg tracking-tight text-white leading-none mt-0.5">
+                  ฿{formatPriceWithoutCurrency(finalTotal)}
+                </p>
               </div>
             </div>
 
-            {/* Right: CTA */}
-            <div className="relative flex items-center gap-2">
-              <span className="font-black text-sm text-white">ชำระเงิน</span>
-              <motion.div
-                animate={{ x: [0, 4, 0] }}
-                transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+            {/* Right: Checkout CTA */}
+            <div className="relative flex items-center gap-1.5 font-black text-sm text-white">
+              <span>ไปที่ตะกร้า</span>
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)' }}
               >
-                <ArrowRight className="w-4.5 h-4.5 text-white" style={{ width: 18, height: 18 }} />
-              </motion.div>
+                <ArrowRight className="w-4 h-4 text-white" />
+              </div>
             </div>
           </motion.button>
         </motion.div>

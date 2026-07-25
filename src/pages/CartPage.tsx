@@ -231,7 +231,7 @@ export default function CartPage() {
                             </div>
                           ) : <div/>}
 
-                          <div className="flex items-center bg-[#F4F4F5] rounded-2xl p-1 border border-black/5">
+                          <div className="flex items-center bg-[var(--bg-base)] rounded-2xl p-1 border border-black/5">
                             <motion.button whileTap={{ scale: 0.8 }} onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors bg-white rounded-xl shadow-sm border border-black/5">
                               <Minus className="w-4 h-4" strokeWidth={2.5} />
                             </motion.button>
@@ -261,7 +261,7 @@ export default function CartPage() {
                  <Truck className="w-5 h-5 text-gray-800" />
                  <h2 className="font-black text-gray-800">วิธีกดรับ/จัดส่ง</h2>
              </div>
-             <div className="flex bg-[#F4F4F5] p-1.5 rounded-3xl relative">
+             <div className="flex bg-[var(--bg-base)] p-1.5 rounded-3xl relative">
                 <button
                   onClick={() => { setDeliveryMethod('workplace'); hapticLight(); }}
                   className={cn("flex-1 py-3.5 rounded-[22px] font-black text-sm flex items-center justify-center gap-2 relative z-10 transition-colors", deliveryMethod === 'workplace' ? "text-gray-900" : "text-gray-400")}

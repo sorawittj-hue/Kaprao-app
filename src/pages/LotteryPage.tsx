@@ -300,8 +300,8 @@ function TicketCard({ ticket, latestResult }: { ticket: { id: number; number: st
        {isWinner && <div className="absolute inset-0 bg-yellow-50/50 pointer-events-none" />}
        
        {/* Cutouts */}
-       <div className="absolute top-1/2 -mt-4 w-6 h-8 bg-[#F4F4F5] rounded-r-2xl -left-1 border-r border-y border-black/5 shadow-inner z-10" />
-       <div className="absolute top-1/2 -mt-4 w-6 h-8 bg-[#F4F4F5] rounded-l-2xl -right-1 border-l border-y border-black/5 shadow-inner z-10" />
+       <div className="absolute top-1/2 -mt-4 w-6 h-8 bg-[var(--bg-base)] rounded-r-2xl -left-1 border-r border-y border-black/5 shadow-inner z-10" />
+       <div className="absolute top-1/2 -mt-4 w-6 h-8 bg-[var(--bg-base)] rounded-l-2xl -right-1 border-l border-y border-black/5 shadow-inner z-10" />
 
        <div className="p-6">
           <div className="flex items-center justify-between mb-6 pb-6 border-b-2 border-dashed border-gray-100">

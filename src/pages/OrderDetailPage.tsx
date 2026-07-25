@@ -100,7 +100,7 @@ export default function OrderDetailPage() {
   const effectiveToken = trackingTokenFromUrl || order.trackingToken
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] pb-28">
+    <div className="min-h-screen bg-[var(--bg-base)] pb-28">
       {/* Immersive Header Background */}
       <div className="absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-[#FFF5F0] via-[#FAFAF9] to-[#F4F4F5] -z-10 overflow-hidden">
          <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#FF6B00]/5 rounded-full blur-3xl"></div>

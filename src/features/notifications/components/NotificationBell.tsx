@@ -19,13 +19,13 @@ const iconMap: Record<NotificationType, typeof Package> = {
 }
 
 const colorMap: Record<NotificationType, string> = {
-  order_status: 'bg-blue-100 text-blue-600',
-  payment_received: 'bg-amber-100 text-amber-600',
-  payment_verified: 'bg-green-100 text-green-600',
-  order_ready: 'bg-emerald-100 text-emerald-600',
-  promotion: 'bg-pink-100 text-pink-600',
-  reminder: 'bg-gray-100 text-gray-600',
-  system: 'bg-gray-100 text-gray-600',
+  order_status: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  payment_received: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  payment_verified: 'bg-green-500/20 text-green-400 border-green-500/30',
+  order_ready: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  promotion: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
+  reminder: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+  system: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
 }
 
 export function NotificationBell() {
@@ -40,7 +40,6 @@ export function NotificationBell() {
   const markAllAsRead = useMarkAllAsRead()
   const deleteNotification = useDeleteNotification()
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -55,12 +54,9 @@ export function NotificationBell() {
     if (!notification.is_read) {
       markAsRead.mutate(notification.id)
     }
-
-    // Navigate based on notification type
     if (notification.data?.orderId) {
       navigate(`/orders/${notification.data.orderId}`)
     }
-
     setIsOpen(false)
   }
 
@@ -68,14 +64,25 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+        aria-label="การแจ้งเตือน"
+        className="relative w-10 h-10 rounded-[16px] flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-soft)',
+          color: 'var(--text-secondary)',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+        }}
       >
-        <Bell className="w-5 h-5 text-gray-600" />
+        <Bell className="w-4.5 h-4.5" />
         {(unreadCount ?? 0) > 0 && (
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
+            className="absolute -top-1 -right-1 w-4.5 h-4.5 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-[#0D0D0F]"
+            style={{
+              background: 'linear-gradient(135deg, #FF5E00, #FF3A00)',
+              boxShadow: '0 2px 8px rgba(255,58,0,0.5)',
+            }}
           >
             {(unreadCount ?? 0) > 9 ? '9+' : unreadCount}
           </motion.span>
@@ -88,15 +95,21 @@ export function NotificationBell() {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50"
+            className="absolute right-0 top-full mt-2 w-80 rounded-[24px] overflow-hidden z-50"
+            style={{
+              background: 'rgba(20, 20, 24, 0.96)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,94,0,0.1)',
+            }}
           >
             {/* Header */}
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-gray-800">การแจ้งเตือน</h3>
+            <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+              <h3 className="font-black text-sm text-white">การแจ้งเตือน</h3>
               {(unreadCount ?? 0) > 0 && (
                 <button
                   onClick={() => markAllAsRead.mutate(user!.id)}
-                  className="text-sm text-brand-600 hover:text-brand-700"
+                  className="text-xs font-bold text-orange-400 hover:text-orange-300"
                 >
                   อ่านทั้งหมด
                 </button>
@@ -104,11 +117,11 @@ export function NotificationBell() {
             </div>
 
             {/* Notifications List */}
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-80 overflow-y-auto hide-scrollbar">
               {notifications?.length === 0 ? (
-                <div className="p-8 text-center text-gray-400">
-                  <Bell className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">ไม่มีการแจ้งเตือน</p>
+                <div className="p-8 text-center text-gray-500">
+                  <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                  <p className="text-xs font-bold">ไม่มีการแจ้งเตือน</p>
                 </div>
               ) : (
                 notifications?.map((notification) => {
@@ -119,62 +132,33 @@ export function NotificationBell() {
                       layout
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => handleNotificationClick(notification)}
                       className={cn(
-                        'p-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors group',
-                        !notification.is_read && 'bg-blue-50/30'
+                        'p-3.5 border-b border-white/5 cursor-pointer transition-colors flex items-start gap-3',
+                        !notification.is_read ? 'bg-orange-500/10' : 'hover:bg-white/5'
                       )}
                     >
-                      <div className="flex gap-3">
-                        <div className={cn(
-                          'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
-                          colorMap[notification.type]
-                        )}>
-                          <Icon className="w-5 h-5" />
-                        </div>
-                        <div
-                          className="flex-1 min-w-0"
-                          onClick={() => handleNotificationClick(notification)}
-                        >
-                          <p className={cn(
-                            'text-sm text-gray-800 line-clamp-2',
-                            !notification.is_read && 'font-medium'
-                          )}>
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {formatRelativeTime(notification.created_at)}
-                          </p>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {!notification.is_read && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                markAsRead.mutate(notification.id)
-                              }}
-                              className="p-1 hover:bg-gray-200 rounded"
-                              title="Mark as read"
-                            >
-                              <Check className="w-4 h-4 text-gray-500" />
-                            </button>
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              deleteNotification.mutate(notification.id)
-                            }}
-                            className="p-1 hover:bg-red-100 rounded"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
-                          </button>
-                        </div>
+                      <div className={cn('p-2 rounded-xl border flex-shrink-0', colorMap[notification.type])}>
+                        <Icon className="w-4 h-4" />
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white truncate">{notification.title}</p>
+                        <p className="text-[11px] text-gray-400 line-clamp-2 mt-0.5">{notification.message}</p>
+                        <p className="text-[9px] text-gray-500 font-medium mt-1">
+                          {formatRelativeTime(notification.created_at)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          deleteNotification.mutate(notification.id)
+                        }}
+                        className="text-gray-600 hover:text-gray-400 p-1"
+                        aria-label="ลบการแจ้งเตือน"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </motion.div>
                   )
                 })

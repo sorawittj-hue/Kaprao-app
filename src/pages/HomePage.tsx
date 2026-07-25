@@ -11,6 +11,7 @@ import { trackPageView } from '@/lib/analytics'
 import { useSEO } from '@/hooks/useSEO'
 import { hapticMedium, hapticHeavy } from '@/utils/haptics'
 import { cn } from '@/utils/cn'
+import { Flame } from 'lucide-react'
 
 // Import feature components
 import { HeroSlider } from '@/features/menu/components/HeroSlider'
@@ -36,13 +37,9 @@ import {
 } from '@/features/games'
 import type { MenuItem } from '@/types'
 
-// Animation Variants
 const slideUpItem = {
-  hidden: { opacity: 0, y: 24, scale: 0.97 },
-  visible: {
-    opacity: 1, y: 0, scale: 1,
-    transition: { type: 'spring', stiffness: 320, damping: 28 }
-  }
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 320, damping: 28 } }
 }
 
 export default function HomePage() {
@@ -52,7 +49,6 @@ export default function HomePage() {
   const { addItem } = useCartStore()
   const { spinsLeft } = useWheelOfFortune()
 
-  // Modal states
   const [showWheel, setShowWheel] = useState(false)
   const [showRandomizer, setShowRandomizer] = useState(false)
   const [showVoice, setShowVoice] = useState(false)
@@ -65,22 +61,26 @@ export default function HomePage() {
   }, [])
 
   useSEO({
-    title: 'สั่งกะเพรา 52',
-    description: 'กะเพรา 52 - เมนูอาหารไทยรสจัดจ้าน สั่งง่าย ส่งไว ถึงบ้านคุณ'
+    title: 'กะเพรา 52 — สั่งด่วน รสจัด',
+    description: 'กะเพรา 52 - เมนูไทยรสจัดจ้าน สั่งง่าย ส่งไว'
   })
 
   const favorites = useMenuStore(s => s.favorites)
-  const filteredItems = menuItems ? (searchQuery ? searchEngine.search(menuItems, searchQuery).map(r => r.item) : menuItems.filter((item) => {
-    if (activeCategory === 'favorites') return favorites.includes(item.id)
-    return item.category === activeCategory
-  })) : []
+  const filteredItems = menuItems
+    ? (searchQuery
+        ? searchEngine.search(menuItems, searchQuery).map(r => r.item)
+        : menuItems.filter(item => {
+            if (activeCategory === 'favorites') return favorites.includes(item.id)
+            return item.category === activeCategory
+          }))
+    : []
 
   const handleWheelWin = (code: string, value: number) => useCartStore.getState().applyCoupon(code, value)
   const handleRandomizerSelect = (item: MenuItem) => setSelectedItem(item)
-  
+
   const handleVoiceSelect = (item: MenuItem, options: { egg?: string; spicy?: string }) => {
     const selectedOptions = []
-    if (options.egg) selectedOptions.push({ optionId: `egg-${options.egg}`, name: options.egg, price: options.egg === 'ไข่ดาว' ? 10 : options.egg === 'ไข่เจียว' ? 15 : 0 })
+    if (options.egg) selectedOptions.push({ optionId: `egg-${options.egg}`, name: options.egg, price: options.egg === 'ไข่ดาว' ? 10 : 15 })
     if (options.spicy) selectedOptions.push({ optionId: `spicy-${options.spicy}`, name: `ความเผ็ด: ${options.spicy}`, price: 0 })
     addItem(item, 1, selectedOptions)
   }
@@ -95,77 +95,104 @@ export default function HomePage() {
   const scrambledTitle = useTextScramble('KAPRAO', true)
 
   return (
-    <div className="min-h-screen pb-32" style={{ background: 'var(--page-bg)' }}>
+    <div className="min-h-screen pb-32 relative" style={{ background: 'var(--bg-base)' }}>
 
-      {/* Premium ambient orbs */}
-      <div className="fixed top-0 inset-x-0 pointer-events-none z-0 overflow-hidden" style={{ height: '50vh' }}>
+      {/* === AMBIENT GLOW ORBS === */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div
-          className="absolute -top-20 -right-20 w-[380px] h-[380px] rounded-full opacity-20 blur-[80px]"
-          style={{ background: 'radial-gradient(circle, #FF7A00 0%, #FF5E00 40%, transparent 70%)' }}
+          className="absolute -top-32 -right-24 w-[420px] h-[420px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255,94,0,0.22) 0%, rgba(255,58,0,0.08) 40%, transparent 70%)',
+            filter: 'blur(60px)',
+            animation: 'glowPulse 5s ease-in-out infinite'
+          }}
         />
         <div
-          className="absolute -top-10 -left-16 w-[280px] h-[280px] rounded-full opacity-10 blur-[60px]"
-          style={{ background: 'radial-gradient(circle, #FFB347 0%, transparent 70%)' }}
+          className="absolute top-1/3 -left-24 w-[280px] h-[280px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255,140,66,0.12) 0%, transparent 70%)',
+            filter: 'blur(50px)',
+            animation: 'glowPulse 7s ease-in-out infinite 2s'
+          }}
+        />
+        <div
+          className="absolute bottom-1/4 right-0 w-[200px] h-[200px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255,94,0,0.08) 0%, transparent 70%)',
+            filter: 'blur(40px)',
+          }}
         />
       </div>
 
-      {/* PREMIUM Sticky Header */}
+      {/* === PREMIUM STICKY HEADER === */}
       <header className="sticky top-0 z-[60] safe-area-pt">
         <div
           className="absolute inset-0"
           style={{
-            background: 'rgba(253, 248, 244, 0.82)',
-            backdropFilter: 'blur(32px) saturate(220%)',
-            WebkitBackdropFilter: 'blur(32px) saturate(220%)',
-            borderBottom: '1px solid rgba(255, 120, 30, 0.08)',
-            boxShadow: '0 1px 0 rgba(255,120,30,0.06), 0 8px 32px -8px rgba(0,0,0,0.06)'
+            background: 'rgba(13,13,15,0.88)',
+            backdropFilter: 'blur(40px) saturate(200%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            boxShadow: '0 1px 0 rgba(255,94,0,0.08), 0 8px 32px rgba(0,0,0,0.5)'
           }}
         />
         <Container size="full" className="py-3 relative z-10">
           <div className="flex items-center justify-between">
+            {/* Logo + Title */}
             <div className="flex items-center gap-3">
-              <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }} onClick={() => hapticMedium()} className="relative cursor-pointer group">
-                {/* Logo glow */}
+              <motion.div
+                whileHover={{ scale: 1.06, rotate: -3 }}
+                whileTap={{ scale: 0.93 }}
+                onClick={() => hapticMedium()}
+                className="relative cursor-pointer"
+              >
+                {/* Glow ring */}
                 <div
-                  className="absolute inset-0 rounded-[18px] blur-md opacity-0 group-hover:opacity-60 transition-opacity"
-                  style={{ background: 'linear-gradient(135deg, #FF5E00, #FF8C42)' }}
-                />
-                <div
-                  className="relative w-[48px] h-[48px] rounded-[18px] flex items-center justify-center"
+                  className="absolute inset-0 rounded-[18px] opacity-60"
                   style={{
-                    background: 'linear-gradient(145deg, #FF6B14 0%, #E84400 60%, #C73800 100%)',
-                    boxShadow: '0 8px 20px -5px rgba(255, 80, 0, 0.5), 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.2)'
+                    background: 'linear-gradient(135deg, #FF5E00, #FF3A00)',
+                    filter: 'blur(10px)',
+                    transform: 'scale(1.15)',
+                  }}
+                />
+                {/* Logo box */}
+                <div
+                  className="relative w-[48px] h-[48px] rounded-[18px] flex items-center justify-center noise-overlay overflow-hidden"
+                  style={{
+                    background: 'linear-gradient(145deg, #FF6B14 0%, #E84400 55%, #C03200 100%)',
+                    boxShadow: '0 8px 24px rgba(255,58,0,0.5), inset 0 1px 1px rgba(255,255,255,0.25)',
+                    border: '1px solid rgba(255,150,80,0.3)'
                   }}
                 >
-                  <span className="text-white font-black text-[24px] tracking-tighter" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>K</span>
+                  <span
+                    className="text-white font-black text-[24px] tracking-tighter relative z-10"
+                    style={{ textShadow: '0 2px 6px rgba(0,0,0,0.3)' }}
+                  >
+                    K
+                  </span>
                 </div>
+                {/* Online dot */}
                 <div
-                  className="absolute -bottom-1.5 -right-1.5 w-[22px] h-[22px] rounded-full flex items-center justify-center border-2 border-white"
-                  style={{ background: 'linear-gradient(135deg, #22C55E, #16A34A)', boxShadow: '0 2px 8px rgba(34,197,94,0.4)' }}
-                >
-                  <span className="text-[10px]">🌶️</span>
-                </div>
+                  className="absolute -bottom-1 -right-1 w-[14px] h-[14px] rounded-full border-2 flex items-center justify-center"
+                  style={{
+                    borderColor: 'var(--bg-base)',
+                    background: 'linear-gradient(135deg, #22C55E, #16A34A)',
+                    boxShadow: '0 0 8px rgba(34,197,94,0.6)'
+                  }}
+                />
               </motion.div>
 
               <div className="flex flex-col gap-0.5">
-                <h1 className="font-black text-[18px] tracking-tight leading-none flex items-center gap-0.5">
-                  <span
-                    className="bg-clip-text text-transparent"
-                    style={{ backgroundImage: 'linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%)' }}
-                  >
-                    {scrambledTitle}
-                  </span>
-                  <span
-                    className="bg-clip-text text-transparent ml-0.5"
-                    style={{ backgroundImage: 'linear-gradient(135deg, #FF5E00, #FF9500)' }}
-                  >
-                    52
-                  </span>
+                <h1 className="font-black text-[19px] tracking-tight leading-none flex items-center gap-1">
+                  <span className="text-gradient-fire">{scrambledTitle}</span>
+                  <span style={{ color: 'var(--text-primary)' }}>52</span>
+                  <Flame className="w-4 h-4 ml-0.5" style={{ color: '#FF5E00' }} />
                 </h1>
                 <GreetingPill displayName={user?.displayName} isGuest={isGuest} />
               </div>
             </div>
 
+            {/* Right actions */}
             <div className="flex items-center gap-2">
               <SearchBar />
               {(!isGuest && user) && <NotificationBell />}
@@ -174,49 +201,55 @@ export default function HomePage() {
         </Container>
       </header>
 
-      {/* Guest Banner */}
+      {/* === GUEST BANNER === */}
       <AnimatePresence>
         {isGuest && (
           <Container className="relative z-10 pt-4">
-            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12, height: 0 }}
+            >
               <div
-                className="rounded-[22px] p-4 relative overflow-hidden"
+                className="rounded-[20px] p-4 relative overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,247,237,0.95) 100%)',
-                  border: '1px solid rgba(255, 120, 30, 0.12)',
-                  boxShadow: '0 4px 24px -6px rgba(255,94,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)'
+                  background: 'linear-gradient(135deg, rgba(255,94,0,0.12) 0%, rgba(255,58,0,0.06) 100%)',
+                  border: '1px solid rgba(255,94,0,0.2)',
+                  boxShadow: '0 4px 20px rgba(255,94,0,0.1)'
                 }}
               >
-                {/* Decorative stripe */}
+                {/* Left accent */}
                 <div
-                  className="absolute left-0 top-0 bottom-0 w-1 rounded-l-[22px]"
-                  style={{ background: 'linear-gradient(180deg, #FF5E00, #FF9500)' }}
+                  className="absolute left-0 top-0 bottom-0 w-1 rounded-l-[20px]"
+                  style={{ background: 'linear-gradient(180deg, #FF5E00, #FF3A00)' }}
                 />
-                <div className="flex items-center justify-between pl-2">
+                <div className="flex items-center justify-between pl-3">
                   <div className="flex-1">
-                    <p className="font-black text-gray-900 text-[14px] leading-tight mb-1 flex items-center gap-1.5">
-                      <span>🎁</span>
-                      เข้าสู่ระบบเพื่อรับสิทธิพิเศษ
+                    <p
+                      className="font-black text-[14px] mb-1"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      🎁 เข้าสู่ระบบเพื่อรับสิทธิพิเศษ
                     </p>
-                    <p className="text-gray-500 text-[10px] font-bold uppercase tracking-wider">
+                    <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                       รับพอยต์ทุกออเดอร์ • ลุ้นกินฟรีทุกงวด
                     </p>
                   </div>
                   <motion.button
                     type="button"
                     aria-label="เข้าสู่ระบบด้วย LINE"
+                    whileTap={{ scale: 0.92 }}
                     onClick={async () => {
                       hapticHeavy()
                       try {
                         const { loginWithLine } = await import('@/lib/auth')
                         await loginWithLine()
-                      } catch (e) { console.error('Login failed', e) }
+                      } catch (e) { console.error(e) }
                     }}
-                    whileTap={{ scale: 0.93 }}
-                    className="flex-shrink-0 text-white font-black text-xs px-5 py-2.5 rounded-full flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00B900] focus-visible:ring-offset-2"
+                    className="flex-shrink-0 text-white font-black text-[12px] px-5 py-2.5 rounded-full"
                     style={{
-                      background: 'linear-gradient(135deg, #00C900, #00A800)',
-                      boxShadow: '0 6px 18px -4px rgba(0,185,0,0.45)'
+                      background: 'linear-gradient(135deg, #00C21A, #009A15)',
+                      boxShadow: '0 6px 20px rgba(0,194,26,0.4)'
                     }}
                   >
                     LINE Login
@@ -228,19 +261,21 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
+      {/* === SHOP CLOSED === */}
       <Container size="full" className="py-2 relative z-10">
         <ShopClosedBanner />
       </Container>
 
+      {/* === MAIN CONTENT === */}
       <Container size="full" className="relative z-10">
         <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-7">
 
-          {/* Hero Slider */}
-          <motion.div variants={slideUpItem} className={cn("", isGuest ? "" : "pt-4")}>
+          {/* Hero */}
+          <motion.div variants={slideUpItem} className={cn(isGuest ? '' : 'pt-4')}>
             <HeroSlider />
           </motion.div>
 
-          {/* Bento Feature Grid */}
+          {/* Bento Features */}
           <motion.div variants={slideUpItem}>
             <BentoGridShowcase
               spinsLeft={spinsLeft}
@@ -251,12 +286,12 @@ export default function HomePage() {
             />
           </motion.div>
 
-          {/* Stats Row */}
+          {/* Stats */}
           <motion.div variants={slideUpItem}>
             <StatsRow />
           </motion.div>
 
-          {/* AI Magic */}
+          {/* AI */}
           {user && (
             <motion.div variants={slideUpItem}>
               <AIRecommendations />
@@ -268,28 +303,28 @@ export default function HomePage() {
             <RecommendedSection />
           </motion.div>
 
-          {/* Menu Section Header */}
+          {/* Menu section */}
           <motion.div variants={slideUpItem} className="pt-1">
             <div className="flex items-end justify-between mb-4 px-1">
               <div>
-                <p className="section-label mb-1.5">Our Menu</p>
+                <p className="section-label mb-1">OUR MENU</p>
                 <h2 className="section-title">เมนูความอร่อย</h2>
               </div>
-              <div
-                className="text-xs font-black px-3 py-1.5 rounded-full"
+              <span
+                className="text-[11px] font-black px-3 py-1.5 rounded-full"
                 style={{
-                  background: 'rgba(255, 94, 0, 0.08)',
-                  color: '#FF5E00',
-                  border: '1px solid rgba(255,94,0,0.12)'
+                  background: 'var(--brand-bg)',
+                  color: 'var(--brand)',
+                  border: '1px solid var(--brand-border)'
                 }}
               >
                 {filteredItems?.length || 0} เมนู
-              </div>
+              </span>
             </div>
             <CategoryTabs />
           </motion.div>
 
-          {/* Menu Grid */}
+          {/* Grid */}
           <motion.div variants={slideUpItem} className="min-h-[400px]">
             {isLoading ? <MenuGridSkeleton count={6} /> : <MenuGrid items={filteredItems || []} />}
           </motion.div>
@@ -300,14 +335,14 @@ export default function HomePage() {
               <div
                 className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255,94,0,0.08), rgba(255,150,50,0.06))',
-                  border: '1px solid rgba(255,94,0,0.1)'
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-subtle)'
                 }}
               >
                 👨‍🍳
               </div>
               <div>
-                <h3 className="font-black text-gray-800 tracking-tight">ทำด้วยความตั้งใจ</h3>
+                <h3 className="font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>ทำด้วยความตั้งใจ</h3>
                 <p className="section-label mt-1">KAPRAO52 EST. 2024</p>
               </div>
             </div>
@@ -328,47 +363,30 @@ export default function HomePage() {
   )
 }
 
-function GreetingPill({ displayName, isGuest }: { displayName?: string, isGuest?: boolean }) {
+function GreetingPill({ displayName, isGuest }: { displayName?: string; isGuest?: boolean }) {
   const [greeting, setGreeting] = useState('สวัสดี')
   const [icon, setIcon] = useState('👋')
-  const [style, setStyle] = useState({
-    bg: 'rgba(243, 244, 246, 0.7)',
-    border: 'rgba(229, 231, 235, 0.6)',
-    text: '#6B7280'
-  })
 
   useEffect(() => {
-    const hour = new Date().getHours()
-    if (hour >= 5 && hour < 11) {
-      setGreeting('อรุณสวัสดิ์'); setIcon('☀️')
-      setStyle({ bg: 'rgba(254, 243, 199, 0.7)', border: 'rgba(253, 211, 77, 0.4)', text: '#B45309' })
-    } else if (hour >= 11 && hour < 14) {
-      setGreeting('สวัสดีตอนเที่ยง'); setIcon('🍽️')
-      setStyle({ bg: 'rgba(255, 237, 213, 0.7)', border: 'rgba(253, 186, 116, 0.4)', text: '#C2410C' })
-    } else if (hour >= 14 && hour < 17) {
-      setGreeting('สวัสดีตอนบ่าย'); setIcon('☕')
-      setStyle({ bg: 'rgba(219, 234, 254, 0.7)', border: 'rgba(147, 197, 253, 0.4)', text: '#1D4ED8' })
-    } else if (hour >= 17 && hour < 21) {
-      setGreeting('สวัสดีตอนเย็น'); setIcon('🌅')
-      setStyle({ bg: 'rgba(255, 237, 213, 0.7)', border: 'rgba(253, 186, 116, 0.4)', text: '#C2410C' })
-    } else {
-      setGreeting('ราตรีสวัสดิ์'); setIcon('🌙')
-      setStyle({ bg: 'rgba(224, 231, 255, 0.7)', border: 'rgba(165, 180, 252, 0.4)', text: '#4338CA' })
-    }
+    const h = new Date().getHours()
+    if (h >= 5 && h < 11)       { setGreeting('อรุณสวัสดิ์'); setIcon('☀️') }
+    else if (h >= 11 && h < 14) { setGreeting('เที่ยงแล้ว'); setIcon('🍽️') }
+    else if (h >= 14 && h < 17) { setGreeting('บ่ายสวัสดิ์'); setIcon('☕') }
+    else if (h >= 17 && h < 21) { setGreeting('เย็นนี้กินอะไร?'); setIcon('🌅') }
+    else                        { setGreeting('ราตรีสวัสดิ์'); setIcon('🌙') }
   }, [])
 
   return (
     <div
-      className="inline-flex items-center gap-1.5 px-2.5 py-[3px] rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300"
+      className="inline-flex items-center gap-1.5 px-2.5 py-[3px] rounded-full text-[9px] font-black uppercase tracking-wider"
       style={{
-        background: style.bg,
-        color: style.text,
-        border: `1px solid ${style.border}`,
-        backdropFilter: 'blur(8px)'
+        background: 'rgba(255,255,255,0.05)',
+        color: 'var(--text-muted)',
+        border: '1px solid rgba(255,255,255,0.08)',
       }}
     >
       <span className="text-[11px]">{icon}</span>
-      <span className="opacity-90">{greeting}, {isGuest ? 'GUEST' : displayName}</span>
+      <span>{greeting}, {isGuest ? 'GUEST' : displayName}</span>
     </div>
   )
 }

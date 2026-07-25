@@ -34,16 +34,17 @@ export function SearchBar() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.9 }}
             onClick={toggleSearch}
             aria-label="เปิดช่องค้นหาเมนู"
             aria-expanded={isSearchOpen}
-            className="w-10 h-10 rounded-2xl flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="w-10 h-10 rounded-[16px] flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
             style={{
-              background: 'white',
-              boxShadow: '0 2px 10px -2px rgba(0,0,0,0.1)',
-              border: '1px solid rgba(0,0,0,0.05)',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-soft)',
+              color: 'var(--text-secondary)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
             }}
           >
             <Search aria-hidden="true" style={{ width: 18, height: 18 }} />
@@ -52,7 +53,7 @@ export function SearchBar() {
           <motion.div
             key="search-input"
             initial={{ width: 44, opacity: 0 }}
-            animate={{ width: 210, opacity: 1 }}
+            animate={{ width: 220, opacity: 1 }}
             exit={{ width: 44, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             className="relative"
@@ -68,19 +69,20 @@ export function SearchBar() {
               onKeyDown={(e) => { if (e.key === 'Escape') handleClose() }}
               placeholder="ค้นหาเมนู..."
               aria-label="ค้นหาเมนู"
-              className="w-full pl-9 pr-9 py-2.5 rounded-2xl text-sm font-medium text-gray-800 placeholder:text-gray-400 focus:outline-none"
+              className="w-full pl-9 pr-9 py-2.5 rounded-[16px] text-sm font-medium focus:outline-none"
               style={{
-                background: 'white',
-                border: `2px solid ${query ? '#FF6B00' : 'rgba(0,0,0,0.08)'}`,
+                background: 'var(--bg-surface)',
+                color: 'var(--text-primary)',
+                border: `1.5px solid ${query ? '#FF5E00' : 'var(--border-soft)'}`,
                 boxShadow: query
-                  ? '0 0 0 3px rgba(255, 107, 0, 0.12)'
-                  : '0 2px 10px -2px rgba(0,0,0,0.08)',
+                  ? '0 0 16px rgba(255, 94, 0, 0.25)'
+                  : '0 4px 14px rgba(0,0,0,0.5)',
                 transition: 'border-color 0.2s, box-shadow 0.2s',
               }}
             />
             <Search
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4"
-              style={{ color: query ? '#FF6B00' : '#9CA3AF' }}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+              style={{ color: query ? '#FF5E00' : 'var(--text-muted)' }}
             />
             {query && (
               <motion.button
@@ -90,7 +92,8 @@ export function SearchBar() {
                 exit={{ scale: 0 }}
                 onClick={() => handleSearch('')}
                 aria-label="ล้างคำค้นหา"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-300 transition-colors"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
+                style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--text-secondary)' }}
               >
                 <X className="w-3 h-3" aria-hidden="true" />
               </motion.button>
@@ -102,7 +105,7 @@ export function SearchBar() {
                 aria-label="ปิดช่องค้นหา"
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center"
               >
-                <X className="w-4 h-4 text-gray-400" aria-hidden="true" />
+                <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} aria-hidden="true" />
               </button>
             )}
           </motion.div>

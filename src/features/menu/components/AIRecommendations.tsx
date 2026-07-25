@@ -13,37 +13,26 @@ export function AIRecommendations() {
   const { data: menuItems } = useMenuItems()
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>([])
   const [isVisible, setIsVisible] = useState(true)
-  const [, setIsLoading] = useState(true)
 
   useEffect(() => {
     if (!user || !menuItems) return
 
     const loadRecommendations = async () => {
-      setIsLoading(true)
       try {
-        // Get recommendations from AI service
         await recommendationEngine.initialize()
-        const AI_recs = await recommendationEngine.getRecommendations(
-          user,
-          [],
-          menuItems,
-          3
-        )
-
+        const AI_recs = await recommendationEngine.getRecommendations(user, [], menuItems, 3)
         const mappedRecs = AI_recs.map(r => ({
           menuItem: r.item,
           reason: r.reasons[0] || 'เมนูแนะนำสำหรับคุณ',
           confidence: r.confidence,
           basedOn: []
         }))
-
         setRecommendations(mappedRecs)
-      } finally {
-        setIsLoading(false)
+      } catch (e) {
+        console.error(e)
       }
     }
 
-    // Delay showing recommendations
     const timer = setTimeout(loadRecommendations, 1500)
     return () => clearTimeout(timer)
   }, [user, menuItems, viewedItemIds])
@@ -53,46 +42,63 @@ export function AIRecommendations() {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 50 }}
-        className="bg-gradient-to-r from-indigo-500 via-emerald-500 to-pink-500 rounded-2xl p-4 text-white"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 16 }}
+        className="relative overflow-hidden rounded-[24px] p-4 text-white"
+        style={{
+          background: 'linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(168,85,247,0.12) 50%, rgba(236,72,153,0.18) 100%)',
+          border: '1px solid rgba(168,85,247,0.25)',
+          boxShadow: '0 8px 32px rgba(168,85,247,0.15)',
+        }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            <h3 className="font-bold">แนะนำสำหรับคุณ</h3>
-          </div>
-          <button
-            onClick={() => setIsVisible(false)}
-            className="p-1 hover:bg-white/20 rounded-full transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+        {/* Glow */}
+        <div
+          className="absolute -right-10 -top-10 w-32 h-32 rounded-full blur-2xl pointer-events-none"
+          style={{ background: 'rgba(168,85,247,0.25)' }}
+        />
 
-        <div className="space-y-3">
-          {recommendations.map((rec, index) => (
-            <motion.div
-              key={rec.menuItem.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex gap-3"
-            >
-              <img
-                src={getValidImageUrl(rec.menuItem.imageUrl)}
-                alt={rec.menuItem.name}
-                className="w-16 h-16 rounded-lg object-cover"
-              />
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-sm truncate">{rec.menuItem.name}</h4>
-                <p className="text-xs text-white/80 line-clamp-2 mt-1">
-                  {rec.reason}
-                </p>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 rounded-[10px] flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, #8B5CF6, #EC4899)', boxShadow: '0 4px 12px rgba(139,92,246,0.4)' }}
+              >
+                <Sparkles className="w-4 h-4 text-white" />
               </div>
-            </motion.div>
-          ))}
+              <h3 className="font-black text-sm text-white">AI แนะนำสำหรับคุณ</h3>
+            </div>
+            <button
+              onClick={() => setIsVisible(false)}
+              className="text-gray-400 hover:text-white p-1"
+              aria-label="ปิดคำแนะนำ AI"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2.5">
+            {recommendations.map((rec) => (
+              <div
+                key={rec.menuItem.id}
+                className="rounded-[16px] p-2.5 text-center flex flex-col items-center justify-between"
+                style={{
+                  background: 'rgba(0,0,0,0.35)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(8px)',
+                }}
+              >
+                <img
+                  src={getValidImageUrl(rec.menuItem.imageUrl)}
+                  alt={rec.menuItem.name}
+                  className="w-12 h-12 rounded-[12px] object-cover mb-1.5 border border-white/10"
+                />
+                <p className="font-black text-[11px] text-white line-clamp-1 w-full">{rec.menuItem.name}</p>
+                <p className="text-[9px] text-purple-300 font-medium line-clamp-1 mt-0.5">{rec.reason}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>

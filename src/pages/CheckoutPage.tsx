@@ -379,7 +379,7 @@ export default function CheckoutPage() {
                 <h2 className="font-black text-gray-800">วิธีรับอาหาร</h2>
              </div>
              <div className="p-4 space-y-4">
-                <div className="flex bg-[#F4F4F5] p-1.5 rounded-[24px] relative">
+                <div className="flex bg-[var(--bg-base)] p-1.5 rounded-[24px] relative">
                    <button onClick={() => { hapticMedium(); setDeliveryMethod('workplace') }} className={cn("flex-1 h-14 rounded-[20px] font-black text-sm relative z-10 transition-colors duration-300 flex items-center justify-center gap-2", deliveryMethod === 'workplace' ? "text-gray-900" : "text-gray-400")}>
                       <MapPin className="w-5 h-5"/> ที่ทำงาน
                    </button>

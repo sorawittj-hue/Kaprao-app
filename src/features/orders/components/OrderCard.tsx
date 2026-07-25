@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion'
-import { Clock, MapPin, Receipt, Star, ExternalLink } from 'lucide-react'
+import { Clock, MapPin, Star, ExternalLink } from 'lucide-react'
 import type { Order } from '@/types'
 import { formatPrice } from '@/utils/formatPrice'
 import { formatOrderDate } from '@/utils/formatDate'
-import { cn } from '@/utils/cn'
 
 interface OrderCardProps {
   order: Order
@@ -11,13 +10,13 @@ interface OrderCardProps {
 }
 
 const statusConfig: Record<string, { label: string, badgeBg: string, badgeText: string, dotBg: string, icon: string, border: string }> = {
-  pending: { label: 'รอดำเนินการ', badgeBg: 'bg-yellow-500/10', badgeText: 'text-yellow-600', dotBg: 'bg-yellow-600', icon: '⏳', border: 'border-yellow-200' },
-  placed: { label: 'สั่งอาหารแล้ว', badgeBg: 'bg-blue-500/10', badgeText: 'text-blue-600', dotBg: 'bg-blue-600', icon: '📝', border: 'border-blue-200' },
-  confirmed: { label: 'ยืนยันออเดอร์', badgeBg: 'bg-indigo-500/10', badgeText: 'text-indigo-600', dotBg: 'bg-indigo-600', icon: '✅', border: 'border-indigo-200' },
-  preparing: { label: 'กำลังทำอาหาร', badgeBg: 'bg-orange-500/10', badgeText: 'text-orange-600', dotBg: 'bg-orange-600', icon: '👨‍🍳', border: 'border-orange-200' },
-  ready: { label: 'พร้อมรับ', badgeBg: 'bg-green-500/10', badgeText: 'text-green-600', dotBg: 'bg-green-600', icon: '🛎️', border: 'border-green-200' },
-  delivered: { label: 'เสร็จสิ้น', badgeBg: 'bg-gray-500/10', badgeText: 'text-gray-600', dotBg: 'bg-gray-600', icon: '✨', border: 'border-gray-200' },
-  cancelled: { label: 'ยกเลิก', badgeBg: 'bg-red-500/10', badgeText: 'text-red-600', dotBg: 'bg-red-600', icon: '❌', border: 'border-red-200' },
+  pending:   { label: 'รอดำเนินการ', badgeBg: 'rgba(234,179,8,0.12)', badgeText: '#FACC15', dotBg: '#FACC15', icon: '⏳', border: 'rgba(234,179,8,0.25)' },
+  placed:    { label: 'สั่งอาหารแล้ว', badgeBg: 'rgba(59,130,246,0.12)', badgeText: '#60A5FA', dotBg: '#60A5FA', icon: '📝', border: 'rgba(59,130,246,0.25)' },
+  confirmed: { label: 'ยืนยันออเดอร์', badgeBg: 'rgba(99,102,241,0.12)', badgeText: '#818CF8', dotBg: '#818CF8', icon: '✅', border: 'rgba(99,102,241,0.25)' },
+  preparing: { label: 'กำลังทำอาหาร', badgeBg: 'rgba(255,94,0,0.15)', badgeText: '#FF8C42', dotBg: '#FF5E00', icon: '👨‍🍳', border: 'rgba(255,94,0,0.3)' },
+  ready:     { label: 'พร้อมรับ', badgeBg: 'rgba(34,197,94,0.12)', badgeText: '#4ADE80', dotBg: '#4ADE80', icon: '🛎️', border: 'rgba(34,197,94,0.25)' },
+  delivered: { label: 'เสร็จสิ้น', badgeBg: 'rgba(255,255,255,0.06)', badgeText: '#A3A3A8', dotBg: '#A3A3A8', icon: '✨', border: 'rgba(255,255,255,0.08)' },
+  cancelled: { label: 'ยกเลิก', badgeBg: 'rgba(239,68,68,0.12)', badgeText: '#F87171', dotBg: '#F87171', icon: '❌', border: 'rgba(239,68,68,0.25)' },
 }
 
 export function OrderCard({ order, onClick }: OrderCardProps) {
@@ -35,89 +34,92 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
       whileHover={{ scale: 1.015, translateY: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={cn(
-        "relative bg-white rounded-3xl p-5 cursor-pointer overflow-hidden group transition-all duration-300",
-        "border-2",
-        status.border,
-        "hover:shadow-xl hover:shadow-black/5"
-      )}
+      className="relative rounded-[22px] p-5 cursor-pointer overflow-hidden group transition-all duration-300 select-none"
+      style={{
+        background: 'var(--bg-card)',
+        border: `1px solid ${status.border}`,
+        boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
+      }}
     >
-      {/* Decorative gradient blur in background */}
-      <div className="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full blur-3xl opacity-50 pointer-events-none transition-opacity group-hover:opacity-100" />
+      {/* Background glow */}
+      <div
+        className="absolute -right-8 -top-8 w-32 h-32 rounded-full blur-3xl opacity-30 pointer-events-none group-hover:opacity-60 transition-opacity"
+        style={{ background: status.badgeText }}
+      />
 
       {/* Header: Status and ID */}
       <div className="flex items-start justify-between mb-4 relative z-10">
-        <div className={cn(
-          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white shadow-sm",
-          status.badgeBg
-        )}>
+        <div
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[12px]"
+          style={{
+            background: status.badgeBg,
+            border: `1px solid ${status.border}`,
+            color: status.badgeText
+          }}
+        >
           {isLive ? (
             <span className="relative flex w-2 h-2" aria-hidden="true">
               <span className="absolute inset-0 rounded-full bg-current opacity-60 animate-ping" />
-              <span className={cn("relative inline-flex w-2 h-2 rounded-full", status.dotBg)} />
+              <span className="relative inline-flex w-2 h-2 rounded-full" style={{ background: status.dotBg }} />
             </span>
           ) : (
             <span className="text-sm drop-shadow-sm">{status.icon}</span>
           )}
-          <span className={cn("text-xs font-bold tracking-wide", status.badgeText)}>
-            {status.label}
+          <span className="font-black text-xs tracking-tight">{status.label}</span>
+        </div>
+
+        <div className="text-right flex flex-col items-end">
+          <span className="font-mono text-xs font-black" style={{ color: 'var(--text-muted)' }}>
+            #{order.id.toString().slice(-6)}
+          </span>
+          <span className="text-[10px] font-bold flex items-center gap-1 mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            <Clock className="w-3 h-3" />
+            {formatOrderDate(order.createdAt)}
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="space-y-2 relative z-10">
+        <div className="flex items-baseline justify-between">
+          <h3 className="font-black text-base line-clamp-1" style={{ color: 'var(--text-primary)' }}>
+            {firstItem}
+            {otherItemsCount > 0 && (
+              <span className="text-xs font-medium ml-1.5" style={{ color: 'var(--text-muted)' }}>
+                +{otherItemsCount} รายการ
+              </span>
+            )}
+          </h3>
+          <span className="font-black text-base text-gradient-fire flex-shrink-0 ml-2">
+            {formatPrice(order.totalPrice)}
           </span>
         </div>
 
-        <div className="flex flex-col items-end">
-          <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">Order ID</p>
-          <p className="font-black text-gray-800 text-sm">#{order.id}</p>
-        </div>
-      </div>
-
-      {/* Main Content: Items & Meta */}
-      <div className="relative z-10 mb-5">
-        <h3 className="font-black text-gray-800 text-lg leading-tight mb-2 pr-4">
-          <span className="text-xl mr-2">🍛</span>
-          {firstItem}
-          {otherItemsCount > 0 && (
-            <span className="text-gray-400 text-sm ml-2 font-bold">
-              และอีก {otherItemsCount} เมนู
+        {order.deliveryMethod && (
+          <div className="flex items-center gap-1 text-[11px] font-medium" style={{ color: 'var(--text-secondary)' }}>
+            <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brand)' }} />
+            <span className="line-clamp-1">
+              {order.deliveryMethod === 'workplace' ? `จัดส่งที่ทำงาน: ${order.address || ''}` : `จัดส่งที่บ้าน: ${order.address || ''}`}
             </span>
-          )}
-        </h3>
-
-        <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 font-medium mt-3">
-          <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-lg">
-            <Clock className="w-3.5 h-3.5 text-gray-400" />
-            {formatOrderDate(order.createdAt)}
-          </div>
-          <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-lg">
-            <Receipt className="w-3.5 h-3.5 text-gray-400" />
-            {itemCount} รายการ
-          </div>
-          {order.deliveryMethod && (
-            <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-lg">
-              <MapPin className="w-3.5 h-3.5 text-gray-400" />
-              {order.deliveryMethod === 'village' ? 'ส่งในหมู่บ้าน' : 'ส่งที่ทำงาน'}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer: Price and Action */}
-      <div className="flex items-end justify-between pt-4 border-t border-gray-100 relative z-10">
-        <div>
-          <p className="text-[10px] font-black tracking-wider text-gray-400 uppercase mb-0.5">ยอดสุทธิ</p>
-          <p className="font-black text-2xl" style={{ color: '#FF6B00' }}>
-            {formatPrice(order.totalPrice)}
-          </p>
-        </div>
-
-        {order.pointsEarned > 0 && (
-          <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-lg text-[10px] font-bold">
-            <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-            +{order.pointsEarned} pts
           </div>
         )}
+      </div>
 
-        <div className="w-10 h-10 rounded-full bg-gray-50 group-hover:bg-brand-50 flex items-center justify-center transition-colors">
-          <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-brand-500 transition-colors" />
+      {/* Footer / Tracking CTA */}
+      <div
+        className="mt-4 pt-3 flex items-center justify-between text-xs font-bold relative z-10"
+        style={{ borderTop: '1px solid var(--border-subtle)' }}
+      >
+        {order.pointsEarned ? (
+          <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-400">
+            <Star className="w-3 h-3 fill-amber-400" />
+            +{order.pointsEarned} พอยต์
+          </span>
+        ) : <div />}
+
+        <div className="flex items-center gap-1 text-xs font-black text-gradient-fire group-hover:translate-x-1 transition-transform">
+          <span>ดูรายละเอียด</span>
+          <ExternalLink className="w-3.5 h-3.5" style={{ color: 'var(--brand)' }} />
         </div>
       </div>
     </motion.div>
