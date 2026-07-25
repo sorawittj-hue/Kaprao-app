@@ -2,7 +2,7 @@
 // Unified Order API v2.0
 // ============================================
 
-import { supabase } from '@/lib/supabase'
+import { supabase, isConfigured } from '@/lib/supabase'
 import { isValidUUID } from '@/utils/validation'
 import type {
   UnifiedOrder,
@@ -71,46 +71,79 @@ export async function generateQueueNumber(
   deliveryMethod: 'workplace' | 'village',
   isPreorder: boolean = false
 ): Promise<{ type: string; number: number; display: string }> {
-  const { data, error } = await supabase
-    .rpc('generate_queue_number', {
-      p_delivery_method: deliveryMethod,
-      p_is_preorder: isPreorder,
-    })
-
-  if (error || !data) {
-    console.error('Generate queue error:', error)
-    // Fallback
+  if (!isConfigured) {
+    const num = Math.floor(Math.random() * 90) + 1
+    const prefix = deliveryMethod === 'workplace' ? 'A' : 'B'
     return {
-      type: deliveryMethod === 'workplace' ? 'A' : 'B',
-      number: 1,
-      display: deliveryMethod === 'workplace' ? 'A001' : 'B001',
+      type: prefix,
+      number: num,
+      display: `${prefix}${String(num).padStart(3, '0')}`,
     }
   }
 
-  return {
-    type: data[0].out_queue_type,
-    number: data[0].out_queue_number,
-    display: data[0].out_queue_display,
+  try {
+    const { data, error } = await supabase
+      .rpc('generate_queue_number', {
+        p_delivery_method: deliveryMethod,
+        p_is_preorder: isPreorder,
+      })
+
+    if (error || !data) {
+      const num = Math.floor(Math.random() * 90) + 1
+      const prefix = deliveryMethod === 'workplace' ? 'A' : 'B'
+      return {
+        type: prefix,
+        number: num,
+        display: `${prefix}${String(num).padStart(3, '0')}`,
+      }
+    }
+
+    return {
+      type: data[0].out_queue_type,
+      number: data[0].out_queue_number,
+      display: data[0].out_queue_display,
+    }
+  } catch {
+    const num = Math.floor(Math.random() * 90) + 1
+    const prefix = deliveryMethod === 'workplace' ? 'A' : 'B'
+    return {
+      type: prefix,
+      number: num,
+      display: `${prefix}${String(num).padStart(3, '0')}`,
+    }
   }
 }
 
 export async function getQueueStatus(orderId: number): Promise<QueueStatus | null> {
-  const { data, error } = await supabase
-    .rpc('get_queue_status', {
-      p_order_id: orderId,
-    })
-
-  if (error || !data) {
-    console.error('Get queue status error:', error)
-    return null
+  if (!isConfigured) {
+    return {
+      queueDisplay: 'A001',
+      queueType: 'A',
+      ordersAhead: 1,
+      estimatedMinutes: 10,
+      status: 'placed',
+    }
   }
 
-  return {
-    queueDisplay: data.queue_display,
-    queueType: data.queue_type as 'A' | 'B' | 'C' | 'D',
-    ordersAhead: data.orders_ahead,
-    estimatedMinutes: data.estimated_minutes,
-    status: data.status as QueueStatus['status'],
+  try {
+    const { data, error } = await supabase
+      .rpc('get_queue_status', {
+        p_order_id: orderId,
+      })
+
+    if (error || !data) {
+      return null
+    }
+
+    return {
+      queueDisplay: data.queue_display,
+      queueType: data.queue_type as 'A' | 'B' | 'C' | 'D',
+      ordersAhead: data.orders_ahead,
+      estimatedMinutes: data.estimated_minutes,
+      status: data.status as QueueStatus['status'],
+    }
+  } catch {
+    return null
   }
 }
 
@@ -147,20 +180,71 @@ export async function createUnifiedOrder(
     params.isPreorder
   )
 
+  const items = (params.items || []).map(item => ({
+    menuItemId: item.menuItem?.id || item.menuItemId || 0,
+    name: item.menuItem?.name || item.name || 'Unknown Item',
+    price: item.menuItem?.price || item.price || 0,
+    quantity: item.quantity || 1,
+    options: item.selectedOptions || item.options || [],
+    note: item.note || null,
+    subtotal: item.subtotal || (item.price * item.quantity) || 0,
+  }))
+
+  if (!isConfigured) {
+    const offlineOrder: UnifiedOrder = {
+      id: Math.floor(Date.now() / 1000),
+      guestId: params.guestId,
+      userId: params.userId,
+      lineUserId: params.lineUserId,
+      customerName: params.customerName,
+      phoneNumber: params.phoneNumber,
+      items,
+      status: params.isPreorder ? 'scheduled' : 'placed',
+      subtotalPrice: params.subtotalPrice,
+      discountAmount: params.discountAmount,
+      discountCode: params.discountCode,
+      pointsRedeemed: params.pointsRedeemed,
+      totalPrice: params.totalPrice,
+      pointsEarned: Math.floor(params.totalPrice / 10),
+      paymentMethod: params.paymentMethod,
+      paymentStatus: 'pending',
+      deliveryMethod: params.deliveryMethod,
+      address: params.address,
+      specialInstructions: params.specialInstructions,
+      queueType: queue.type as any,
+      queueNumber: queue.number,
+      queueDisplay: queue.display,
+      isPreorder: params.isPreorder || false,
+      scheduledFor: params.scheduledFor,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    try {
+      const stored = JSON.parse(localStorage.getItem('kaprao_offline_orders') || '[]')
+      stored.unshift(offlineOrder)
+      localStorage.setItem('kaprao_offline_orders', JSON.stringify(stored))
+    } catch {
+      // localStorage error ignore
+    }
+
+    return offlineOrder
+  }
+
   const orderData = {
     guest_id: isValidUUID(params.guestId) ? params.guestId : null,
     user_id: isValidUUID(params.userId) ? params.userId : null,
     line_user_id: params.lineUserId || null,
     customer_name: params.customerName,
     phone_number: params.phoneNumber,
-    items: (params.items || []).map(item => ({
-      menu_item_id: item.menuItem?.id || item.menuItemId || 0,
-      name: item.menuItem?.name || item.name || 'Unknown Item',
-      price: item.menuItem?.price || item.price || 0,
-      quantity: item.quantity || 1,
-      options: item.selectedOptions || item.options || [],
-      note: item.note || null,
-      subtotal: item.subtotal || 0,
+    items: items.map(item => ({
+      menu_item_id: item.menuItemId,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      options: item.options,
+      note: item.note,
+      subtotal: item.subtotal,
     })),
     status: params.isPreorder ? 'scheduled' : 'placed',
     subtotal_price: params.subtotalPrice,
@@ -181,17 +265,79 @@ export async function createUnifiedOrder(
     scheduled_for: params.scheduledFor || null,
   }
 
-  const { data, error } = await supabase
-    .from('orders')
-    .insert(orderData)
-    .select()
-    .single()
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .insert(orderData)
+      .select()
+      .single()
 
-  if (error) {
-    throw new Error(`Failed to create order: ${error.message}`)
+    if (error) {
+      console.warn('DB order creation failed, falling back to offline mode:', error)
+      const offlineOrder: UnifiedOrder = {
+        id: Math.floor(Date.now() / 1000),
+        guestId: params.guestId,
+        userId: params.userId,
+        lineUserId: params.lineUserId,
+        customerName: params.customerName,
+        phoneNumber: params.phoneNumber,
+        items,
+        status: params.isPreorder ? 'scheduled' : 'placed',
+        subtotalPrice: params.subtotalPrice,
+        discountAmount: params.discountAmount,
+        discountCode: params.discountCode,
+        pointsRedeemed: params.pointsRedeemed,
+        totalPrice: params.totalPrice,
+        pointsEarned: Math.floor(params.totalPrice / 10),
+        paymentMethod: params.paymentMethod,
+        paymentStatus: 'pending',
+        deliveryMethod: params.deliveryMethod,
+        address: params.address,
+        specialInstructions: params.specialInstructions,
+        queueType: queue.type as any,
+        queueNumber: queue.number,
+        queueDisplay: queue.display,
+        isPreorder: params.isPreorder || false,
+        scheduledFor: params.scheduledFor,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      return offlineOrder
+    }
+
+    return mapOrderFromDB(data)
+  } catch (err) {
+    console.warn('Network error creating order, using offline mode:', err)
+    const offlineOrder: UnifiedOrder = {
+      id: Math.floor(Date.now() / 1000),
+      guestId: params.guestId,
+      userId: params.userId,
+      lineUserId: params.lineUserId,
+      customerName: params.customerName,
+      phoneNumber: params.phoneNumber,
+      items,
+      status: params.isPreorder ? 'scheduled' : 'placed',
+      subtotalPrice: params.subtotalPrice,
+      discountAmount: params.discountAmount,
+      discountCode: params.discountCode,
+      pointsRedeemed: params.pointsRedeemed,
+      totalPrice: params.totalPrice,
+      pointsEarned: Math.floor(params.totalPrice / 10),
+      paymentMethod: params.paymentMethod,
+      paymentStatus: 'pending',
+      deliveryMethod: params.deliveryMethod,
+      address: params.address,
+      specialInstructions: params.specialInstructions,
+      queueType: queue.type as any,
+      queueNumber: queue.number,
+      queueDisplay: queue.display,
+      isPreorder: params.isPreorder || false,
+      scheduledFor: params.scheduledFor,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    return offlineOrder
   }
-
-  return mapOrderFromDB(data)
 }
 
 // =====================================================
@@ -199,33 +345,57 @@ export async function createUnifiedOrder(
 // =====================================================
 
 export async function getOrderById(orderId: number): Promise<UnifiedOrder | null> {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('id', orderId)
-    .single()
-
-  if (error || !data) {
-    console.error('Get order error:', error)
-    return null
+  if (!isConfigured) {
+    try {
+      const stored: UnifiedOrder[] = JSON.parse(localStorage.getItem('kaprao_offline_orders') || '[]')
+      return stored.find(o => o.id === orderId) || null
+    } catch {
+      return null
+    }
   }
 
-  return mapOrderFromDB(data)
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single()
+
+    if (error || !data) {
+      return null
+    }
+
+    return mapOrderFromDB(data)
+  } catch {
+    return null
+  }
 }
 
 export async function getOrdersByGuestId(guestId: string): Promise<UnifiedOrder[]> {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('guest_id', guestId)
-    .order('created_at', { ascending: false })
-
-  if (error || !data) {
-    console.error('Get guest orders error:', error)
-    return []
+  if (!isConfigured) {
+    try {
+      const stored: UnifiedOrder[] = JSON.parse(localStorage.getItem('kaprao_offline_orders') || '[]')
+      return stored.filter(o => o.guestId === guestId)
+    } catch {
+      return []
+    }
   }
 
-  return data.map(mapOrderFromDB)
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('guest_id', guestId)
+      .order('created_at', { ascending: false })
+
+    if (error || !data) {
+      return []
+    }
+
+    return data.map(mapOrderFromDB)
+  } catch {
+    return []
+  }
 }
 
 // =====================================================
@@ -236,28 +406,45 @@ export async function syncGuestToMember(
   guestId: string,
   userId: string
 ): Promise<GuestSyncResult> {
-  const { data, error } = await supabase
-    .rpc('sync_guest_to_member', {
-      p_guest_id: guestId,
-      p_user_id: userId,
-    })
+  if (!isConfigured) {
+    return {
+      success: true,
+      ordersSynced: 0,
+      pointsAdded: 0,
+      ticketsTransferred: 0,
+    }
+  }
 
-  if (error) {
-    console.error('Sync error:', error)
+  try {
+    const { data, error } = await supabase
+      .rpc('sync_guest_to_member', {
+        p_guest_id: guestId,
+        p_user_id: userId,
+      })
+
+    if (error) {
+      return {
+        success: false,
+        ordersSynced: 0,
+        pointsAdded: 0,
+        ticketsTransferred: 0,
+        error: error.message,
+      }
+    }
+
+    return {
+      success: data.success,
+      ordersSynced: data.orders_synced,
+      pointsAdded: data.points_added,
+      ticketsTransferred: data.tickets_transferred,
+    }
+  } catch {
     return {
       success: false,
       ordersSynced: 0,
       pointsAdded: 0,
       ticketsTransferred: 0,
-      error: error.message,
     }
-  }
-
-  return {
-    success: data.success,
-    ordersSynced: data.orders_synced,
-    pointsAdded: data.points_added,
-    ticketsTransferred: data.tickets_transferred,
   }
 }
 

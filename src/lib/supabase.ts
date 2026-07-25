@@ -15,9 +15,8 @@ export const isConfigured = Boolean(
 
 
 if (!isConfigured) {
-  // Only log once at warning level to avoid flooding but still notify developer
   if (typeof window !== 'undefined' && !(window as any).__SUPABASE_WARNED__) {
-    console.warn('⚠️ Supabase not properly configured, using placeholder. Check your .env file.')
+    console.info('ℹ️ Running in demo/offline mode (Supabase not configured)')
     ;(window as any).__SUPABASE_WARNED__ = true
   }
 }

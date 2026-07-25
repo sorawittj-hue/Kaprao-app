@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore, useUIStore } from '@/store'
 import { initLiff, getLineProfile, isLiffLoggedIn } from '@/lib/liff'
-import { supabase } from '@/lib/supabase'
+import { supabase, isConfigured } from '@/lib/supabase'
 import type { User } from '@/types'
 
 interface AuthProviderProps {
@@ -611,15 +611,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         // 3 & 4. Initialize Supabase and LIFF in parallel for performance
-        console.log('🔍 Initializing auth systems in parallel...')
+        console.log('🔍 Initializing auth systems...')
         const [supabaseResult, liffInitialized] = await Promise.all([
-          supabase.auth.getSession(),
+          isConfigured ? supabase.auth.getSession() : Promise.resolve({ data: { session: null }, error: null }),
           initLiff()
         ])
 
-        const { data: { session } } = supabaseResult
+        const session = supabaseResult?.data?.session
 
-        if (session?.user) {
+        if (isConfigured && session?.user) {
           console.log('✅ Active Supabase session found')
           await handleUserSession(session.user)
           setLoading(false)

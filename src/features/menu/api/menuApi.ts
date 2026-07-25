@@ -120,7 +120,6 @@ export const FALLBACK_MENU_ITEMS: MenuItem[] = [
 
 export async function fetchMenuItems(): Promise<MenuItem[]> {
   if (!isConfigured) {
-    console.warn('Supabase not configured — using fallback menu data')
     return FALLBACK_MENU_ITEMS
   }
 

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, isConfigured } from '@/lib/supabase'
 import type { 
   Coupon, 
   CouponUsage, 
@@ -17,39 +17,140 @@ type SupabaseWithRPC = typeof supabase & {
 export async function validateCoupon(
   code: string, 
   orderTotal: number, 
-  menuItemIds: number[]
+  _menuItemIds: number[]
 ): Promise<ValidationResult> {
-  const { data, error } = await (supabase as SupabaseWithRPC)
-    .rpc('validate_and_apply_coupon', {
-      p_coupon_code: code.toUpperCase().trim(),
-      p_user_id: (await supabase.auth.getUser()).data.user?.id,
-      p_order_total: orderTotal,
-      p_menu_item_ids: menuItemIds,
-    })
+  const cleanCode = code.toUpperCase().trim()
 
-  if (error) {
-    console.error('Error validating coupon:', error)
-    return { valid: false, message: 'ไม่สามารถตรวจสอบคูปองได้' }
+  if (!isConfigured) {
+    if (cleanCode === 'KAPRAO10' || cleanCode === 'WELCOME10') {
+      return {
+        valid: true,
+        coupon: {
+          id: 991,
+          code: cleanCode,
+          name: 'ส่วนลดต้อนรับ 10 บาท',
+          discountType: 'fixed',
+          discountValue: 10,
+          minOrderAmount: 50,
+          usageCount: 1,
+          perUserLimit: 1,
+          startsAt: new Date().toISOString(),
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        discountAmount: 10,
+        message: 'ใช้คูปองส่วนลด 10 บาท สำเร็จ!',
+      }
+    }
+    if (cleanCode === 'KAPRAO20' || cleanCode === 'SUPER20') {
+      return {
+        valid: true,
+        coupon: {
+          id: 992,
+          code: cleanCode,
+          name: 'ส่วนลดพิเศษ 20 บาท',
+          discountType: 'fixed',
+          discountValue: 20,
+          minOrderAmount: 100,
+          usageCount: 1,
+          perUserLimit: 1,
+          startsAt: new Date().toISOString(),
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        discountAmount: 20,
+        message: 'ใช้คูปองส่วนลด 20 บาท สำเร็จ!',
+      }
+    }
+    return { valid: false, message: 'ไม่พบรหัสคูปองนี้ หรือรหัสคูปองหมดอายุ' }
   }
 
-  return data as ValidationResult
+  try {
+    const { data, error } = await (supabase as SupabaseWithRPC)
+      .rpc('validate_and_apply_coupon', {
+        p_coupon_code: cleanCode,
+        p_user_id: (await supabase.auth.getUser()).data.user?.id,
+        p_order_total: orderTotal,
+        p_menu_item_ids: _menuItemIds,
+      })
+
+    if (error) {
+      return { valid: false, message: 'ไม่สามารถตรวจสอบคูปองได้' }
+    }
+
+    return data as ValidationResult
+  } catch {
+    return { valid: false, message: 'ไม่สามารถตรวจสอบคูปองได้' }
+  }
 }
 
 export async function getAvailableCoupons(): Promise<Coupon[]> {
-  const { data, error } = await supabase
-    .from('coupons')
-    .select('*')
-    .eq('is_active', true)
-    .lte('starts_at', new Date().toISOString())
-    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('Error fetching available coupons:', error)
-    return []
+  if (!isConfigured) {
+    return [
+      {
+        id: 991,
+        code: 'KAPRAO10',
+        name: 'ส่วนลดต้อนรับ 10 บาท',
+        description: 'ส่วนลด 10 บาท เมื่อสั่งขั้นต่ำ 50 บาท',
+        discountType: 'fixed',
+        discountValue: 10,
+        minOrderAmount: 50,
+        maxDiscount: null,
+        usageLimit: 100,
+        usageCount: 5,
+        perUserLimit: 1,
+        applicableItems: null,
+        excludedItems: null,
+        startsAt: new Date().toISOString(),
+        expiresAt: null,
+        isActive: true,
+        createdBy: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 992,
+        code: 'KAPRAO20',
+        name: 'ส่วนลดพิเศษ 20 บาท',
+        description: 'ส่วนลด 20 บาท เมื่อสั่งขั้นต่ำ 100 บาท',
+        discountType: 'fixed',
+        discountValue: 20,
+        minOrderAmount: 100,
+        maxDiscount: null,
+        usageLimit: 100,
+        usageCount: 12,
+        perUserLimit: 1,
+        applicableItems: null,
+        excludedItems: null,
+        startsAt: new Date().toISOString(),
+        expiresAt: null,
+        isActive: true,
+        createdBy: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ]
   }
 
-  return (data || []).map(mapCoupon)
+  try {
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('*')
+      .eq('is_active', true)
+      .lte('starts_at', new Date().toISOString())
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      return []
+    }
+
+    return (data || []).map(mapCoupon)
+  } catch {
+    return []
+  }
 }
 
 export async function getUserCouponHistory(): Promise<CouponUsage[]> {

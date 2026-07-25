@@ -1,23 +1,38 @@
 import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@/lib/supabase'
+import { supabase, isConfigured } from '@/lib/supabase'
 import type { GlobalOption } from '@/types'
 
 /**
  * Fetch global stock options
  */
 export async function fetchGlobalOptions(): Promise<GlobalOption[]> {
-    const { data, error } = await (supabase as unknown as { from: (table: string) => { select: (columns: string) => Promise<{ data: unknown; error: Error | null }> }})
-        .from('global_options')
-        .select('*') as { data: Array<{ id: string; name: string; is_available: boolean; updated_at: string }> | null; error: Error | null }
+    if (!isConfigured) {
+        return [
+            { id: 'moo_krob', name: 'หมูกรอบ', isAvailable: true, updatedAt: new Date().toISOString() },
+            { id: 'moo_sap', name: 'หมูสับ', isAvailable: true, updatedAt: new Date().toISOString() },
+            { id: 'kung', name: 'กุ้ง', isAvailable: true, updatedAt: new Date().toISOString() },
+            { id: 'kai_dao', name: 'ไข่ดาว', isAvailable: true, updatedAt: new Date().toISOString() },
+            { id: 'kai_jiao', name: 'ไข่เจียว', isAvailable: true, updatedAt: new Date().toISOString() },
+            { id: 'kai_yiao_ma', name: 'ไข่เยี่ยวม้า', isAvailable: true, updatedAt: new Date().toISOString() },
+        ]
+    }
 
-    if (error) throw error
+    try {
+        const { data, error } = await (supabase as unknown as { from: (table: string) => { select: (columns: string) => Promise<{ data: unknown; error: Error | null }> }})
+            .from('global_options')
+            .select('*') as { data: Array<{ id: string; name: string; is_available: boolean; updated_at: string }> | null; error: Error | null }
 
-    return (data || []).map((item) => ({
-        id: item.id,
-        name: item.name,
-        isAvailable: item.is_available,
-        updatedAt: item.updated_at,
-    }))
+        if (error) return []
+
+        return (data || []).map((item) => ({
+            id: item.id,
+            name: item.name,
+            isAvailable: item.is_available,
+            updatedAt: item.updated_at,
+        }))
+    } catch {
+        return []
+    }
 }
 
 /**
