@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { CartDrawer } from '@/features/cart/components/CartDrawer'
 import { GlobalLoadingBar } from '@/components/ui/GlobalLoadingBar'
+import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner'
 
 export function RootLayout() {
   return (
@@ -24,6 +25,9 @@ export function RootLayout() {
       <main id="main-content" className="pb-24 safe-area-x" tabIndex={-1}>
         <Outlet />
       </main>
+
+      {/* PWA Install Banner */}
+      <PWAInstallBanner />
 
       {/* Cart Drawer */}
       <CartDrawer />
