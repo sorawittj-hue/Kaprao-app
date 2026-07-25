@@ -4,68 +4,41 @@ import { useAuthStore } from '@/store'
 
 // ─── Login with LINE ──────────────────────────────────────────────────────────
 export async function loginWithLine(): Promise<void> {
-  const liffId = import.meta.env.VITE_LIFF_ID
-  const isLiffConfigured = liffId && liffId !== 'your-liff-id'
+  const { initLiff, isLiffInitialized } = await import('./liff')
 
-  if (!isLiffConfigured) {
-    console.info('ℹ️ LIFF ID not configured — activating Demo Member Mode')
-    const demoUser = {
-      id: 'demo-user-52',
-      displayName: 'สมาชิกกะเพรา52 (Demo)',
-      pictureUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      points: 150,
-      totalOrders: 5,
-      tier: 'GOLD' as const,
-      isAdmin: true,
-      lineUserId: 'U_demo_kaprao52',
-    }
-    useAuthStore.getState().setUser(demoUser)
-    useAuthStore.getState().setAdmin(true)
-    return
+  let initialized = isLiffInitialized()
+  if (!initialized) {
+    initialized = await initLiff()
   }
 
-  try {
-    const { initLiff, isLiffInitialized } = await import('./liff')
-
-    if (!isLiffInitialized()) {
-      const initialized = await initLiff()
-      if (!initialized) {
-        console.warn('⚠️ LIFF init failed — falling back to Demo Member Mode')
-        const demoUser = {
-          id: 'demo-user-52',
-          displayName: 'สมาชิกกะเพรา52 (Demo)',
-          pictureUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-          points: 150,
-          totalOrders: 5,
-          tier: 'GOLD' as const,
-          isAdmin: true,
-          lineUserId: 'U_demo_kaprao52',
+  if (!initialized) {
+    // If VITE_LIFF_ID is missing from build, check or prompt for custom LIFF ID
+    const savedLiffId = localStorage.getItem('kaprao_liff_id')
+    if (!savedLiffId) {
+      const userLiffId = window.prompt(
+        'กรุณากรอก LIFF ID จาก LINE Developers Console เพื่อทำการเข้าสู่ระบบด้วย LINE (เช่น 200xxxxxxx-xxxxxxx):'
+      )
+      if (userLiffId && userLiffId.trim()) {
+        localStorage.setItem('kaprao_liff_id', userLiffId.trim())
+        const newlyInit = await initLiff()
+        if (!newlyInit) {
+          throw new Error('LIFF ID ที่ระบุไม่ถูกต้อง หรือ domain นี้ไม่ได้ถูกใส่ใน LINE Developer Console Endpoint URL')
         }
-        useAuthStore.getState().setUser(demoUser)
-        useAuthStore.getState().setAdmin(true)
-        return
+      } else {
+        throw new Error('จำเป็นต้องมี LIFF ID ในการเข้าสู่ระบบด้วย LINE')
       }
+    } else {
+      throw new Error('ไม่สามารถเริ่มต้นระบบ LINE LIFF ได้ กรุณาเช็ค LIFF ID หรือ Callback Domain ใน LINE Developer Console')
     }
+  }
 
-    const liff = (await import('@line/liff')).default
+  const liff = (await import('@line/liff')).default
 
-    if (!liff.isLoggedIn()) {
-      liff.login({ redirectUri: window.location.href })
-    }
-  } catch (error) {
-    console.warn('⚠️ LINE Login error, activating Demo Member Mode:', error)
-    const demoUser = {
-      id: 'demo-user-52',
-      displayName: 'สมาชิกกะเพรา52 (Demo)',
-      pictureUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      points: 150,
-      totalOrders: 5,
-      tier: 'GOLD' as const,
-      isAdmin: true,
-      lineUserId: 'U_demo_kaprao52',
-    }
-    useAuthStore.getState().setUser(demoUser)
-    useAuthStore.getState().setAdmin(true)
+  if (!liff.isLoggedIn()) {
+    console.log('🔄 Redirecting to official LINE Login screen...')
+    liff.login({ redirectUri: window.location.href })
+  } else {
+    console.log('✅ Already logged in with LINE')
   }
 }
 

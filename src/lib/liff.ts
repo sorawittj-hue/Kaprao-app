@@ -20,18 +20,20 @@ export async function initLiff(): Promise<boolean> {
     return initPromise
   }
 
+  const activeLiffId = import.meta.env.VITE_LIFF_ID || (typeof localStorage !== 'undefined' ? localStorage.getItem('kaprao_liff_id') : null)
+
   // Check if LIFF ID is configured
-  if (!liffId || liffId === 'your-liff-id') {
-    console.log('⚠️ LIFF not configured (missing VITE_LIFF_ID)')
+  if (!activeLiffId || activeLiffId === 'your-liff-id') {
+    console.log('⚠️ LIFF not configured (missing VITE_LIFF_ID or kaprao_liff_id)')
     return false
   }
 
   // Create initialization promise
-  initPromise = initializeLiffInternal()
+  initPromise = initializeLiffInternal(activeLiffId)
   return initPromise
 }
 
-async function initializeLiffInternal(): Promise<boolean> {
+async function initializeLiffInternal(liffId: string): Promise<boolean> {
   try {
     // Dynamic import to avoid SSR issues
     const liffModule = await import('@line/liff')
@@ -39,7 +41,7 @@ async function initializeLiffInternal(): Promise<boolean> {
 
     await liffInstance.init({ liffId })
     isInitialized = true
-    console.log('✅ LIFF initialized successfully')
+    console.log('✅ LIFF initialized successfully with ID:', liffId)
     return true
   } catch (error) {
     console.warn('⚠️ LIFF initialization failed:', error)

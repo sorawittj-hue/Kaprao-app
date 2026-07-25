@@ -391,19 +391,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const handleLineLogin = useCallback(async () => {
     try {
       setLoading(true)
-      console.log('🔐 Starting LINE login...')
+      console.log('🔐 Starting REAL LINE login via LIFF...')
 
       const { loginWithLine } = await import('@/lib/auth')
       await loginWithLine()
-      setShowWelcome(false)
     } catch (error) {
-      console.warn('⚠️ LINE login error, fallback to Demo Member:', error)
+      console.error('❌ LINE login error:', error)
+      setLoading(false)
       useUIStore.getState().addToast({
-        type: 'info',
-        title: 'เข้าสู่ระบบในโหมด Demo 🎉',
-        message: 'ต้อนรับสมาชิก Kaprao52',
+        type: 'error',
+        title: 'เข้าสู่ระบบด้วย LINE ไม่สำเร็จ',
+        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
+        duration: 7000,
       })
-      setShowWelcome(false)
     } finally {
       setLoading(false)
     }
