@@ -5,8 +5,6 @@ let liffInstance: Liff | null = null
 let initPromise: Promise<boolean> | null = null
 let isInitialized = false
 
-const liffId = import.meta.env.VITE_LIFF_ID
-
 export async function initLiff(): Promise<boolean> {
   // Prevent duplicate initialization attempts
   if (isInitialized) {
