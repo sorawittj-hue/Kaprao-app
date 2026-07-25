@@ -49,6 +49,7 @@ npm-debug.log*
 .qoder/
 .roo/
 .trae/
+.kilo/
 .windsurf/
 *audit*.txt
 tsc_output_debug.txt

@@ -712,24 +712,200 @@ ON CONFLICT (id) DO NOTHING;
 
 
 -- ============================================================
--- SECTION 16 : GRANT สิทธิ์พื้นฐาน
+-- SECTION 16 : GUEST IDENTITIES & LOTTO TICKETS v2.0
+-- ============================================================
+
+-- Columns ที่อาจขาดใน orders
+ALTER TABLE public.orders
+    ADD COLUMN IF NOT EXISTS guest_id         UUID,
+    ADD COLUMN IF NOT EXISTS queue_type       TEXT,
+    ADD COLUMN IF NOT EXISTS queue_number     INT,
+    ADD COLUMN IF NOT EXISTS queue_display    TEXT,
+    ADD COLUMN IF NOT EXISTS estimated_minutes INT,
+    ADD COLUMN IF NOT EXISTS scheduled_for    TIMESTAMPTZ,
+    ADD COLUMN IF NOT EXISTS is_preorder     BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS guest_synced    BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS guest_synced_at TIMESTAMPTZ,
+    ADD COLUMN IF NOT EXISTS tracking_token   TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_orders_guest_id ON public.orders(guest_id) WHERE guest_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_orders_queue    ON public.orders(queue_type, queue_number) WHERE queue_type IS NOT NULL;
+
+-- Table: guest_identities
+CREATE TABLE IF NOT EXISTS public.guest_identities (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    fingerprint    TEXT UNIQUE,
+    display_name   TEXT NOT NULL DEFAULT 'Guest',
+    metadata       JSONB DEFAULT '{}',
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_active_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_guest_identities_fingerprint ON public.guest_identities(fingerprint) WHERE fingerprint IS NOT NULL;
+
+-- Table: lotto_tickets
+CREATE TABLE IF NOT EXISTS public.lotto_tickets (
+    id                BIGSERIAL PRIMARY KEY,
+    order_id          BIGINT REFERENCES public.orders(id) ON DELETE CASCADE,
+    user_id           UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    guest_id          UUID REFERENCES public.guest_identities(id) ON DELETE CASCADE,
+    number            TEXT NOT NULL,
+    number_type       TEXT DEFAULT 'auto',
+    source            TEXT DEFAULT 'order_free',
+    purchase_price    INT DEFAULT 0,
+    draw_date         DATE NOT NULL,
+    status            TEXT DEFAULT 'active',
+    prize_type        TEXT,
+    prize_amount      INT DEFAULT 0,
+    prize_claimed     BOOLEAN DEFAULT FALSE,
+    prize_claimed_at  TIMESTAMPTZ,
+    notification_sent BOOLEAN DEFAULT FALSE,
+    created_at        TIMESTAMPTZ DEFAULT NOW(),
+    updated_at        TIMESTAMPTZ DEFAULT NOW(),
+    
+    CONSTRAINT valid_number CHECK (char_length(number) BETWEEN 2 AND 6),
+    CONSTRAINT valid_number_type CHECK (number_type IN ('auto', 'manual', 'vip')),
+    CONSTRAINT valid_source CHECK (source IN ('order_free', 'points_purchase', 'bonus', 'streak', 'vip_monthly'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_lotto_tickets_user  ON public.lotto_tickets(user_id) WHERE user_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_lotto_tickets_guest ON public.lotto_tickets(guest_id) WHERE guest_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_lotto_tickets_draw  ON public.lotto_tickets(draw_date);
+CREATE INDEX IF NOT EXISTS idx_lotto_tickets_order ON public.lotto_tickets(order_id);
+
+-- RPC 1: generate_queue_number
+CREATE OR REPLACE FUNCTION generate_queue_number(
+    p_delivery_method TEXT,
+    p_is_preorder BOOLEAN DEFAULT FALSE
+)
+RETURNS TABLE (out_queue_type TEXT, out_queue_number INT, out_queue_display TEXT) AS $$
+DECLARE
+    v_prefix TEXT;
+    v_next_number INT;
+BEGIN
+    IF p_is_preorder THEN
+        v_prefix := 'D';
+    ELSIF p_delivery_method = 'workplace' THEN
+        v_prefix := 'A';
+    ELSIF p_delivery_method = 'village' THEN
+        v_prefix := 'B';
+    ELSE
+        v_prefix := 'C';
+    END IF;
+    
+    SELECT COALESCE(MAX(queue_number), 0) + 1 INTO v_next_number
+    FROM orders
+    WHERE queue_type = v_prefix
+      AND DATE(created_at) = CURRENT_DATE;
+    
+    RETURN QUERY SELECT v_prefix, v_next_number, v_prefix || LPAD(v_next_number::TEXT, 3, '0');
+END;
+$$ LANGUAGE plpgsql;
+
+-- RPC 2: get_queue_status
+CREATE OR REPLACE FUNCTION get_queue_status(p_order_id BIGINT)
+RETURNS JSON AS $$
+DECLARE
+    v_order RECORD;
+    v_orders_ahead INT;
+    v_estimated_minutes INT;
+BEGIN
+    SELECT * INTO v_order FROM orders WHERE id = p_order_id;
+    IF NOT FOUND THEN
+        RETURN json_build_object('error', 'Order not found');
+    END IF;
+    
+    SELECT COUNT(*) INTO v_orders_ahead
+    FROM orders
+    WHERE queue_type = v_order.queue_type
+      AND queue_number < v_order.queue_number
+      AND DATE(created_at) = DATE(v_order.created_at)
+      AND status NOT IN ('delivered', 'cancelled');
+    
+    v_estimated_minutes := v_orders_ahead * 5 + 10;
+    
+    RETURN json_build_object(
+        'queue_display', v_order.queue_display,
+        'queue_type', v_order.queue_type,
+        'orders_ahead', v_orders_ahead,
+        'estimated_minutes', v_estimated_minutes,
+        'status', v_order.status
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+-- RPC 3: sync_guest_to_member
+CREATE OR REPLACE FUNCTION sync_guest_to_member(
+    p_guest_id UUID,
+    p_user_id UUID
+)
+RETURNS JSON AS $$
+DECLARE
+    v_points_earned INT := 0;
+    v_tickets_count INT := 0;
+    v_orders_count INT := 0;
+BEGIN
+    UPDATE orders
+    SET user_id = p_user_id, guest_synced = TRUE, guest_synced_at = NOW(), updated_at = NOW()
+    WHERE guest_id = p_guest_id AND (guest_synced = FALSE OR guest_synced IS NULL);
+    GET DIAGNOSTICS v_orders_count = ROW_COUNT;
+    
+    SELECT COALESCE(SUM(points_earned), 0) INTO v_points_earned
+    FROM orders WHERE guest_id = p_guest_id;
+    
+    UPDATE lotto_tickets
+    SET user_id = p_user_id, guest_id = NULL, updated_at = NOW()
+    WHERE guest_id = p_guest_id;
+    GET DIAGNOSTICS v_tickets_count = ROW_COUNT;
+    
+    IF v_points_earned > 0 THEN
+        UPDATE profiles
+        SET points = COALESCE(points, 0) + v_points_earned,
+            total_orders = COALESCE(total_orders, 0) + v_orders_count,
+            updated_at = NOW()
+        WHERE id = p_user_id;
+        
+        INSERT INTO point_logs (user_id, action, amount, note, balance_after)
+        SELECT p_user_id, 'EARN', v_points_earned,
+               'Points from ' || v_orders_count || ' guest orders', points
+        FROM profiles WHERE id = p_user_id;
+    END IF;
+    
+    UPDATE guest_identities
+    SET metadata = jsonb_set(COALESCE(metadata, '{}'), '{synced_to}', to_jsonb(p_user_id::TEXT))
+    WHERE id = p_guest_id;
+    
+    RETURN json_build_object(
+        'success', TRUE,
+        'orders_synced', v_orders_count,
+        'points_added', v_points_earned,
+        'tickets_transferred', v_tickets_count
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ============================================================
+-- SECTION 17 : GRANT สิทธิ์พื้นฐาน
 -- ============================================================
 
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 
-GRANT SELECT                ON public.menu_items    TO anon, authenticated;
-GRANT SELECT                ON public.app_settings  TO anon, authenticated;
-GRANT SELECT                ON public.lotto_results TO anon, authenticated;
+GRANT SELECT                ON public.menu_items       TO anon, authenticated;
+GRANT SELECT                ON public.app_settings     TO anon, authenticated;
+GRANT SELECT                ON public.lotto_results    TO anon, authenticated;
 
-GRANT SELECT, INSERT, UPDATE ON public.profiles    TO authenticated;
-GRANT SELECT, INSERT        ON public.orders       TO anon, authenticated;
-GRANT UPDATE                ON public.orders       TO authenticated;
-GRANT SELECT, INSERT        ON public.point_logs   TO authenticated;
-GRANT SELECT, INSERT        ON public.lotto_pool   TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.profiles       TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.guest_identities TO anon, authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.lotto_tickets   TO anon, authenticated;
+GRANT SELECT, INSERT        ON public.orders          TO anon, authenticated;
+GRANT UPDATE                ON public.orders          TO authenticated;
+GRANT SELECT, INSERT        ON public.point_logs      TO authenticated;
+GRANT SELECT, INSERT        ON public.lotto_pool      TO authenticated;
 
-GRANT INSERT, UPDATE, DELETE ON public.menu_items  TO authenticated;
-GRANT INSERT, UPDATE, DELETE ON public.app_settings TO authenticated;
-GRANT INSERT                ON public.lotto_results TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.menu_items     TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.app_settings    TO authenticated;
+GRANT INSERT                ON public.lotto_results    TO authenticated;
 
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
 
@@ -739,3 +915,4 @@ GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
 -- ทุก table, index, RLS policy, trigger, function, seed data
 -- พร้อมใช้งานใน Kaprao52 App แล้ว
 -- ============================================================
+
