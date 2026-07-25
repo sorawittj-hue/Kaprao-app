@@ -180,13 +180,14 @@ export async function createUnifiedOrder(
     params.isPreorder
   )
 
-  const items = (params.items || []).map(item => ({
+  const items: OrderItemV2[] = (params.items || []).map((item, idx) => ({
+    id: item.id || `item_${idx + 1}_${Date.now()}`,
     menuItemId: item.menuItem?.id || item.menuItemId || 0,
     name: item.menuItem?.name || item.name || 'Unknown Item',
     price: item.menuItem?.price || item.price || 0,
     quantity: item.quantity || 1,
     options: item.selectedOptions || item.options || [],
-    note: item.note || null,
+    note: item.note || undefined,
     subtotal: item.subtotal || (item.price * item.quantity) || 0,
   }))
 
