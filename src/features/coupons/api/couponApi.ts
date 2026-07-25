@@ -25,42 +25,18 @@ export async function validateCoupon(
     if (cleanCode === 'KAPRAO10' || cleanCode === 'WELCOME10') {
       return {
         valid: true,
-        coupon: {
-          id: 991,
-          code: cleanCode,
-          name: 'ส่วนลดต้อนรับ 10 บาท',
-          discountType: 'fixed',
-          discountValue: 10,
-          minOrderAmount: 50,
-          usageCount: 1,
-          perUserLimit: 1,
-          startsAt: new Date().toISOString(),
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        discountAmount: 10,
+        couponId: 991,
+        discount: 10,
+        name: 'ส่วนลดต้อนรับ 10 บาท',
         message: 'ใช้คูปองส่วนลด 10 บาท สำเร็จ!',
       }
     }
     if (cleanCode === 'KAPRAO20' || cleanCode === 'SUPER20') {
       return {
         valid: true,
-        coupon: {
-          id: 992,
-          code: cleanCode,
-          name: 'ส่วนลดพิเศษ 20 บาท',
-          discountType: 'fixed',
-          discountValue: 20,
-          minOrderAmount: 100,
-          usageCount: 1,
-          perUserLimit: 1,
-          startsAt: new Date().toISOString(),
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        discountAmount: 20,
+        couponId: 992,
+        discount: 20,
+        name: 'ส่วนลดพิเศษ 20 บาท',
         message: 'ใช้คูปองส่วนลด 20 บาท สำเร็จ!',
       }
     }

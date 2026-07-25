@@ -8,7 +8,8 @@ import type {
   UnifiedOrder,
   QueueStatus,
   GuestIdentity,
-  GuestSyncResult
+  GuestSyncResult,
+  OrderItemV2
 } from '@/types/v2'
 
 // =====================================================
@@ -212,9 +213,7 @@ export async function createUnifiedOrder(
       deliveryMethod: params.deliveryMethod,
       address: params.address,
       specialInstructions: params.specialInstructions,
-      queueType: queue.type as any,
-      queueNumber: queue.number,
-      queueDisplay: queue.display,
+      queue: { type: queue.type as any, number: queue.number, display: queue.display, estimatedMinutes: 10 },
       isPreorder: params.isPreorder || false,
       scheduledFor: params.scheduledFor,
       createdAt: new Date().toISOString(),
@@ -295,9 +294,7 @@ export async function createUnifiedOrder(
         deliveryMethod: params.deliveryMethod,
         address: params.address,
         specialInstructions: params.specialInstructions,
-        queueType: queue.type as any,
-        queueNumber: queue.number,
-        queueDisplay: queue.display,
+        queue: { type: queue.type as any, number: queue.number, display: queue.display, estimatedMinutes: 10 },
         isPreorder: params.isPreorder || false,
         scheduledFor: params.scheduledFor,
         createdAt: new Date().toISOString(),
@@ -329,9 +326,7 @@ export async function createUnifiedOrder(
       deliveryMethod: params.deliveryMethod,
       address: params.address,
       specialInstructions: params.specialInstructions,
-      queueType: queue.type as any,
-      queueNumber: queue.number,
-      queueDisplay: queue.display,
+      queue: { type: queue.type as any, number: queue.number, display: queue.display, estimatedMinutes: 10 },
       isPreorder: params.isPreorder || false,
       scheduledFor: params.scheduledFor,
       createdAt: new Date().toISOString(),
