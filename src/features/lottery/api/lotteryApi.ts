@@ -1,11 +1,11 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, isConfigured } from '@/lib/supabase'
 import { isValidUUID } from '@/utils/validation'
 import type { LottoTicket, LottoResult } from '@/types'
 
 // ==================== Tickets ====================
 
 export async function fetchUserTickets(userId: string): Promise<LottoTicket[]> {
-  if (!isValidUUID(userId)) return []
+  if (!isConfigured || !isValidUUID(userId)) return []
   const { data, error } = await supabase
     .from('lotto_pool')
     .select('*')
@@ -28,6 +28,7 @@ export async function fetchUserTickets(userId: string): Promise<LottoTicket[]> {
 }
 
 export async function fetchTicketsByDrawDate(drawDate: string): Promise<LottoTicket[]> {
+  if (!isConfigured) return []
   const { data, error } = await supabase
     .from('lotto_pool')
     .select('*')
@@ -52,6 +53,7 @@ export async function fetchTicketsByDrawDate(drawDate: string): Promise<LottoTic
 // ==================== Results ====================
 
 export async function fetchLottoResults(): Promise<LottoResult[]> {
+  if (!isConfigured) return []
   try {
     const { data, error } = await supabase
       .from('lotto_results')
@@ -77,7 +79,7 @@ export async function fetchLottoResults(): Promise<LottoResult[]> {
 }
 
 export async function fetchLatestResult(): Promise<LottoResult | null> {
-  // lotto.api.rayriffy.com blocks CORS from github.io — use Supabase directly
+  if (!isConfigured) return null
   try {
     const { data, error } = await supabase
       .from('lotto_results')

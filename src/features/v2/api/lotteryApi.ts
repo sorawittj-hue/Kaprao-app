@@ -2,7 +2,7 @@
 // Lottery 2.0 API
 // ============================================
 
-import { supabase } from '@/lib/supabase'
+import { supabase, isConfigured } from '@/lib/supabase'
 import { isValidUUID } from '@/utils/validation'
 import type {
   LottoTicketV2,
@@ -301,6 +301,8 @@ export async function fetchLatestResult(): Promise<LottoResultV2 | null> {
   }
 
   // Fallback to Supabase
+  if (!isConfigured) return null
+
   const { data, error } = await supabase
     .from('lotto_results')
     .select('*')
@@ -309,7 +311,7 @@ export async function fetchLatestResult(): Promise<LottoResultV2 | null> {
     .maybeSingle()
 
   if (error || !data) {
-    console.error('Error fetching latest result:', error)
+    console.warn('Error fetching latest result:', error)
     return null
   }
 
@@ -326,6 +328,7 @@ export async function fetchLatestResult(): Promise<LottoResultV2 | null> {
 }
 
 export async function fetchAllResults(): Promise<LottoResultV2[]> {
+  if (!isConfigured) return []
   const { data, error } = await supabase
     .from('lotto_results')
     .select('*')
