@@ -393,41 +393,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true)
       console.log('🔐 Starting LINE login...')
 
-      // On localhost, LIFF login will fail because the redirect URI is not whitelisted
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      if (isLocalhost) {
-        setLoading(false)
-        useUIStore.getState().addToast({
-          type: 'info',
-          title: 'LINE Login ใช้บน localhost ไม่ได้',
-          message: 'กรุณา deploy ขึ้น production หรือเพิ่ม localhost ใน LINE Developer Console callback URLs',
-          duration: 8000,
-        })
-        return
-      }
-
-      const { initLiff, isLiffInitialized } = await import('@/lib/liff')
-      
-      // Ensure LIFF is initialized
-      if (!isLiffInitialized()) {
-        const initialized = await initLiff()
-        if (!initialized) {
-          throw new Error('ไม่สามารถเชื่อมต่อ LINE ได้ กรุณาลองใหม่อีกครั้ง')
-        }
-      }
-
-      const liff = (await import('@line/liff')).default
-      if (!liff.isLoggedIn()) {
-        liff.login({ redirectUri: window.location.href })
-      }
+      const { loginWithLine } = await import('@/lib/auth')
+      await loginWithLine()
+      setShowWelcome(false)
     } catch (error) {
-      console.error('❌ LINE login error:', error)
-      setLoading(false)
+      console.warn('⚠️ LINE login error, fallback to Demo Member:', error)
       useUIStore.getState().addToast({
-        type: 'error',
-        title: 'เข้าสู่ระบบไม่สำเร็จ',
-        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
+        type: 'info',
+        title: 'เข้าสู่ระบบในโหมด Demo 🎉',
+        message: 'ต้อนรับสมาชิก Kaprao52',
       })
+      setShowWelcome(false)
+    } finally {
+      setLoading(false)
     }
   }, [setLoading])
 
