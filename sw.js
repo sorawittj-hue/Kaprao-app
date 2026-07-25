@@ -1,8 +1,8 @@
 // sw.js - Enhanced Service Worker for Kaprao52 PWA
-const CACHE_NAME = 'kaprao52-v100-shell-ultimate';
-const STATIC_CACHE = 'kaprao52-v100-static-ultimate';
-const IMAGE_CACHE = 'kaprao52-v100-images-ultimate';
-const API_CACHE = 'kaprao52-v100-api-ultimate';
+const CACHE_NAME = 'kaprao52-v101-shell-ultimate';
+const STATIC_CACHE = 'kaprao52-v101-static-ultimate';
+const IMAGE_CACHE = 'kaprao52-v101-images-ultimate';
+const API_CACHE = 'kaprao52-v101-api-ultimate';
 
 // URLs to cache immediately on install
 // IMPORTANT: do NOT pre-cache index.html — its <script> tags reference
