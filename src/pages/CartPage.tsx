@@ -454,16 +454,16 @@ export default function CartPage() {
         </motion.div>
       </Container>
 
-      {/* Floating Sticky Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 safe-area-pb pointer-events-none">
+      {/* Floating Sticky Bar (Above BottomNav) */}
+      <div className="fixed bottom-[84px] left-0 right-0 z-40 p-4 pointer-events-none">
         <div className="max-w-md mx-auto pointer-events-auto">
           <div
-            className="p-4 rounded-[28px] flex items-center justify-between gap-4"
+            className="p-3.5 rounded-[24px] flex items-center justify-between gap-4"
             style={{
               background: 'rgba(20, 20, 24, 0.96)',
               backdropFilter: 'blur(30px)',
               border: '1px solid rgba(255, 94, 0, 0.3)',
-              boxShadow: '0 -10px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255, 94, 0, 0.1)'
+              boxShadow: '0 10px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255, 94, 0, 0.1)'
             }}
           >
             <div>

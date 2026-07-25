@@ -18,8 +18,7 @@ export function BottomNav() {
 
   if (
     location.pathname.startsWith('/admin') ||
-    location.pathname.startsWith('/checkout') ||
-    location.pathname.startsWith('/cart')
+    location.pathname.startsWith('/checkout')
   ) return null
 
   return (
