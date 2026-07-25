@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Sparkles, ChevronRight } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { useMenuItems } from '../hooks/useMenu'
 import { useMenuStore } from '@/store'
 import { MenuItemCard } from './MenuItemCard'
@@ -17,21 +17,33 @@ export function RecommendedSection() {
 
   return (
     <section>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
+      {/* Section Header */}
+      <div className="flex items-center justify-between mb-4 px-1">
+        <div className="flex items-center gap-2.5">
           <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #FF6B00, #FF8C42)', boxShadow: '0 4px 12px -2px rgba(255, 107, 0, 0.4)' }}
+            className="w-8 h-8 rounded-[12px] flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, #FF5E00, #FF9500)',
+              boxShadow: '0 4px 14px -3px rgba(255,94,0,0.45)'
+            }}
           >
             <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <h3 className="font-black text-gray-800">แนะนำสำหรับคุณ</h3>
+          <div>
+            <p className="section-label leading-none mb-0.5">Chef's Pick</p>
+            <h3 className="font-black text-gray-900 text-[15px] leading-none">แนะนำสำหรับคุณ</h3>
+          </div>
         </div>
-        <button className="flex items-center gap-0.5 text-xs font-bold text-brand-500 hover:text-brand-600 transition-colors">
-          ดูทั้งหมด
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
+        <span
+          className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full"
+          style={{
+            background: 'rgba(255,94,0,0.07)',
+            color: '#FF5E00',
+            border: '1px solid rgba(255,94,0,0.1)'
+          }}
+        >
+          {recommendedItems.length} เมนู
+        </span>
       </div>
 
       {/* Horizontal scroll */}
@@ -47,7 +59,7 @@ export function RecommendedSection() {
             key={item.id}
             variants={fadeInUp}
             className="flex-shrink-0"
-            style={{ width: 155 }}
+            style={{ width: 158 }}
           >
             <MenuItemCard item={item} />
           </motion.div>
