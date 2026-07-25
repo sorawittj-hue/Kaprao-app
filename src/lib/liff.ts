@@ -18,7 +18,11 @@ export async function initLiff(): Promise<boolean> {
     return initPromise
   }
 
-  const activeLiffId = import.meta.env.VITE_LIFF_ID || (typeof localStorage !== 'undefined' ? localStorage.getItem('kaprao_liff_id') : null)
+  const DEFAULT_LIFF_ID = '2008781875-6whmY1cf'
+  const activeLiffId =
+    import.meta.env.VITE_LIFF_ID ||
+    (typeof localStorage !== 'undefined' ? localStorage.getItem('kaprao_liff_id') : null) ||
+    DEFAULT_LIFF_ID
 
   // Check if LIFF ID is configured
   if (!activeLiffId || activeLiffId === 'your-liff-id') {
