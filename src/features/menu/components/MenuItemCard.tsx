@@ -186,18 +186,25 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
         </div>
 
         {/* Content */}
-        <div className="p-3">
-          <h3 className="font-bold text-gray-800 text-sm line-clamp-1 mb-0.5 leading-snug">
-            {item.name}
-          </h3>
+        <div className="p-3.5">
+          <div className="flex items-start justify-between gap-1 mb-1">
+            <h3 className="font-extrabold text-gray-900 text-[15px] line-clamp-1 leading-snug group-hover:text-brand-600 transition-colors">
+              {item.name}
+            </h3>
+            {item.spiceLevels && item.spiceLevels.length > 0 && (
+              <span className="flex items-center text-xs flex-shrink-0 text-amber-500 font-bold bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200/50">
+                🌶️ {item.spiceLevels.length}
+              </span>
+            )}
+          </div>
 
-          <p className="text-[11px] text-gray-400 line-clamp-1 mb-2.5 leading-normal">
+          <p className="text-[12px] text-gray-500 line-clamp-1 mb-3 font-medium leading-normal">
             {item.description || item.category}
           </p>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="font-black text-brand-600 text-base">
+          <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+            <div className="flex items-baseline gap-1">
+              <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 text-lg">
                 {formatPrice(item.price)}
               </span>
             </div>
