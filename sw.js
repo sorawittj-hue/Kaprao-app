@@ -1,8 +1,8 @@
 // sw.js - Enhanced Service Worker for Kaprao52 PWA
-const CACHE_NAME = 'kaprao52-v27-cache-v1';
-const STATIC_CACHE = 'kaprao52-static-v2';
-const IMAGE_CACHE = 'kaprao52-images-v2';
-const API_CACHE = 'kaprao52-api-v1';
+const CACHE_NAME = 'kaprao52-v100-ultimate-redesign';
+const STATIC_CACHE = 'kaprao52-static-v100';
+const IMAGE_CACHE = 'kaprao52-images-v100';
+const API_CACHE = 'kaprao52-api-v100';
 
 // URLs to cache immediately on install
 const urlsToCache = [
@@ -33,50 +33,42 @@ const externalResources = [];
 
 // Install event - Cache core assets
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     Promise.all([
-      // Cache core app shell
       caches.open(CACHE_NAME).then((cache) => {
-        console.log('[SW] Caching app shell');
         return cache.addAll(urlsToCache);
       }),
-      // Cache static resources
       caches.open(STATIC_CACHE).then((cache) => {
-        console.log('[SW] Caching static resources');
         return cache.addAll(externalResources);
       }),
-      // Cache local images
       caches.open(IMAGE_CACHE).then((cache) => {
-        console.log('[SW] Caching local images');
-        return cache.addAll(imageFiles.map(img => img)).catch(err => {
-          console.log('[SW] Some images failed to cache:', err);
-        });
+        return cache.addAll(imageFiles.map(img => img)).catch(() => {});
       })
     ]).then(() => {
-      console.log('[SW] Install completed');
       return self.skipWaiting();
     })
   );
 });
 
-// Activate event - Clean old caches
+// Activate event - Clean ALL old caches immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          // Delete old versions of our caches
-          if (cacheName !== CACHE_NAME &&
+          if (
+            cacheName !== CACHE_NAME &&
             cacheName !== STATIC_CACHE &&
             cacheName !== IMAGE_CACHE &&
-            cacheName !== API_CACHE) {
+            cacheName !== API_CACHE
+          ) {
             console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('[SW] Activation completed');
       return self.clients.claim();
     })
   );
