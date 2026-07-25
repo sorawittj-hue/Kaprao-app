@@ -8,9 +8,8 @@ import { MenuGridSkeleton } from '@/components/ui/Skeleton'
 import { staggerContainer } from '@/animations/variants'
 import { useTextScramble } from '@/hooks/useAdvancedAnimations'
 import { trackPageView } from '@/lib/analytics'
-import { Gift, Shuffle, Mic, History } from 'lucide-react'
 import { useSEO } from '@/hooks/useSEO'
-import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
+import { hapticMedium, hapticHeavy } from '@/utils/haptics'
 import { cn } from '@/utils/cn'
 
 // Import feature components
@@ -25,6 +24,7 @@ import { FloatingCart } from '@/features/cart/components/FloatingCart'
 import { MenuItemModal } from '@/features/menu/components/MenuItemModal'
 import { ShopClosedBanner } from '@/features/config/components/ShopClosedBanner'
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
+import { BentoGridShowcase } from '@/components/ui/BentoGridShowcase'
 
 // Import games
 import {
@@ -161,12 +161,15 @@ export default function HomePage() {
             <HeroSlider />
           </motion.div>
 
-          {/* Elegant Quick Actions */}
-          <motion.div variants={slideUpItem} className="grid grid-cols-4 gap-2 px-1">
-            <QuickActionButton icon={Gift} label="วงล้อ" badge={spinsLeft > 0 ? spinsLeft.toString() : undefined} bgColor="bg-amber-100 text-amber-600" onClick={() => { hapticLight(); setShowWheel(true) }} />
-            <QuickActionButton icon={Shuffle} label="สุ่มเมนู" bgColor="bg-orange-100 text-orange-600" onClick={() => { hapticLight(); setShowRandomizer(true) }} />
-            <QuickActionButton icon={Mic} label="สั่งด้วยเสียง" bgColor="bg-blue-100 text-blue-600" onClick={() => { hapticLight(); setShowVoice(true) }} />
-            <QuickActionButton icon={History} label="สั่งซ้ำ" bgColor="bg-emerald-100 text-emerald-600" onClick={() => { hapticLight(); setShowQuickOrder(true) }} />
+          {/* Bento Grid Feature Showcase */}
+          <motion.div variants={slideUpItem}>
+            <BentoGridShowcase
+              spinsLeft={spinsLeft}
+              onOpenWheel={() => setShowWheel(true)}
+              onOpenRandomizer={() => setShowRandomizer(true)}
+              onOpenVoice={() => setShowVoice(true)}
+              onOpenQuickOrder={() => setShowQuickOrder(true)}
+            />
           </motion.div>
 
           {/* Stats */}
@@ -272,26 +275,5 @@ function GreetingPill({ displayName, isGuest }: { displayName?: string, isGuest?
       <span className="drop-shadow-sm text-[11px]">{icon}</span>
       <span className="opacity-90">{greeting}, {isGuest ? 'GUEST' : displayName}</span>
     </div>
-  )
-}
-
-function QuickActionButton({ icon: Icon, label, badge, bgColor, onClick }: any) {
-  const [isPressed, setIsPressed] = useState(false)
-
-  return (
-    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onClick} onTapStart={() => setIsPressed(true)} onTap={() => setIsPressed(false)} onTapCancel={() => setIsPressed(false)} className="flex flex-col items-center gap-2 relative group touch-none mx-auto w-full">
-       <div className="relative">
-          <div className={cn("w-14 h-14 rounded-[20px] flex items-center justify-center transition-transform", bgColor, isPressed ? "scale-95" : "")}>
-            <Icon className="w-6 h-6" strokeWidth={2.5} />
-          </div>
-          
-          {badge && (
-             <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }} className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 border-2 border-white shadow-sm z-20">
-                {badge}
-             </motion.span>
-          )}
-       </div>
-       <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">{label}</span>
-    </motion.button>
   )
 }

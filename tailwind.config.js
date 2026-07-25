@@ -77,8 +77,8 @@ export default {
         '4xl': '2.5rem',
       },
       fontFamily: {
-        sans: ['Sarabun', 'system-ui', 'sans-serif'],
-        heading: ['Kanit', 'system-ui', 'sans-serif'],
+        sans: ['Prompt', 'system-ui', 'sans-serif'],
+        heading: ['Outfit', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.875rem' }],

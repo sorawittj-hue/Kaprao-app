@@ -73,11 +73,12 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{
-          y: -6,
-          boxShadow: '0 16px 40px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04)',
-          transition: { duration: 0.25, ease: [0, 0, 0.2, 1] },
+          y: -8,
+          scale: 1.02,
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.02)',
+          transition: { duration: 0.3, ease: [0.23, 1, 0.32, 1] },
         }}
-        whileTap={{ scale: 0.97 }}
+        whileTap={{ scale: 0.96 }}
         onClick={handleCardClick}
         role="button"
         tabIndex={0}
@@ -89,12 +90,12 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
           }
         }}
         className={cn(
-          'menu-card group bg-white rounded-[1.25rem] overflow-hidden cursor-pointer select-none',
-          'border border-gray-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+          'menu-card group bg-white/95 backdrop-blur-md rounded-3xl overflow-hidden cursor-pointer select-none',
+          'border border-gray-100/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
           !item.isAvailable && 'opacity-65 grayscale'
         )}
         style={{
-          boxShadow: '0 4px 20px -4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)',
+          boxShadow: '0 10px 30px -10px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)',
         }}
       >
         {/* Image */}

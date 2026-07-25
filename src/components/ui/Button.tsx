@@ -11,7 +11,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-brand-500 text-white hover:bg-brand-600 shadow-lg shadow-brand-500/25',
+        default: 'bg-gradient-to-r from-brand-500 to-amber-500 text-white hover:from-brand-600 hover:to-amber-600 shadow-[0_8px_16px_-4px_rgba(255,107,0,0.3)] border border-white/20',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline: 'border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -87,8 +87,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <motion.div
-        whileTap={{ scale: 0.97 }}
-        transition={{ duration: 0.1 }}
+        whileHover={disabled || isLoading ? {} : { scale: 1.02 }}
+        whileTap={disabled || isLoading ? {} : { scale: 0.96 }}
+        transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+        className={cn(fullWidth ? 'w-full block' : 'inline-block')}
       >
         {buttonContent}
       </motion.div>

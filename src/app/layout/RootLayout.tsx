@@ -6,7 +6,7 @@ import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner'
 
 export function RootLayout() {
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-[#FFFBF7] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#FFF0E0] via-[#FFFBF7] to-[#FDFBF7] transition-colors duration-500">
       {/* Skip to content for keyboard users */}
       <a
         href="#main-content"
@@ -18,11 +18,8 @@ export function RootLayout() {
       {/* Global Loading Bar */}
       <GlobalLoadingBar />
 
-      {/* Background gradient */}
-      <div className="fixed inset-0 -z-10 bg-[#FAFAF9]" aria-hidden="true" />
-
       {/* Main content */}
-      <main id="main-content" className="pb-24 safe-area-x" tabIndex={-1}>
+      <main id="main-content" className="pb-32 safe-area-x min-h-screen" tabIndex={-1}>
         <Outlet />
       </main>
 
