@@ -3,26 +3,34 @@ import App from './app/App'
 import './styles/globals.css'
 import './styles/design-tokens.css'
 
-// StrictMode is intentionally disabled for LIFF stability
-// LIFF SDK does not handle double-mounting gracefully
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
 root.render(<App />)
 
-// Register service worker for PWA / offline support (production only)
+// Register service worker with auto-update
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     const swUrl = `${import.meta.env.BASE_URL}sw.js`
     navigator.serviceWorker
       .register(swUrl, { scope: import.meta.env.BASE_URL })
+      .then((reg) => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('New version available, reloading...')
+                window.location.reload()
+              }
+            })
+          }
+        })
+      })
       .catch((err) => console.error('SW registration failed:', err))
   })
 }
 
-// One-shot recovery: if a previous SW left the user with stale HTML pointing
-// at deleted JS bundles, the dynamic import will throw with "Failed to fetch
-// dynamically imported module". Detect that, unregister the SW, clear caches
-// and force a fresh reload so the user gets the live bundle list.
+// One-shot recovery for stale bundles
 if (typeof window !== 'undefined') {
   let recovered = false
   window.addEventListener('error', async (e) => {
