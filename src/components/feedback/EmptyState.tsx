@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import { ShoppingBag, ClipboardList, Bell, Search, Inbox, Coffee } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 
 interface EmptyStateProps {
@@ -24,38 +23,38 @@ export function EmptyState({
 }: EmptyStateProps) {
   const config = {
     cart: {
-      icon: <ShoppingBag className="w-20 h-20" />,
-      title: 'ตะกร้าว่าง',
-      description: 'เริ่มสั่งอาหารอร่อยกันเลย!',
-      actionLabel: 'ไปเลือกเมนู',
+      icon: <ShoppingBag className="w-14 h-14 text-orange-400" />,
+      title: 'ตะกร้าของคุณยังว่างอยู่',
+      description: 'ลองเลือกเมนูกะเพรารสเด็ดเผ็ดร้อนเติมลงในตะกร้าดูสิ!',
+      actionLabel: 'ไปเลือกเมนูความอร่อย',
     },
     orders: {
-      icon: <ClipboardList className="w-20 h-20" />,
-      title: 'ยังไม่มีออเดอร์',
-      description: 'คุณยังไม่ได้สั่งอาหารเลย',
-      actionLabel: 'สั่งเลย',
+      icon: <ClipboardList className="w-14 h-14 text-orange-400" />,
+      title: 'ยังไม่มีประวัติการสั่งซื้อ',
+      description: 'คุณยังไม่ได้ทำการสั่งซื้อรายการอาหารใดๆ ในขณะนี้',
+      actionLabel: 'เริ่มสั่งอาหารเลย',
     },
     notifications: {
-      icon: <Bell className="w-20 h-20" />,
-      title: 'ไม่มีการแจ้งเตือน',
-      description: 'คุณจะได้รับการแจ้งเตือนเมื่อมีกิจกรรมใหม่',
+      icon: <Bell className="w-14 h-14 text-orange-400" />,
+      title: 'ไม่มีการแจ้งเตือนใหม่',
+      description: 'คุณจะได้รับการแจ้งเตือนเกี่ยวกับสถานะออเดอร์ที่นี่',
       actionLabel: undefined,
     },
     search: {
-      icon: <Search className="w-20 h-20" />,
-      title: 'ไม่พบผลลัพธ์',
-      description: 'ลองค้นหาด้วยคำอื่นดูนะ',
+      icon: <Search className="w-14 h-14 text-orange-400" />,
+      title: 'ไม่พบเมนูที่คุณค้นหา',
+      description: 'ลองค้นหาด้วยคำอื่น เช่น กะเพราหมูกรอบ, ไข่ข้น',
       actionLabel: undefined,
     },
     inbox: {
-      icon: <Inbox className="w-20 h-20" />,
-      title: 'กล่องข้อความว่าง',
-      description: 'ไม่มีข้อความใหม่',
+      icon: <Inbox className="w-14 h-14 text-orange-400" />,
+      title: 'กล่องข้อความว่างเปล่า',
+      description: 'ยังไม่มีข้อความใหม่ในระบบ',
       actionLabel: undefined,
     },
     custom: {
-      icon: icon || <Coffee className="w-20 h-20" />,
-      title: title || 'ว่างเปล่า',
+      icon: icon || <Coffee className="w-14 h-14 text-orange-400" />,
+      title: title || 'ยังไม่มีข้อมูล',
       description: description || '',
       actionLabel,
     },
@@ -68,18 +67,23 @@ export function EmptyState({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className={cn('relative flex flex-col items-center justify-center py-16 px-4 text-center overflow-hidden', className)}
+      className={cn('relative flex flex-col items-center justify-center py-12 px-6 text-center w-full max-w-sm mx-auto', className)}
     >
+      {/* Icon Container */}
       <motion.div
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ delay: 0.1, type: 'spring', stiffness: 200, damping: 15 }}
         className="relative z-10 mb-6"
       >
+        {/* Glow backdrop */}
+        <div className="absolute inset-0 rounded-full bg-orange-500/20 blur-2xl transform scale-150" />
+
         <motion.div
-          animate={{ y: [0, -6, 0] }}
+          animate={{ y: [0, -8, 0] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="w-28 h-28 rounded-[28px] bg-gradient-to-br from-brand-100 via-orange-50 to-amber-50 flex items-center justify-center text-brand-500 shadow-[0_20px_50px_-12px_rgba(255,107,0,0.25)] border border-white"
+          className="relative w-28 h-28 rounded-[28px] bg-[var(--bg-card)] flex items-center justify-center border border-white/10 shadow-2xl"
+          style={{ background: '#1A1A1E' }}
         >
           {currentConfig.icon}
         </motion.div>
@@ -90,7 +94,7 @@ export function EmptyState({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="relative z-10 text-2xl font-black text-gray-900 mb-2 tracking-tight"
+        className="relative z-10 text-xl font-black text-white mb-2 tracking-tight"
       >
         {currentConfig.title}
       </motion.h3>
@@ -100,39 +104,32 @@ export function EmptyState({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="relative z-10 text-gray-500 text-sm leading-relaxed mb-6 max-w-xs"
+        className="relative z-10 text-gray-400 text-xs font-medium leading-relaxed mb-6 max-w-xs"
       >
         {currentConfig.description}
       </motion.p>
 
-      {/* Action button */}
+      {/* Action Button */}
       {onAction && (actionLabel || currentConfig.actionLabel) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
+          className="w-full"
         >
-          <Button
+          <button
+            type="button"
             onClick={onAction}
-            className="px-8 py-3 rounded-2xl font-bold text-base"
+            className="w-full py-3.5 px-6 rounded-full font-black text-sm text-white btn-brand shadow-lg shadow-orange-500/30 active:scale-95 transition-transform flex items-center justify-center gap-2"
           >
             {actionLabel || currentConfig.actionLabel}
-          </Button>
+          </button>
         </motion.div>
       )}
-
-      {/* Decorative elements */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent pointer-events-none"
-      />
     </motion.div>
   )
 }
 
-// Preset empty states for common use cases
 export function CartEmpty({ onShopNow }: { onShopNow?: () => void }) {
   return <EmptyState type="cart" onAction={onShopNow} />
 }
