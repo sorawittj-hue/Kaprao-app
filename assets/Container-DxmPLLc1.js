@@ -1,2 +1,0 @@
-import{j as x}from"./vendor-query-DFCJ8cIX.js";import{r as l}from"./vendor-react-B6Cwrgkk.js";import{c as n}from"./index-CYxqwQty.js";const f=l.forwardRef(({className:m,size:a="md",center:e=!1,children:r,...s},t)=>{const o={sm:"max-w-md",md:"max-w-lg",lg:"max-w-xl",xl:"max-w-2xl",full:"max-w-none"};return x.jsx("div",{ref:t,className:n("w-full mx-auto px-4",o[a],e&&"flex flex-col items-center justify-center",m),...s,children:r})});f.displayName="Container";export{f as C};
-//# sourceMappingURL=Container-DxmPLLc1.js.map
