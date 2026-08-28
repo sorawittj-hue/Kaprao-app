@@ -17,7 +17,7 @@ interface AuthModalProps {
 export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const { addToast } = useUIStore()
 
-  const [authMode, setAuthMode] = useState<'line' | 'phone' | 'demo'>('line')
+  const [authMode, setAuthMode] = useState<'phone' | 'line' | 'demo'>('phone')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -33,7 +33,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
       addToast({
         type: 'error',
         title: 'เข้าสู่ระบบด้วย LINE ไม่สำเร็จ',
-        message: err.message || 'กรุณาลองเข้าสู่ระบบด้วยเบอร์โทรศัพท์หรือโหมดผู้เยี่ยมชม',
+        message: err.message || 'กรุณาเข้าสู่ระบบด้วยเบอร์โทรศัพท์แทนได้ทันที',
       })
       // Switch to phone tab smoothly if LINE is not configured in current environment
       setAuthMode('phone')
@@ -61,8 +61,8 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
       })
       addToast({
         type: 'success',
-        title: 'เข้าสู่ระบบสำเร็จ!',
-        message: `ยินดีต้อนรับคุณ ${loggedInUser.displayName}`,
+        title: 'เข้าสู่ระบบสำเร็จ! 🎁',
+        message: `ยินดีต้อนรับคุณ ${loggedInUser.displayName} (รับโบนัส 50 พอยต์)`,
       })
       onSuccess?.()
       onClose()
@@ -97,7 +97,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     addToast({
       type: 'info',
       title: 'เข้าใช้งานโหมดผู้เยี่ยมชม',
-      message: 'สามารถสั่งอาหารได้ทันที และผูก LINE เพื่อรับแต้มย้อนหลังได้ตลอดเวลา',
+      message: 'สามารถสั่งอาหารได้ทันที และใส่เบอร์ตอนสั่งเพื่อรับแต้มได้เช่นกัน',
     })
     onClose()
   }
@@ -142,16 +142,16 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
               <BrandLogo size="lg" />
             </div>
             <p className="text-xs font-bold text-slate-500 max-w-xs mx-auto">
-              เข้าสู่ระบบเพื่อรับสิทธิพิเศษสมาชิก หรือสั่งทันทีในโหมดผู้เยี่ยมชม
+              เข้าสู่ระบบง่ายๆ ด้วยเบอร์โทรศัพท์ หรือ LINE
             </p>
           </div>
 
           {/* Membership Benefits Grid */}
           <div className="grid grid-cols-3 gap-2">
             {[
-              { icon: '⭐', label: 'สะสมแต้ม', desc: '10.- = 1 pt' },
+              { icon: '🎁', label: 'รับแต้มฟรี', desc: '+50 pts ทันที' },
               { icon: '🎟️', label: 'สลากกินฟรี', desc: 'ทุกออเดอร์' },
-              { icon: '⚡', label: 'สูตรโปรด', desc: 'สั่งไว 1 คลิก' },
+              { icon: '⚡', label: 'สั่งด่วน 1-Tap', desc: 'ไม่ต้องกรอกซ้ำ' },
             ].map((b, i) => (
               <div
                 key={i}
@@ -167,9 +167,9 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           {/* Tabs Switcher */}
           <div className="flex p-1 rounded-[18px] bg-slate-100 border border-slate-200">
             {[
-              { id: 'line', label: 'LINE Login' },
-              { id: 'phone', label: 'เบอร์โทร' },
-              { id: 'demo', label: 'ทดลองบัญชี' },
+              { id: 'phone', label: '📱 เบอร์โทร (+50pt)' },
+              { id: 'line', label: '💚 LINE Login' },
+              { id: 'demo', label: '⚡ VIP Demo' },
             ].map((tab) => {
               const isActive = authMode === tab.id
               return (
@@ -190,6 +190,66 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
               )
             })}
           </div>
+
+          {/* Tab Content: Phone Login (Primary Recommended) */}
+          {authMode === 'phone' && (
+            <motion.form
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              onSubmit={handlePhoneLogin}
+              className="space-y-3"
+            >
+              <div className="bg-orange-50/60 border border-orange-200/80 rounded-2xl p-3 text-center">
+                <p className="text-xs font-black text-orange-700">
+                  🎉 พิเศษ! เข้าสู่ระบบด้วยเบอร์โทร รับฟรี 50 พอยต์ทันที
+                </p>
+                <p className="text-[10px] text-orange-600 font-medium mt-0.5">
+                  ไม่ต้องใช้รหัสผ่าน ระบบจะจดจำเบอร์และที่อยู่ของคุณอัตโนมัติ
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1 mb-1">
+                  เบอร์โทรศัพท์ (10 หลัก)
+                </label>
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="เช่น 0812345678"
+                  className="w-full h-12 px-4 rounded-[16px] text-sm font-bold border border-slate-200 outline-none focus:border-orange-500 bg-white"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1 mb-1">
+                  ชื่อลูกค้า / นามเรียก (ไม่บังคับ)
+                </label>
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="เช่น คุณกอล์ฟ"
+                  className="w-full h-12 px-4 rounded-[16px] text-sm font-bold border border-slate-200 outline-none focus:border-orange-500 bg-white"
+                />
+              </div>
+
+              <motion.button
+                type="submit"
+                whileTap={{ scale: 0.96 }}
+                disabled={isLoading}
+                className="w-full h-12 rounded-[18px] text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                style={{
+                  background: 'linear-gradient(135deg, #FF5500, #E03E00)',
+                  boxShadow: '0 4px 16px rgba(255,85,0,0.35)',
+                }}
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>{isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบด้วยเบอร์โทร (รับ 50 pts)'}</span>
+              </motion.button>
+            </motion.form>
+          )}
 
           {/* Tab Content: LINE */}
           {authMode === 'line' && (
@@ -215,59 +275,9 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 <span>{isLoading ? 'กำลังเชื่อมต่อ LINE...' : 'เข้าสู่ระบบด้วย LINE (1-Tap)'}</span>
               </motion.button>
               <p className="text-center text-[10px] font-medium text-slate-400">
-                เข้าสู่ระบบปลอดภัยผ่าน LINE Official Account โดยตรง
+                หากพบปัญหาเข้าสู่ระบบ LINE สามารถสลับไปใช้แท็บ "เบอร์โทร" ได้ทันที
               </p>
             </motion.div>
-          )}
-
-          {/* Tab Content: Phone Login */}
-          {authMode === 'phone' && (
-            <motion.form
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              onSubmit={handlePhoneLogin}
-              className="space-y-3"
-            >
-              <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1 mb-1">
-                  เบอร์โทรศัพท์ (10 หลัก)
-                </label>
-                <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="เช่น 0812345678"
-                  className="w-full h-12 px-4 rounded-[16px] text-sm font-bold border border-slate-200 outline-none focus:border-orange-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1 mb-1">
-                  ชื่อเล่น / นามเรียก (ไม่บังคับ)
-                </label>
-                <input
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="เช่น คุณกอล์ฟ"
-                  className="w-full h-12 px-4 rounded-[16px] text-sm font-bold border border-slate-200 outline-none focus:border-orange-500 bg-white"
-                />
-              </div>
-
-              <motion.button
-                type="submit"
-                whileTap={{ scale: 0.96 }}
-                disabled={isLoading}
-                className="w-full h-12 rounded-[18px] text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md"
-                style={{
-                  background: 'linear-gradient(135deg, #FF5500, #E03E00)',
-                  boxShadow: '0 4px 16px rgba(255,85,0,0.35)',
-                }}
-              >
-                <Smartphone className="w-4 h-4" />
-                <span>เข้าสู่ระบบด้วยเบอร์โทร</span>
-              </motion.button>
-            </motion.form>
           )}
 
           {/* Tab Content: Demo Account */}

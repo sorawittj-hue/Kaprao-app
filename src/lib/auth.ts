@@ -27,26 +27,77 @@ export async function loginWithLine(): Promise<void> {
 }
 
 // ─── Login with Phone Number ──────────────────────────────────────────────────
-export async function loginWithPhone(phoneNumber: string, displayName: string = 'สมาชิกกะเพรา 52'): Promise<User> {
+export async function loginWithPhone(phoneNumber: string, displayName: string = ''): Promise<User> {
   const cleanPhone = phoneNumber.replace(/[^0-9]/g, '')
   if (cleanPhone.length < 9) {
     throw new Error('กรุณาระบุเบอร์โทรศัพท์ให้ถูกต้องอย่างน้อย 9-10 หลัก')
   }
 
   const userId = `usr_phone_${cleanPhone}`
+  const formattedName = displayName.trim() || `ลูกค้า (เบอร์ ${cleanPhone.slice(0, 3)}-${cleanPhone.slice(3, 6)}-${cleanPhone.slice(6)})`
+
+  // Check if existing user in localStorage
+  let existingPoints = 50 // Generous 50 welcome points for phone login!
+  let existingOrders = 0
+  let existingTier: User['tier'] = 'MEMBER'
+  let existingAdmin = false
+
+  try {
+    const savedData = localStorage.getItem(`kaprao_profile_${cleanPhone}`)
+    if (savedData) {
+      const parsed = JSON.parse(savedData)
+      existingPoints = parsed.points ?? existingPoints
+      existingOrders = parsed.totalOrders ?? 0
+      existingTier = parsed.tier ?? 'MEMBER'
+      existingAdmin = parsed.isAdmin ?? false
+    }
+
+    // Also check Supabase profiles
+    const { data: dbProfile } = await supabase
+      .from('profiles')
+      .select('points, total_orders, tier, is_admin')
+      .eq('phone_number', cleanPhone)
+      .maybeSingle() as { data: { points: number; total_orders: number; tier: string; is_admin: boolean } | null }
+
+    if (dbProfile) {
+      existingPoints = dbProfile.points ?? existingPoints
+      existingOrders = dbProfile.total_orders ?? 0
+      existingTier = (dbProfile.tier as User['tier']) ?? 'MEMBER'
+      existingAdmin = dbProfile.is_admin ?? false
+    } else {
+      // Upsert new profile to Supabase
+      await supabase.from('profiles').upsert({
+        id: userId,
+        phone_number: cleanPhone,
+        display_name: formattedName,
+        points: existingPoints,
+        total_orders: 0,
+        tier: 'MEMBER',
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+    }
+  } catch (e) {
+    console.warn('⚠️ Supabase sync warning during phone login:', e)
+  }
+
   const user: User = {
     id: userId,
     phoneNumber: cleanPhone,
-    displayName: displayName.trim() || `ลูกค้า ${cleanPhone.slice(-4)}`,
-    points: 20, // Free welcome points for phone login!
-    totalOrders: 0,
-    tier: 'MEMBER',
-    isAdmin: false,
+    displayName: formattedName,
+    points: existingPoints,
+    totalOrders: existingOrders,
+    tier: existingTier,
+    isAdmin: existingAdmin,
     createdAt: new Date().toISOString(),
   }
 
   useAuthStore.getState().setUser(user)
   localStorage.setItem('kaprao_user_data', JSON.stringify(user))
+  localStorage.setItem(`kaprao_profile_${cleanPhone}`, JSON.stringify(user))
+  localStorage.setItem('kaprao_saved_phone', cleanPhone)
+  if (displayName.trim()) {
+    localStorage.setItem('kaprao_saved_name', displayName.trim())
+  }
 
   // Claim any pending guest order
   const pending = getPendingGuestOrder()

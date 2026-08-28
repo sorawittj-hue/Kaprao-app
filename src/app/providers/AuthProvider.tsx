@@ -4,6 +4,7 @@ import { useAuthStore, useUIStore } from '@/store'
 import { initLiff, getLineProfile, isLiffLoggedIn } from '@/lib/liff'
 import { supabase, isConfigured } from '@/lib/supabase'
 import { BrandLogo } from '@/components/brand/BrandLogo'
+import { AuthModal } from '@/components/auth/AuthModal'
 import { hapticHeavy, hapticMedium } from '@/utils/haptics'
 import type { User } from '@/types'
 
@@ -14,11 +15,13 @@ interface AuthProviderProps {
 // ─── Welcome Modal (World-Class Design) ──────────────────────────────────────
 function WelcomeModal({
   isOpen,
+  onPhoneLogin,
   onLineLogin,
   onGuestLogin,
   isLoading,
 }: {
   isOpen: boolean
+  onPhoneLogin: () => void
   onLineLogin: () => void
   onGuestLogin: () => void
   isLoading: boolean
@@ -67,7 +70,7 @@ function WelcomeModal({
             {/* Benefits Grid */}
             <div className="grid grid-cols-3 gap-2">
               {[
-                { icon: '⭐', label: 'สะสมแต้ม', sub: 'ทุกออเดอร์' },
+                { icon: '🎁', label: 'รับแต้มฟรี', sub: '+50 pts ทันที' },
                 { icon: '🎟️', label: 'สลากกินฟรี', sub: 'รอบรัฐบาล' },
                 { icon: '⚡', label: 'สูตรโปรด', sub: 'สั่งไว 1 คลิก' },
               ].map((b) => (
@@ -84,27 +87,44 @@ function WelcomeModal({
 
             {/* CTA Buttons */}
             <div className="space-y-2.5 pt-1">
-              {/* LINE Login - Primary */}
+              {/* Phone Login - Primary (Fastest & Most Reliable) */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => {
+                  hapticHeavy()
+                  onPhoneLogin()
+                }}
+                disabled={isLoading}
+                className="w-full h-13 flex items-center justify-center gap-2.5 text-white font-black text-sm rounded-[20px] shadow-lg shadow-orange-500/25 transition-all disabled:opacity-60 cursor-pointer"
+                style={{
+                  background: 'linear-gradient(135deg, #FF5500, #E03E00)',
+                }}
+              >
+                <span>📱 เข้าสู่ระบบด้วยเบอร์โทร (รับ 50 pts)</span>
+              </motion.button>
+
+              {/* LINE Login - Secondary */}
+              <motion.button
+                whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={() => {
                   hapticHeavy()
                   onLineLogin()
                 }}
                 disabled={isLoading}
-                className="w-full h-13 flex items-center justify-center gap-3 text-white font-black text-sm rounded-[20px] shadow-lg shadow-emerald-500/25 transition-all disabled:opacity-60 cursor-pointer"
+                className="w-full h-11 flex items-center justify-center gap-2.5 text-white font-bold text-xs rounded-[18px] shadow-md shadow-emerald-500/20 transition-all disabled:opacity-60 cursor-pointer"
                 style={{
                   background: 'linear-gradient(135deg, #00C300, #00A000)',
                 }}
               >
-                <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-4.5 h-4.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .345-.285.63-.631.63s-.63-.285-.63-.63V8.108c0-.345.283-.63.63-.63.346 0 .63.285.63.63v4.771zm-1.086.532c0 .225-.177.405-.399.405h-.001c-.221 0-.399-.18-.399-.405v-.164h.8v.164zm-1.94-.532c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.631c-.691 0-1.25-.563-1.25-1.257V8.108c0-.345.284-.63.631-.63.345 0 .63.285.63.63v4.771c0 .173.14.315.315.315h.674c.348 0 .629.283.629.63 0 .344-.282.629-.629.629zM3.678 8.735c0-.345.285-.63.631-.63h2.505c.345 0 .627.285.627.63s-.282.63-.627.63H4.938v1.126h1.481c.346 0 .628.283.628.63 0 .344-.282.629-.628.629H4.938v1.756c0 .345-.286.63-.631.63-.346 0-.629-.285-.629-.63V8.735z" />
                 </svg>
-                <span>{isLoading ? 'กำลังโหลด...' : 'เข้าสู่ระบบด้วย LINE (1-Tap)'}</span>
+                <span>เข้าสู่ระบบด้วย LINE</span>
               </motion.button>
 
-              {/* Guest - Secondary */}
+              {/* Guest - Tertiary */}
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.96 }}
@@ -113,7 +133,7 @@ function WelcomeModal({
                   onGuestLogin()
                 }}
                 disabled={isLoading}
-                className="w-full h-12 flex items-center justify-center gap-2 text-slate-700 font-bold text-xs rounded-[18px] border border-slate-200 hover:border-slate-300 bg-slate-50 cursor-pointer transition-all"
+                className="w-full h-11 flex items-center justify-center gap-2 text-slate-600 font-bold text-xs rounded-[16px] border border-slate-200 hover:border-slate-300 bg-slate-50 cursor-pointer transition-all"
               >
                 <span>ดูเมนูก่อน (สั่งได้เลย ไม่ต้อง Login)</span>
               </motion.button>
@@ -121,7 +141,7 @@ function WelcomeModal({
 
             {/* Fine print */}
             <p className="text-center text-[10px] text-slate-400 font-medium leading-relaxed">
-              🛡️ สั่งในโหมด Guest ได้ทันที — เข้าสู่ระบบทีหลังก็ยังได้แต้มสะสมคืน 100%!
+              🛡️ สั่งในโหมด Guest ได้ทันที — ใส่เบอร์ตอนสั่งเพื่อรับแต้มสะสมได้ 100%!
             </p>
           </motion.div>
         </motion.div>
@@ -160,6 +180,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const initialized = useRef(false)
   const { setUser, setGuest, setLoading } = useAuthStore()
   const [showWelcome, setShowWelcome] = useState(false)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [isInitializing, setIsInitializing] = useState(true)
 
   // Handle LIFF session after LINE login
@@ -587,9 +608,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       {children}
       <WelcomeModal
         isOpen={showWelcome && !isInitializing}
+        onPhoneLogin={() => {
+          setShowWelcome(false)
+          setIsAuthModalOpen(true)
+        }}
         onLineLogin={handleLineLogin}
         onGuestLogin={handleGuestLogin}
         isLoading={isInitializing}
+      />
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </>
   )

@@ -39,7 +39,7 @@
             "name": "ตะกร้า",
             "short_name": "ตะกร้า",
             "description": "ดูตะกร้าสินค้า",
-            "url": "/Kaprao-app/cart"
+            "url": "/Kaprao-app/#/cart"
         }
     ],
     "prefer_related_applications": false

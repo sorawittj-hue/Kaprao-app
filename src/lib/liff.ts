@@ -83,11 +83,17 @@ export function isLiffLoggedIn(): boolean {
 export async function loginWithLine(): Promise<void> {
   const success = await initLiff()
   if (!success || !liffInstance) {
-    throw new Error('LIFF not initialized')
+    throw new Error('ไม่สามารถเชื่อมต่อระบบ LINE ได้ในขณะนี้ กรุณาเข้าสู่ระบบด้วยเบอร์โทรศัพท์')
+  }
+
+  if (liffInstance.isInClient() && liffInstance.isLoggedIn()) {
+    // Already inside LINE app client
+    return
   }
 
   if (!liffInstance.isLoggedIn()) {
-    liffInstance.login({ redirectUri: window.location.href })
+    const cleanRedirectUri = window.location.origin + window.location.pathname
+    liffInstance.login({ redirectUri: cleanRedirectUri })
   }
 }
 
