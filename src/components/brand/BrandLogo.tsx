@@ -31,23 +31,15 @@ export function BrandLogo({
     >
       {/* ─── 3D CRAFT WOK & FLAME EMBLEM ─── */}
       <div className="relative flex-shrink-0">
-        {/* Subtle Ambient Neon Glow */}
-        <div
-          className="absolute -inset-1.5 rounded-[18px] opacity-60 blur-sm pointer-events-none"
-          style={{
-            background: 'linear-gradient(135deg, #FF4500 0%, #FF8A00 100%)',
-          }}
-        />
-
-        {/* Outer Beveled Container */}
+        {/* Outer Container */}
         <div
           className={cn(
-            'relative rounded-[16px] p-[1.5px] overflow-hidden flex items-center justify-center transition-all',
-            isSm ? 'w-9 h-9' : isXl ? 'w-14 h-14' : isLg ? 'w-12 h-12' : 'w-11 h-11'
+            'relative rounded-[15px] p-[1px] overflow-hidden flex items-center justify-center transition-all',
+            isSm ? 'w-9 h-9' : isXl ? 'w-14 h-14' : isLg ? 'w-12 h-12' : 'w-10 h-10'
           )}
           style={{
-            background: 'linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,100,0,0.5) 50%, rgba(200,30,0,0.9) 100%)',
-            boxShadow: '0 6px 18px -2px rgba(255, 68, 0, 0.4), 0 2px 6px rgba(0,0,0,0.1)',
+            background: 'linear-gradient(145deg, rgba(255,100,0,0.6) 0%, rgba(200,30,0,0.8) 100%)',
+            boxShadow: '0 2px 8px rgba(255, 68, 0, 0.25)',
           }}
         >
           {/* Inner Surface */}

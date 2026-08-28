@@ -122,87 +122,68 @@ export function HeroSlider() {
 
   return (
     <div
-      className="relative overflow-hidden select-none touch-pan-y rounded-[26px] shadow-sm"
+      className="relative overflow-hidden select-none touch-pan-y rounded-[20px] shadow-xs"
       style={{
-        boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)',
         border: '1px solid rgba(255,255,255,0.1)'
       }}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
     >
-      <div className="relative min-h-[160px] flex flex-col justify-between">
+      <div className="relative min-h-[105px] flex items-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={slide.id}
-            initial={{ opacity: 0, scale: 1.02 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="absolute inset-0 p-5 flex flex-col justify-between"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 px-4 py-3 flex items-center justify-between gap-3"
             style={{
               background: `linear-gradient(135deg, ${slide.bgFrom} 0%, ${slide.bgTo} 100%)`,
             }}
           >
             {/* Ambient glow */}
             <div
-              className="absolute -right-8 -top-8 w-44 h-44 rounded-full pointer-events-none"
+              className="absolute -right-6 -top-6 w-36 h-36 rounded-full pointer-events-none"
               style={{
                 background: `radial-gradient(circle, ${slide.glowColor} 0%, transparent 70%)`,
-                filter: 'blur(28px)',
+                filter: 'blur(24px)',
               }}
             />
 
-            {/* Background Icon Watermark */}
-            <div className="absolute right-4 bottom-2 pointer-events-none opacity-15">
-              <slide.Icon className="w-24 h-24" style={{ color: slide.accentColor }} />
-            </div>
-
-            {/* Header / Badge */}
-            <div className="relative z-10 flex items-center justify-between">
-              {slide.badge && (
-                <span
-                  className="inline-flex items-center gap-1 text-[9px] font-black px-2.5 py-0.5 rounded-full tracking-wider uppercase"
-                  style={{
-                    background: 'rgba(255,255,255,0.15)',
-                    color: slide.accentColor,
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    backdropFilter: 'blur(8px)'
-                  }}
-                >
-                  <Sparkles className="w-2.5 h-2.5" />
-                  {slide.badge}
+            {/* Left Content */}
+            <div className="relative z-10 flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 mb-1">
+                {slide.badge && (
+                  <span
+                    className="inline-flex items-center gap-0.5 text-[8px] font-black px-2 py-0.2 rounded-full tracking-wider uppercase"
+                    style={{
+                      background: 'rgba(255,255,255,0.15)',
+                      color: slide.accentColor,
+                    }}
+                  >
+                    <Sparkles className="w-2 h-2" />
+                    {slide.badge}
+                  </span>
+                )}
+                <span className="text-[9px] font-bold text-white/60">
+                  {slide.chipText}
                 </span>
-              )}
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-black/30 text-white/70">
-                {current + 1} / {slides.length}
-              </span>
-            </div>
+              </div>
 
-            {/* Center Content */}
-            <div className="relative z-10 my-1">
-              <h2 className="text-xl font-black text-white leading-tight flex items-center gap-1.5">
-                <span>{slide.title}</span>
+              <h2 className="text-base font-black text-white leading-tight truncate">
+                <span>{slide.title} </span>
                 {slide.titleAccent && (
                   <span style={{ color: slide.accentColor }}>{slide.titleAccent}</span>
                 )}
               </h2>
-              <p className="text-white/80 text-xs font-medium mt-1">
+              <p className="text-white/75 text-[11px] font-medium truncate mt-0.5">
                 {slide.subtitle}
               </p>
             </div>
 
-            {/* Action Row */}
-            <div className="relative z-10 flex items-center justify-between pt-1">
-              <span
-                className="text-[10px] font-black px-2.5 py-1 rounded-full text-white/80"
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                }}
-              >
-                {slide.chipText}
-              </span>
-
+            {/* Right Action Button */}
+            <div className="relative z-10 flex flex-col items-end gap-1.5 flex-shrink-0">
               <motion.button
                 type="button"
                 whileTap={{ scale: 0.94 }}
@@ -210,35 +191,35 @@ export function HeroSlider() {
                   hapticLight()
                   navigate(slide.route)
                 }}
-                className="inline-flex items-center gap-1 text-xs font-black px-3.5 py-1.5 rounded-full cursor-pointer text-slate-950 shadow-md"
+                className="inline-flex items-center gap-1 text-[11px] font-black px-3.5 py-2 rounded-full cursor-pointer text-slate-950 shadow-md"
                 style={{
                   background: slide.accentColor,
                 }}
               >
                 <span>{slide.action}</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <ChevronRight className="w-3 h-3" />
               </motion.button>
+
+              {/* Slide Counter */}
+              <div className="flex items-center gap-1 pr-1">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => goTo(i)}
+                    aria-label={`Slide ${i + 1}`}
+                    className="rounded-full transition-all duration-300 cursor-pointer"
+                    style={{
+                      width: i === current ? 12 : 4,
+                      height: 3,
+                      background: i === current ? '#FFFFFF' : 'rgba(255,255,255,0.3)',
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>
-      </div>
-
-      {/* Progress Dots */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => goTo(i)}
-            aria-label={`ไปสไลด์ที่ ${i + 1}`}
-            className="rounded-full transition-all duration-300 cursor-pointer"
-            style={{
-              width: i === current ? 18 : 5,
-              height: 4,
-              background: i === current ? '#FFFFFF' : 'rgba(255,255,255,0.4)',
-            }}
-          />
-        ))}
       </div>
     </div>
   )

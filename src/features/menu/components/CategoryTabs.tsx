@@ -76,30 +76,24 @@ export function CategoryTabs() {
                 })
               }}
               whileTap={{ scale: 0.9 }}
-              whileHover={!isActive ? { y: -2 } : undefined}
               className={cn(
-                'flex items-center gap-1.5 px-3.5 py-2.5 rounded-[16px] whitespace-nowrap flex-shrink-0',
-                'transition-all duration-200 text-[13px] min-h-[44px]',
+                'flex items-center gap-1 px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0',
+                'transition-all duration-200 text-xs min-h-[36px] cursor-pointer',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500',
-                isActive ? 'font-black text-white' : 'font-bold'
+                isActive ? 'font-black text-white shadow-sm' : 'font-bold text-slate-600'
               )}
               style={isActive ? {
                 background: grad,
-                boxShadow: '0 4px 14px rgba(255,85,0,0.35)',
+                boxShadow: '0 3px 10px rgba(255,85,0,0.30)',
               } : {
                 background: '#FFFFFF',
-                color: 'var(--text-secondary)',
-                border: '1px solid var(--border-soft)',
-                boxShadow: '0 2px 6px rgba(15, 23, 42, 0.04)',
+                border: '1px solid rgba(226, 232, 240, 0.8)',
+                boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
               }}
             >
-              <motion.span
-                animate={isActive ? { rotate: [0, -12, 12, 0], scale: [1, 1.3, 1] } : {}}
-                transition={{ duration: 0.35 }}
-                className="text-[15px] leading-none"
-              >
+              <span className="text-[13px] leading-none">
                 {iconMap[category.icon]}
-              </motion.span>
+              </span>
               <span>{category.name}</span>
 
               {/* Item count badge */}

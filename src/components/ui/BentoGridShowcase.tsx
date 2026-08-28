@@ -77,7 +77,10 @@ export function BentoGridShowcase({
   ]
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-0.5">
+    <div
+      className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-1 px-0.5 select-none"
+      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+    >
       {actions.map((action) => {
         if (!action.onClick) return null
         const Icon = action.icon

@@ -117,23 +117,37 @@ export default function HomePage() {
         <SavedCustomMealsStrip />
 
         {/* 5. Food Menu Feed (Immediate Visual Food Focus) */}
+        {/* 5. Food Menu Feed (Immediate Visual Food Focus) */}
         <div className="pt-1 space-y-2.5">
-          <div className="flex items-center justify-between px-0.5">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-4 rounded-full bg-orange-500" />
-              <h2 className="font-black text-base text-slate-900 tracking-tight">
-                {searchQuery ? `ผลการค้นหา "${searchQuery}"` : 'เมนูอาหารทั้งหมด'}
+          {/* Category Tabs */}
+          <CategoryTabs />
+
+          <div className="flex items-center justify-between px-1 pt-1">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <h2 className="font-black text-sm text-slate-900 tracking-tight truncate">
+                {searchQuery
+                  ? `ผลการค้นหา "${searchQuery}"`
+                  : activeCategory === 'kaprao'
+                  ? '🔥 เมนูกะเพรากระทะเหล็ก'
+                  : activeCategory === 'garlic'
+                  ? '🧄 เมนูผัดกระเทียมพริกไทย'
+                  : activeCategory === 'curry'
+                  ? '🌶️ เมนูผัดพริกแกงรสจัด'
+                  : activeCategory === 'noodle'
+                  ? '🍜 มาม่า & เมนูเส้น'
+                  : activeCategory === 'bamboo'
+                  ? '🎋 เมนูผัดกะเพราหน่อไม้'
+                  : activeCategory === 'favorites'
+                  ? '❤️ เมนูโปรดที่คุณชื่นชอบ'
+                  : 'เมนูแนะนำ'}
               </h2>
             </div>
             <span
-              className="text-[11px] font-bold px-2 py-0.5 rounded-full text-slate-600 bg-slate-100 border border-slate-200"
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full text-slate-500 bg-slate-100 border border-slate-200/80 flex-shrink-0"
             >
-              {filteredItems?.length || 0} เมนู
+              {filteredItems?.length || 0} รายการ
             </span>
           </div>
-
-          {/* Sticky Category Tabs */}
-          <CategoryTabs />
 
           {/* Food Grid */}
           <div className="min-h-[350px] pt-1">

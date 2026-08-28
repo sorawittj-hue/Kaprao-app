@@ -270,13 +270,13 @@ export async function searchMenuItems(query: string): Promise<MenuItem[]> {
 }
 
 export const categories: MenuCategory[] = [
-  { id: 'favorites', name: 'ที่ชอบ', nameEn: 'Favorites', icon: 'heart', color: 'red', gradient: 'from-red-500 to-pink-500' },
-  { id: 'curry', name: 'พริกแกง', nameEn: 'Curry Paste', icon: 'bowl-food', color: 'red', gradient: 'from-red-600 to-red-400' },
   { id: 'kaprao', name: 'กะเพรา', nameEn: 'Kaprao', icon: 'pepper-hot', color: 'orange', gradient: 'from-orange-500 to-red-500' },
-  { id: 'noodle', name: 'เส้น', nameEn: 'Noodles', icon: 'bacon', color: 'amber', gradient: 'from-amber-400 to-orange-400' },
+  { id: 'garlic', name: 'กระเทียม', nameEn: 'Garlic', icon: 'bread-slice', color: 'yellow', gradient: 'from-amber-500 to-yellow-500' },
+  { id: 'curry', name: 'พริกแกง', nameEn: 'Curry', icon: 'bowl-food', color: 'red', gradient: 'from-red-600 to-red-400' },
+  { id: 'noodle', name: 'เส้น/มาม่า', nameEn: 'Noodles', icon: 'bacon', color: 'amber', gradient: 'from-amber-500 to-orange-400' },
   { id: 'bamboo', name: 'หน่อไม้', nameEn: 'Bamboo', icon: 'bamboo', color: 'emerald', gradient: 'from-emerald-500 to-green-500' },
-  { id: 'garlic', name: 'กระเทียม', nameEn: 'Garlic', icon: 'bread-slice', color: 'yellow', gradient: 'from-yellow-400 to-orange-300' },
-  { id: 'others', name: 'อื่นๆ', nameEn: 'Others', icon: 'utensil-spoon', color: 'gray', gradient: 'from-gray-500 to-gray-400' },
+  { id: 'others', name: 'อื่นๆ', nameEn: 'Others', icon: 'utensil-spoon', color: 'gray', gradient: 'from-slate-600 to-slate-500' },
+  { id: 'favorites', name: 'เมนูโปรด', nameEn: 'Favorites', icon: 'heart', color: 'pink', gradient: 'from-pink-500 to-rose-500' },
 ]
 
 export function getCategoryById(id: CategoryType): MenuCategory | undefined {
