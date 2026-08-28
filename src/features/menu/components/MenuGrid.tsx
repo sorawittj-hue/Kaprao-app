@@ -24,7 +24,7 @@ export function MenuGrid({ items }: MenuGridProps) {
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
-      className="grid grid-cols-2 gap-4"
+      className="grid grid-cols-2 gap-3 sm:gap-4"
     >
       {items.map((item) => (
         <motion.div key={item.id} variants={listItem}>
