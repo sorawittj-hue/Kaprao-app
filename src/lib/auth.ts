@@ -4,26 +4,92 @@ import { useAuthStore } from '@/store'
 import type { User } from '@/types'
 
 // ─── Login with LINE ──────────────────────────────────────────────────────────
-export async function loginWithLine(): Promise<void> {
-  const { initLiff, isLiffInitialized } = await import('./liff')
+export async function loginWithLine(): Promise<User | null> {
+  const { initLiff } = await import('./liff')
 
-  let initialized = isLiffInitialized()
+  const initialized = await initLiff()
   if (!initialized) {
-    initialized = await initLiff()
-  }
-
-  if (!initialized) {
-    throw new Error('ไม่สามารถเชื่อมต่อ LINE LIFF ได้ในขณะนี้ กรุณาเข้าใช้งานผ่านเบอร์โทรศัพท์หรือโหมดผู้เยี่ยมชม')
+    throw new Error('ไม่สามารถเชื่อมต่อระบบ LINE ได้ในขณะนี้ กรุณาเข้าสู่ระบบด้วยเบอร์โทรศัพท์แทนได้ทันที')
   }
 
   const liff = (await import('@line/liff')).default
 
   if (!liff.isLoggedIn()) {
     console.log('🔄 Redirecting to official LINE Login screen...')
-    liff.login({ redirectUri: window.location.href })
-  } else {
-    console.log('✅ Already logged in with LINE')
+    // Clean redirect URI without hashes or query params for LINE OAuth
+    const cleanRedirectUri = window.location.origin + window.location.pathname
+    sessionStorage.removeItem('kaprao_guest_mode')
+    localStorage.removeItem('kaprao_guest_mode')
+    liff.login({ redirectUri: cleanRedirectUri })
+    return null
   }
+
+  // Already logged in (or inside LINE in-app client) — fetch profile immediately!
+  const profile = await liff.getProfile()
+  if (!profile) {
+    throw new Error('ไม่สามารถดึงข้อมูลโปรไฟล์ LINE ได้ กรุณาลองใหม่อีกครั้ง')
+  }
+
+  const userId = `usr_line_${profile.userId}`
+  let existingPoints = 20
+  let existingOrders = 0
+  let existingTier: User['tier'] = 'MEMBER'
+  let existingAdmin = false
+
+  try {
+    const { data: dbProfile } = await supabase
+      .from('profiles')
+      .select('points, total_orders, tier, is_admin')
+      .eq('line_user_id', profile.userId)
+      .maybeSingle() as { data: { points: number; total_orders: number; tier: string; is_admin: boolean } | null }
+
+    if (dbProfile) {
+      existingPoints = dbProfile.points ?? existingPoints
+      existingOrders = dbProfile.total_orders ?? 0
+      existingTier = (dbProfile.tier as User['tier']) ?? 'MEMBER'
+      existingAdmin = dbProfile.is_admin ?? false
+    } else {
+      await supabase.from('profiles').upsert({
+        id: userId,
+        line_user_id: profile.userId,
+        display_name: profile.displayName,
+        picture_url: profile.pictureUrl,
+        points: existingPoints,
+        total_orders: 0,
+        tier: 'MEMBER',
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+    }
+  } catch (e) {
+    console.warn('⚠️ Supabase sync warning during LINE login:', e)
+  }
+
+  const user: User = {
+    id: userId,
+    lineUserId: profile.userId,
+    displayName: profile.displayName,
+    pictureUrl: profile.pictureUrl,
+    points: existingPoints,
+    totalOrders: existingOrders,
+    tier: existingTier,
+    isAdmin: existingAdmin,
+    createdAt: new Date().toISOString(),
+  }
+
+  useAuthStore.getState().setUser(user)
+  localStorage.setItem('kaprao_user_data', JSON.stringify(user))
+  sessionStorage.removeItem('kaprao_guest_mode')
+
+  // Claim pending guest orders
+  const pending = getPendingGuestOrder()
+  if (pending.orderId && pending.trackingToken) {
+    try {
+      await claimGuestOrder(Number(pending.orderId), pending.trackingToken)
+      clearPendingGuestOrder()
+    } catch (_) { /* noop */ }
+  }
+
+  return user
 }
 
 // ─── Login with Phone Number ──────────────────────────────────────────────────

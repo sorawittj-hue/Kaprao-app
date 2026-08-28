@@ -190,96 +190,65 @@ export function AuthProvider({ children }: AuthProviderProps) {
     pictureUrl?: string
   }) => {
     console.log('📝 Processing LINE session for:', profile.displayName)
-    let supabaseUserId: string | null = null
+    const userId = `usr_line_${profile.userId}`
+
+    let existingPoints = 20
+    let existingOrders = 0
+    let existingTier: User['tier'] = 'MEMBER'
+    let existingAdmin = false
 
     try {
-      // Look up existing profile by LINE user ID
+      // Look up existing profile by LINE user ID or id
       const { data: existingProfile } = await supabase
         .from('profiles')
-        .select('id, points, total_orders')
-        .eq('line_user_id', profile.userId)
-        .maybeSingle() as { data: { id: string; points: number; total_orders: number } | null }
+        .select('id, points, total_orders, tier, is_admin')
+        .or(`line_user_id.eq.${profile.userId},id.eq.${userId}`)
+        .maybeSingle() as { data: { id: string; points: number; total_orders: number; tier: string; is_admin: boolean } | null }
 
-      if (existingProfile?.id) {
-        supabaseUserId = existingProfile.id
-        console.log('✅ Found existing profile with', existingProfile.points, 'points')
-      } else {
-        // New user — create Supabase anonymous session
-        console.log('🆕 Creating new user for:', profile.displayName)
-        const { data, error } = await supabase.auth.signInAnonymously()
-        if (error) throw error
-        supabaseUserId = data.user?.id || null
+      if (existingProfile) {
+        existingPoints = existingProfile.points ?? existingPoints
+        existingOrders = existingProfile.total_orders ?? 0
+        existingTier = (existingProfile.tier as User['tier']) ?? 'MEMBER'
+        existingAdmin = existingProfile.is_admin ?? false
       }
+
+      // Upsert profile
+      await supabase.from('profiles').upsert({
+        id: userId,
+        line_user_id: profile.userId,
+        display_name: profile.displayName,
+        picture_url: profile.pictureUrl,
+        points: existingPoints,
+        total_orders: existingOrders,
+        tier: existingTier,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
     } catch (e) {
-      console.error('❌ Auth lookup error:', e)
-      setGuest()
-      return
+      console.warn('⚠️ Supabase sync warning during LINE session:', e)
     }
 
-    if (!supabaseUserId) {
-      console.error('❌ No Supabase user ID')
-      setGuest()
-      return
-    }
-
-    // Build initial user state
     const userData: User = {
-      id: supabaseUserId,
+      id: userId,
       lineUserId: profile.userId,
       displayName: profile.displayName,
       pictureUrl: profile.pictureUrl,
-      points: 0,
-      totalOrders: 0,
-      tier: 'MEMBER',
-      isAdmin: false,
+      points: existingPoints,
+      totalOrders: existingOrders,
+      tier: existingTier,
+      isAdmin: existingAdmin,
       createdAt: new Date().toISOString(),
     }
 
     setUser(userData)
-
-    // Save for fast restore on next visit
-    localStorage.setItem('kaprao_user_data', JSON.stringify({
-      userId: supabaseUserId,
-      lineUserId: profile.userId,
-      name: profile.displayName,
-      image: profile.pictureUrl,
-    }))
-
-    // Sync profile to Supabase (upsert)
-    try {
-      await supabase.from('profiles').upsert({
-        id: supabaseUserId,
-        display_name: profile.displayName,
-        picture_url: profile.pictureUrl,
-        line_user_id: profile.userId,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'id' })
-
-      // Load actual points from DB
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('points, total_orders, tier, is_admin')
-        .eq('id', supabaseUserId)
-        .maybeSingle() as { data: { points: number; total_orders: number; tier: string; is_admin: boolean } | null }
-
-      if (profileData) {
-        setUser({
-          ...userData,
-          points: profileData.points || 0,
-          totalOrders: profileData.total_orders || 0,
-          tier: (profileData.tier as User['tier']) || 'MEMBER',
-          isAdmin: profileData.is_admin || false,
-        })
-      }
-    } catch (e) {
-      console.warn('⚠️ Profile sync warning:', e)
-    }
+    sessionStorage.removeItem('kaprao_guest_mode')
+    localStorage.setItem('kaprao_user_data', JSON.stringify(userData))
+    setShowWelcome(false)
 
     // ─── 🌟 MAGIC: Sync Guest to Member after LINE login ─────────────
     try {
       const guestIdentityStr = localStorage.getItem('kaprao_guest_identity')
 
-      if (guestIdentityStr && supabaseUserId) {
+      if (guestIdentityStr && userId) {
         const guestIdentity = JSON.parse(guestIdentityStr)
         const guestId = guestIdentity.id
 
@@ -292,11 +261,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return
         }
 
-        console.log(`🎁 Syncing guest ${guestId} to member ${supabaseUserId}...`)
+        console.log(`🎁 Syncing guest ${guestId} to member ${userId}...`)
 
         const { data, error } = await (supabase.rpc as any)('sync_guest_to_member', {
           p_guest_id: guestId,
-          p_user_id: supabaseUserId,
+          p_user_id: userId,
         })
 
         if (!error && (data as any)?.success) {
@@ -310,7 +279,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const { data: profileData } = await supabase
             .from('profiles')
             .select('points, total_orders')
-            .eq('id', supabaseUserId)
+            .eq('id', userId)
             .maybeSingle()
 
           const newPoints = (profileData as any)?.points || pointsAdded
@@ -358,20 +327,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [setUser, setGuest])
 
   // Handle LINE login button press
+  // Handle LINE login button press
   const handleLineLogin = useCallback(async () => {
     try {
       setLoading(true)
       console.log('🔐 Starting REAL LINE login via LIFF...')
 
       const { loginWithLine } = await import('@/lib/auth')
-      await loginWithLine()
+      const loggedInUser = await loginWithLine()
+      if (loggedInUser) {
+        setShowWelcome(false)
+        useUIStore.getState().addToast({
+          type: 'success',
+          title: 'เข้าสู่ระบบด้วย LINE สำเร็จ! 💚',
+          message: `ยินดีต้อนรับคุณ ${loggedInUser.displayName}`,
+        })
+      }
     } catch (error) {
       console.error('❌ LINE login error:', error)
       setLoading(false)
       useUIStore.getState().addToast({
         type: 'error',
         title: 'เข้าสู่ระบบด้วย LINE ไม่สำเร็จ',
-        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง',
+        message: error instanceof Error ? error.message : 'กรุณาลองใหม่อีกครั้ง หรือเข้าสู่ระบบด้วยเบอร์โทรศัพท์',
         duration: 7000,
       })
     } finally {
@@ -403,7 +381,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const restoredUser: User = {
           id: supabaseUser.id,
           lineUserId: data.line_user_id,
-          displayName: data.display_name || 'Guest',
+          phoneNumber: data.phone_number,
+          displayName: data.display_name || 'สมาชิกกะเพรา 52',
           pictureUrl: data.picture_url,
           points: data.points || 0,
           totalOrders: data.total_orders || 0,
@@ -412,11 +391,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           createdAt: data.created_at || new Date().toISOString(),
         }
 
-        // If this is actually a real LINE user (has line_user_id), set them as authenticated
-        if (data.line_user_id) {
+        if (data.line_user_id || data.phone_number) {
           setUser(restoredUser)
         } else {
-          // Anonymous guest session — treat as guest
           setGuest()
         }
       } else {
@@ -435,148 +412,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const initializeAuth = async () => {
       try {
         setLoading(true)
-        console.log('🚀 Initializing auth...')
+        console.log('🚀 Initializing auth & LIFF...')
 
-        // 1. Fast restore from localStorage (the most common path for returning users)
-        const savedUser = localStorage.getItem('kaprao_user_data')
-        if (savedUser) {
-          try {
-            const parsed = JSON.parse(savedUser)
-            if (parsed.userId && parsed.lineUserId) {
-              // Real LINE user — restore immediately
-              const restoredUser: User = {
-                id: parsed.userId,
-                lineUserId: parsed.lineUserId,
-                displayName: parsed.name || 'User',
-                pictureUrl: parsed.image,
-                points: 0,
-                totalOrders: 0,
-                tier: 'MEMBER',
-                isAdmin: false,
-                createdAt: new Date().toISOString(),
-              }
-              setUser(restoredUser)
-              setLoading(false)
-              setIsInitializing(false)
-
-              // Background sync — refresh points from server
-              void (async () => {
-                try {
-                  const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsed.userId)
-                  if (!isValidUUID) return
-
-                  const { data } = await supabase
-                    .from('profiles')
-                    .select('points, total_orders, tier, display_name, picture_url, is_admin')
-                    .eq('id', parsed.userId)
-                    .maybeSingle()
-
-                  if (data) {
-                    setUser({
-                      ...restoredUser,
-                      points: (data as any).points || 0,
-                      totalOrders: (data as any).total_orders || 0,
-                      tier: (data as any).tier || 'MEMBER',
-                      displayName: (data as any).display_name || restoredUser.displayName,
-                      pictureUrl: (data as any).picture_url || restoredUser.pictureUrl,
-                      isAdmin: (data as any).is_admin || false,
-                    })
-                  }
-                } catch (e) {
-                  console.warn('⚠️ Background sync:', e)
-                }
-              })()
-
-              // Check if LIFF has completed login and we need to sync guest orders
-              const guestIdentityStr = localStorage.getItem('kaprao_guest_identity')
-              if (guestIdentityStr && parsed.userId) {
-                // We came back from LIFF redirect with guest identity — try to sync
-                try {
-                  const guestIdentity = JSON.parse(guestIdentityStr)
-                  const guestId = guestIdentity.id
-                  const isGuestUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(guestId)
-                  const isUserUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsed.userId)
-
-                  if (!isGuestUUID || !isUserUUID) {
-                    localStorage.removeItem('kaprao_guest_identity')
-                    throw new Error('Invalid guestId or userId for sync')
-                  }
-
-                  const { data, error } = await (supabase.rpc as any)('sync_guest_to_member', {
-                    p_guest_id: guestId,
-                    p_user_id: parsed.userId,
-                  })
-
-                  if (!error && (data as any)?.success) {
-                    const pts = (data as any).points_added || 0
-                    const orders = (data as any).orders_synced || 0
-                    if (pts > 0 || orders > 0) {
-                      useUIStore.getState().addToast({
-                        type: 'success',
-                        title: `🎉 ได้รับ ${pts} พอยต์และเชื่อมต่อ ${orders} ออเดอร์!`,
-                        message: `บัญชีของคุณพร้อมใช้งานแล้ว ✨`,
-                        duration: 6000,
-                      })
-                      // Get fresh points from DB
-                      const { data: profileData } = await supabase
-                        .from('profiles')
-                        .select('points')
-                        .eq('id', parsed.userId)
-                        .maybeSingle()
-                      setUser({ ...restoredUser, points: (profileData as any)?.points || pts })
-                    }
-                    // Clear guest identity after sync
-                    localStorage.removeItem('kaprao_guest_identity')
-                  }
-                } catch (_) { /* noop */ }
-                sessionStorage.removeItem('pending_guest_order_id')
-                sessionStorage.removeItem('pending_guest_tracking_token')
-              }
-              return
-            }
-          } catch (e) {
-            localStorage.removeItem('kaprao_user_data')
-          }
-        }
-
-        // 2. Check if user has chosen guest this session already
-        const isGuestSession = sessionStorage.getItem('kaprao_guest_mode')
-        if (isGuestSession) {
-          setGuest()
-          setLoading(false)
-          setIsInitializing(false)
-          return
-        }
-
-        // 2b. Returning guest: has a guest identity from a previous session — skip modal
-        const existingGuestIdentity = localStorage.getItem('kaprao_guest_identity')
-        if (existingGuestIdentity) {
-          setGuest()
-          sessionStorage.setItem('kaprao_guest_mode', 'true')
-          setLoading(false)
-          setIsInitializing(false)
-          return
-        }
-
-        // 3 & 4. Initialize Supabase and LIFF in parallel for performance
-        console.log('🔍 Initializing auth systems...')
+        // 1. Initialize LIFF FIRST to handle any OAuth redirect callbacks or in-app LINE sessions
         const [supabaseResult, liffInitialized] = await Promise.all([
           isConfigured ? supabase.auth.getSession() : Promise.resolve({ data: { session: null }, error: null }),
           initLiff()
         ])
 
-        const session = supabaseResult?.data?.session
-
-        if (isConfigured && session?.user) {
-          console.log('✅ Active Supabase session found')
-          await handleUserSession(session.user)
-          setLoading(false)
-          setIsInitializing(false)
-          return
-        }
-
         if (liffInitialized && isLiffLoggedIn()) {
-          console.log('✅ Already logged in via LIFF')
+          console.log('✅ Active LINE LIFF session detected')
           const profile = await getLineProfile()
           if (profile) {
             await handleLiffSession(profile)
@@ -586,7 +431,80 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         }
 
-        // 5. New user — show welcome modal
+        // 2. Fast restore from localStorage
+        const savedUser = localStorage.getItem('kaprao_user_data')
+        if (savedUser) {
+          try {
+            const parsed = JSON.parse(savedUser)
+            if (parsed.id || parsed.userId) {
+              const restoredUser: User = {
+                id: parsed.id || parsed.userId,
+                lineUserId: parsed.lineUserId,
+                phoneNumber: parsed.phoneNumber,
+                displayName: parsed.displayName || parsed.name || 'สมาชิกกะเพรา 52',
+                pictureUrl: parsed.pictureUrl || parsed.image,
+                points: parsed.points || 0,
+                totalOrders: parsed.totalOrders || 0,
+                tier: parsed.tier || 'MEMBER',
+                isAdmin: parsed.isAdmin || false,
+                createdAt: parsed.createdAt || new Date().toISOString(),
+              }
+              setUser(restoredUser)
+              setLoading(false)
+              setIsInitializing(false)
+
+              // Background sync points
+              void (async () => {
+                try {
+                  const { data } = await supabase
+                    .from('profiles')
+                    .select('points, total_orders, tier, display_name, picture_url, is_admin')
+                    .eq('id', restoredUser.id)
+                    .maybeSingle()
+
+                  if (data) {
+                    setUser({
+                      ...restoredUser,
+                      points: (data as any).points ?? restoredUser.points,
+                      totalOrders: (data as any).total_orders ?? restoredUser.totalOrders,
+                      tier: (data as any).tier || restoredUser.tier,
+                      displayName: (data as any).display_name || restoredUser.displayName,
+                      pictureUrl: (data as any).picture_url || restoredUser.pictureUrl,
+                      isAdmin: (data as any).is_admin || false,
+                    })
+                  }
+                } catch (e) {
+                  console.warn('⚠️ Background sync:', e)
+                }
+              })()
+              return
+            }
+          } catch (e) {
+            localStorage.removeItem('kaprao_user_data')
+          }
+        }
+
+        // 3. Check Supabase session
+        const session = supabaseResult?.data?.session
+        if (isConfigured && session?.user) {
+          console.log('✅ Active Supabase session found')
+          await handleUserSession(session.user)
+          setLoading(false)
+          setIsInitializing(false)
+          return
+        }
+
+        // 4. Check returning guest session
+        const isGuestSession = sessionStorage.getItem('kaprao_guest_mode')
+        const existingGuestIdentity = localStorage.getItem('kaprao_guest_identity')
+        if (isGuestSession || existingGuestIdentity) {
+          setGuest()
+          setLoading(false)
+          setIsInitializing(false)
+          return
+        }
+
+        // 5. New visitor — show welcome screen
         console.log('👋 New visitor — showing welcome screen')
         setShowWelcome(true)
         setGuest()

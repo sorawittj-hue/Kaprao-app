@@ -28,12 +28,27 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     hapticHeavy()
     setIsLoading(true)
     try {
-      await loginWithLine()
+      const user = await loginWithLine()
+      if (user) {
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#00C300', '#10B981', '#FF5500'],
+        })
+        addToast({
+          type: 'success',
+          title: 'เข้าสู่ระบบด้วย LINE สำเร็จ! 💚',
+          message: `ยินดีต้อนรับคุณ ${user.displayName}`,
+        })
+        onSuccess?.()
+        onClose()
+      }
     } catch (err: any) {
       addToast({
         type: 'error',
         title: 'เข้าสู่ระบบด้วย LINE ไม่สำเร็จ',
-        message: err.message || 'กรุณาเข้าสู่ระบบด้วยเบอร์โทรศัพท์แทนได้ทันที',
+        message: err.message || 'กรุณาลองใหม่อีกครั้ง หรือเข้าสู่ระบบด้วยเบอร์โทรศัพท์',
       })
       // Switch to phone tab smoothly if LINE is not configured in current environment
       setAuthMode('phone')
