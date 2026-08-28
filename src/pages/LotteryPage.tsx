@@ -95,7 +95,7 @@ export default function LotteryPage() {
             </motion.div>
             <h2 className="text-2xl font-black tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>เจาะลึกความคุ้ม!</h2>
             <p className="font-medium leading-relaxed text-center px-6 max-w-sm mb-8 text-sm" style={{ color: 'var(--text-secondary)' }}>
-              พื้นที่นี้สงวนไว้ให้เฉพาะสมาชิกเท่านั้น ล็อกอินผ่าน LINE เพื่อลุ้นกินฟรีทุกงวด ยิ่งสั่งมาก ยิ่งมีสิทธิ์มาก!
+              พื้นที่นี้สำหรับสมาชิก เข้าสู่ระบบด้วยเบอร์โทรศัพท์เพื่อลุ้นกินฟรีทุกงวด ยิ่งสั่งมาก ยิ่งมีสิทธิ์มาก!
             </p>
             <motion.button
               type="button"
@@ -106,11 +106,11 @@ export default function LotteryPage() {
               }}
               className="h-14 px-8 text-white rounded-[20px] font-black text-sm flex items-center gap-2 cursor-pointer shadow-md"
               style={{
-                background: 'linear-gradient(135deg, #22C55E, #16A34A)',
-                boxShadow: '0 8px 24px rgba(34,197,94,0.30)',
+                background: 'linear-gradient(135deg, #FF5500, #E03E00)',
+                boxShadow: '0 8px 24px rgba(255,85,0,0.30)',
               }}
             >
-              เข้าสู่ระบบเพื่อดูตั๋วหวย <ChevronRight className="w-4 h-4" aria-hidden="true" />
+              📱 เข้าสู่ระบบด้วยเบอร์โทร <ChevronRight className="w-4 h-4" aria-hidden="true" />
             </motion.button>
           </div>
         </Container>

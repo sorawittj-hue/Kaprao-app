@@ -91,18 +91,15 @@ export function GuestConversionPanel({
           <motion.button
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.97 }}
-            className="w-full py-3.5 rounded-xl font-black text-base flex items-center justify-center gap-2"
-            style={{ background: '#00B900', color: 'white', boxShadow: '0 6px 20px rgba(0,185,0,0.5)' }}
+            className="w-full py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md"
+            style={{ background: 'linear-gradient(135deg, #FF5500, #E03E00)', color: 'white', boxShadow: '0 6px 20px rgba(255,85,0,0.35)' }}
             onClick={onLogin}
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .345-.285.63-.631.63s-.63-.285-.63-.63V8.108c0-.345.283-.63.63-.63.346 0 .63.285.63.63v4.771zm-1.94-.532c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.631c-.691 0-1.25-.563-1.25-1.257V8.108c0-.345.284-.63.631-.63.345 0 .63.285.63.63v4.771c0 .173.14.315.315.315h.674c.348 0 .629.283.629.63 0 .344-.282.629-.629.629zM3.678 8.735c0-.345.285-.63.631-.63h2.505c.345 0 .627.285.627.63s-.282.63-.627.63H4.938v1.126h1.481c.346 0 .628.283.628.63 0 .344-.282.629-.628.629H4.938v1.756c0 .345-.286.63-.631.63-.346 0-.629-.285-.629-.63V8.735z" />
-            </svg>
-            Login LINE รับพอยต์ + บันทึกตั๋วหวย
+            📱 เข้าสู่ระบบด้วยเบอร์โทร รับ {pointsToEarn} พอยต์ทันที!
           </motion.button>
 
-          <p className="text-center text-white/60 text-[11px] mt-2">
-            ฟรี — ไม่เสียค่าใช้จ่าย
+          <p className="text-center text-white/70 text-[11px] mt-2 font-medium">
+            ฟรี — รับแต้มสะสมและสลากกินฟรีทันที
           </p>
         </div>
       </motion.div>
@@ -135,7 +132,7 @@ export function GuestConversionPanel({
                 ออเดอร์นี้มีพอยต์รออยู่!
               </h3>
               <p className="text-gray-400 text-xs mt-1 leading-relaxed">
-                Login LINE แล้วพอยต์จะโอนเข้ากระเป๋าทันที
+                เข้าสู่ระบบด้วยเบอร์โทร แล้วพอยต์จะโอนเข้ากระเป๋าทันที
               </p>
             </div>
           </div>
@@ -159,13 +156,10 @@ export function GuestConversionPanel({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             onClick={onLogin}
-            className="w-full py-3.5 rounded-xl font-black text-white text-sm flex items-center justify-center gap-2"
-            style={{ background: '#00B900', boxShadow: '0 6px 18px rgba(0,185,0,0.45)' }}
+            className="w-full py-3.5 rounded-xl font-black text-white text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md"
+            style={{ background: 'linear-gradient(135deg, #FF5500, #E03E00)', boxShadow: '0 6px 18px rgba(255,85,0,0.35)' }}
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .345-.285.63-.631.63s-.63-.285-.63-.63V8.108c0-.345.283-.63.63-.63.346 0 .63.285.63.63v4.771zm-1.94-.532c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.631c-.691 0-1.25-.563-1.25-1.257V8.108c0-.345.284-.63.631-.63.345 0 .63.285.63.63v4.771c0 .173.14.315.315.315h.674c.348 0 .629.283.629.63 0 .344-.282.629-.629.629zM3.678 8.735c0-.345.285-.63.631-.63h2.505c.345 0 .627.285.627.63s-.282.63-.627.63H4.938v1.126h1.481c.346 0 .628.283.628.63 0 .344-.282.629-.628.629H4.938v1.756c0 .345-.286.63-.631.63-.346 0-.629-.285-.629-.63V8.735z" />
-            </svg>
-            Login LINE รับพอยต์ {pointsToEarn} ทันที!
+            📱 เข้าสู่ระบบด้วยเบอร์โทร รับ {pointsToEarn} พอยต์!
           </motion.button>
         </div>
       </motion.div>
@@ -189,8 +183,8 @@ export function GuestConversionPanel({
             <span className="text-white text-xl">⭐</span>
           </div>
           <div>
-            <p className="font-black text-gray-800 text-sm">Login LINE เพื่อรับพอยต์!</p>
-            <p className="text-xs text-gray-500">สั่งเป็น Guest ก็ได้ — แล้วค่อย login ทีหลังก็ยังได้พอยต์คืน</p>
+            <p className="font-black text-gray-800 text-sm">เข้าสู่ระบบเพื่อรับพอยต์!</p>
+            <p className="text-xs text-gray-500">สั่งเป็น Guest ก็ได้ — เข้าสู่ระบบทีหลังก็ยังได้แต้มคืน</p>
           </div>
         </div>
         
@@ -212,13 +206,10 @@ export function GuestConversionPanel({
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={onLogin}
-          className="w-full py-2.5 rounded-xl font-black text-white text-sm flex items-center justify-center gap-2"
-          style={{ background: '#00B900', boxShadow: '0 4px 12px rgba(0,185,0,0.4)' }}
+          className="w-full py-2.5 rounded-xl font-black text-white text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md"
+          style={{ background: 'linear-gradient(135deg, #FF5500, #E03E00)', boxShadow: '0 4px 12px rgba(255,85,0,0.3)' }}
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .345-.285.63-.631.63s-.63-.285-.63-.63V8.108c0-.345.283-.63.63-.63.346 0 .63.285.63.63v4.771zm-1.94-.532c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.631c-.691 0-1.25-.563-1.25-1.257V8.108c0-.345.284-.63.631-.63.345 0 .63.285.63.63v4.771c0 .173.14.315.315.315h.674c.348 0 .629.283.629.63 0 .344-.282.629-.629.629zM3.678 8.735c0-.345.285-.63.631-.63h2.505c.345 0 .627.285.627.63s-.282.63-.627.63H4.938v1.126h1.481c.346 0 .628.283.628.63 0 .344-.282.629-.628.629H4.938v1.756c0 .345-.286.63-.631.63-.346 0-.629-.285-.629-.63V8.735z" />
-          </svg>
-          Login LINE ก่อนสั่ง
+          📱 เข้าสู่ระบบด้วยเบอร์โทร (รับแต้ม)
         </motion.button>
       </div>
     </motion.div>

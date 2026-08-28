@@ -330,7 +330,7 @@ export default function ProfilePage() {
               {isGuest || !user ? (
                 /* Guest Card */
                 <div
-                  className="rounded-[28px] p-5 shine-sweep"
+                  className="rounded-[28px] p-5 shine-sweep space-y-4"
                   style={{
                     background: 'var(--bg-card)',
                     border: '1px solid var(--border-soft)',
@@ -339,26 +339,35 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center gap-4">
                     <div
-                      className="w-[72px] h-[72px] rounded-[22px] flex items-center justify-center flex-shrink-0"
+                      className="w-[64px] h-[64px] rounded-[20px] flex items-center justify-center flex-shrink-0"
                       style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-soft)' }}
                     >
-                      <User className="w-8 h-8 text-slate-400" />
+                      <User className="w-7 h-7 text-slate-400" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-black leading-tight" style={{ color: 'var(--text-primary)' }}>โปรไฟล์ผู้เยี่ยมชม</h2>
-                      <div
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mt-1.5"
-                        style={{
-                          background: 'var(--bg-surface)',
-                          border: '1px solid var(--border-soft)',
-                          color: 'var(--text-muted)',
-                        }}
-                      >
-                        <Star className="w-3 h-3" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Guest Account</span>
-                      </div>
+                      <h2 className="text-base font-black leading-tight" style={{ color: 'var(--text-primary)' }}>ผู้เยี่ยมชม (Guest)</h2>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                        เข้าสู่ระบบเพื่อสะสมแต้มและลุ้นหวยกินฟรี
+                      </p>
                     </div>
                   </div>
+
+                  <motion.button
+                    type="button"
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => {
+                      hapticHeavy()
+                      setIsAuthModalOpen(true)
+                    }}
+                    className="w-full py-3 px-4 rounded-[18px] text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    style={{
+                      background: 'linear-gradient(135deg, #FF5500, #E03E00)',
+                      boxShadow: '0 4px 16px rgba(255,85,0,0.25)',
+                    }}
+                  >
+                    <Smartphone className="w-4 h-4" />
+                    <span>📱 เข้าสู่ระบบด้วยเบอร์โทร (รับฟรี 50 พอยต์)</span>
+                  </motion.button>
                 </div>
               ) : (
                 /* Logged In — Tier Card */

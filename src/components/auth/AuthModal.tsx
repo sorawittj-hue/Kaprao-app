@@ -18,8 +18,8 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const { addToast } = useUIStore()
 
   const [authMode, setAuthMode] = useState<'phone' | 'line' | 'demo'>('phone')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [displayName, setDisplayName] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState(() => localStorage.getItem('kaprao_saved_phone') || '')
+  const [displayName, setDisplayName] = useState(() => localStorage.getItem('kaprao_saved_name') || '')
   const [isLoading, setIsLoading] = useState(false)
 
   if (!isOpen) return null
