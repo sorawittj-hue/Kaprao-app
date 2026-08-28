@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Store, Map, CheckCircle2,
   MapPinned, MessageCircle, ShoppingBag,
-  Star, Phone, Receipt, MoreVertical, HeartHandshake, RotateCcw
+  Star, Phone, Receipt, MoreVertical, HeartHandshake, RotateCcw,
+  Sparkles
 } from 'lucide-react'
 import { useOrderDetail } from '@/features/orders/hooks/useOrders'
 import { useAuthStore, useCartStore, useUIStore } from '@/store'
@@ -19,6 +20,8 @@ import { trackPageView } from '@/lib/analytics'
 import { useSEO } from '@/hooks/useSEO'
 import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
 import type { OrderItem, SelectedOption } from '@/types'
+
+import { AuthModal } from '@/components/auth/AuthModal'
 
 const fadeUpSpring = {
   hidden: { opacity: 0, y: 16 },
@@ -41,6 +44,7 @@ export default function OrderDetailPage() {
   const orderId = id ? parseInt(id, 10) : 0
   const { data: order, isLoading } = useOrderDetail(orderId)
   const [showOptions, setShowOptions] = useState(false)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
 
   useEffect(() => {
     trackPageView(`/orders/${id}`, 'OrderDetail')
@@ -231,44 +235,41 @@ export default function OrderDetailPage() {
                     🎁
                   </motion.div>
                   <div className="pt-1">
-                    <h3 className="font-black text-amber-950 text-lg leading-tight mb-1">สะสมพอยต์ก่อนหายไป!</h3>
-                    <p className="text-xs leading-relaxed font-medium text-amber-900/80">คุณพลาดพอยต์ไปแล้ว {pointsMissed} แต้ม ผูก LINE ตอนนี้เพื่อรับพอยต์ย้อนหลังและลุ้นหวยฟรี</p>
+                    <h3 className="font-black text-amber-950 text-base leading-tight mb-1">สะสมพอยต์ก่อนหมดอายุ!</h3>
+                    <p className="text-xs leading-relaxed font-medium text-amber-900/80">
+                      คุณได้รับสิทธิ์สะสม {pointsMissed} แต้ม เข้าสู่ระบบตอนนี้เพื่อรับแต้มย้อนหลังและลุ้นกินฟรี
+                    </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                  <div className="rounded-2xl p-3.5 flex flex-col items-center justify-center border border-amber-200/60 bg-white/80">
-                    <p className="text-2xl font-black text-amber-700 drop-shadow-sm">{pointsMissed}</p>
-                    <p className="text-[10px] font-bold mt-1 uppercase tracking-wider text-amber-900/70">Points</p>
+                <div className="grid grid-cols-3 gap-2.5 mb-5">
+                  <div className="rounded-2xl p-3 flex flex-col items-center justify-center border border-amber-200/80 bg-white shadow-xs">
+                    <p className="text-xl font-black text-amber-600 num-display">+{pointsMissed}</p>
+                    <p className="text-[9px] font-black mt-0.5 text-slate-500 uppercase tracking-wider">แต้มสะสม</p>
                   </div>
-                  <div className="rounded-2xl p-3.5 flex flex-col items-center justify-center border border-amber-200/60 bg-white/80">
-                    <p className="text-2xl font-black text-emerald-700 drop-shadow-sm">{ticketsMissed}</p>
-                    <p className="text-[10px] font-bold mt-1 uppercase tracking-wider text-emerald-900/70">Tickets</p>
+                  <div className="rounded-2xl p-3 flex flex-col items-center justify-center border border-emerald-200/80 bg-white shadow-xs">
+                    <p className="text-xl font-black text-emerald-600 num-display">+{ticketsMissed}</p>
+                    <p className="text-[9px] font-black mt-0.5 text-slate-500 uppercase tracking-wider">สิทธิ์ลุ้นหวย</p>
                   </div>
-                  <div className="rounded-2xl p-3.5 flex flex-col items-center justify-center border border-amber-200/60 bg-white/80">
-                    <p className="text-2xl font-black text-sky-700 drop-shadow-sm">{Math.round(pointsMissed / 10)}</p>
-                    <p className="text-[10px] font-bold mt-1 uppercase tracking-wider text-sky-900/70">Baht</p>
+                  <div className="rounded-2xl p-3 flex flex-col items-center justify-center border border-orange-200/80 bg-white shadow-xs">
+                    <p className="text-xl font-black text-orange-600 num-display">฿{Math.round(pointsMissed / 10)}</p>
+                    <p className="text-[9px] font-black mt-0.5 text-slate-500 uppercase tracking-wider">มูลค่าส่วนลด</p>
                   </div>
                 </div>
 
                 <motion.button
-                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.96 }}
-                  onClick={async () => {
-                    hapticHeavy();
-                    try {
-                      if (effectiveToken) savePendingGuestOrder(order.id, effectiveToken)
-                      const { loginWithLine } = await import('@/lib/auth')
-                      await loginWithLine()
-                    } catch (error) {
-                      const { useUIStore } = await import('@/store')
-                      useUIStore.getState().addToast({ type: 'error', title: 'Login Failed', message: error instanceof Error ? error.message : 'Please try again.' })
-                    }
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => {
+                    hapticHeavy()
+                    if (effectiveToken) savePendingGuestOrder(order.id, effectiveToken)
+                    setIsAuthModalOpen(true)
                   }}
-                  className="w-full py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2.5 relative overflow-hidden cursor-pointer"
-                  style={{ background: '#00C300', boxShadow: '0 8px 24px -6px rgba(0, 195, 0, 0.4)' }}
+                  className="w-full py-3.5 rounded-[20px] font-black text-white text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  style={{ background: 'linear-gradient(135deg, #FF5500, #E03E00)', boxShadow: '0 8px 20px rgba(255, 85, 0, 0.35)' }}
                 >
-                  <MessageCircle className="w-5 h-5" />
-                  Claim via LINE
+                  <Sparkles className="w-4 h-4" />
+                  <span>เข้าสู่ระบบเพื่อรับแต้ม & สิทธิ์ลุ้นหวย</span>
                 </motion.button>
               </div>
             </motion.div>
@@ -483,6 +484,11 @@ export default function OrderDetailPage() {
 
         </motion.div>
       </Container>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </div>
   )
 }

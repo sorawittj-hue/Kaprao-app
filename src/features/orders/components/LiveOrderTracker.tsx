@@ -138,18 +138,53 @@ export function LiveOrderTracker({
 
   const timeRemaining = getTimeRemaining()
 
+  if (status === 'cancelled') {
+    return (
+      <div
+        className="rounded-[28px] p-5 relative overflow-hidden border shadow-sm"
+        style={{
+          background: 'linear-gradient(135deg, #FEF2F2 0%, #FFFFFF 100%)',
+          borderColor: 'rgba(239, 68, 68, 0.25)',
+        }}
+      >
+        <div className="flex items-center gap-3.5 mb-3">
+          <div
+            className="w-12 h-12 rounded-[18px] flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.25)' }}
+          >
+            <AlertCircle className="w-6 h-6 text-red-500" />
+          </div>
+          <div>
+            <h3 className="font-black text-slate-900 text-base leading-tight">ออเดอร์นี้ถูกยกเลิกแล้ว</h3>
+            <p className="text-xs font-medium text-slate-500 mt-0.5">
+              หากมีข้อสงสัย สามารถติดต่อร้านค้าได้ตลอดเวลา
+            </p>
+          </div>
+        </div>
+        <div
+          className="rounded-[18px] p-3 flex items-center justify-between text-xs font-bold text-red-700 mt-2"
+          style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.15)' }}
+        >
+          <span>สถานะ: ยกเลิกคำสั่งซื้อ</span>
+          <span className="text-[10px] font-bold text-slate-400">
+            {lastUpdated.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
-      className="rounded-[28px] p-5 relative overflow-hidden"
+      className="rounded-[28px] p-5 relative overflow-hidden border shadow-sm"
       style={{
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-soft)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        background: '#FFFFFF',
+        borderColor: 'var(--border-soft)',
       }}
     >
       {/* Glow orb */}
       <div
-        className="absolute top-0 right-0 w-36 h-36 rounded-full pointer-events-none opacity-20"
+        className="absolute top-0 right-0 w-36 h-36 rounded-full pointer-events-none opacity-15"
         style={{ background: currentConfig.color, filter: 'blur(40px)' }}
       />
 
@@ -160,7 +195,7 @@ export function LiveOrderTracker({
             key={status}
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
-            className="w-12 h-12 rounded-[18px] flex items-center justify-center border"
+            className="w-12 h-12 rounded-[18px] flex items-center justify-center border flex-shrink-0"
             style={{
               background: currentConfig.bg,
               borderColor: `${currentConfig.color}40`,
@@ -170,8 +205,8 @@ export function LiveOrderTracker({
             <currentConfig.icon className="w-6 h-6" style={{ color: currentConfig.color }} />
           </motion.div>
           <div>
-            <h3 className="font-black text-white text-base leading-tight">{currentConfig.label}</h3>
-            <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+            <h3 className="font-black text-slate-900 text-base leading-tight">{currentConfig.label}</h3>
+            <p className="text-xs font-medium text-slate-500 mt-0.5">
               {currentConfig.description}
             </p>
           </div>
@@ -179,8 +214,8 @@ export function LiveOrderTracker({
 
         {timeRemaining && (
           <div className="text-right">
-            <p className="text-xs font-black text-gradient-fire num-display">{timeRemaining}</p>
-            <p className="text-[10px] font-bold" style={{ color: 'var(--text-micro)' }}>
+            <p className="text-xs font-black text-orange-600 num-display">{timeRemaining}</p>
+            <p className="text-[10px] font-bold text-slate-400">
               อัปเดต {lastUpdated.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
@@ -190,16 +225,13 @@ export function LiveOrderTracker({
       {/* Progress Bar */}
       <div className="relative mb-7 px-1">
         <div
-          className="h-2 rounded-full overflow-hidden"
-          style={{ background: 'var(--bg-surface)' }}
+          className="h-2 rounded-full overflow-hidden bg-slate-100"
         >
           <motion.div
             className="h-full rounded-full"
             style={{
-              background: status === 'cancelled'
-                ? '#EF4444'
-                : 'linear-gradient(90deg, #FF5E00, #FF3A00, #22C55E)',
-              boxShadow: '0 0 12px rgba(255,94,0,0.5)',
+              background: 'linear-gradient(90deg, #FF5E00, #FF3A00, #22C55E)',
+              boxShadow: '0 0 12px rgba(255,94,0,0.4)',
             }}
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
@@ -216,10 +248,10 @@ export function LiveOrderTracker({
             return (
               <motion.div
                 key={stepStatus}
-                className="w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 flex items-center justify-center"
+                className="w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 flex items-center justify-center bg-white"
                 style={{
-                  background: isCompleted ? '#FF5E00' : 'var(--bg-surface)',
-                  borderColor: isCompleted ? '#FF5E00' : 'var(--border-subtle)',
+                  background: isCompleted ? '#FF5E00' : '#F1F5F9',
+                  borderColor: isCompleted ? '#FF5E00' : '#CBD5E1',
                   boxShadow: isCurrent ? '0 0 0 4px rgba(255,94,0,0.25)' : 'none',
                 }}
                 animate={isCurrent ? { scale: [1, 1.25, 1] } : {}}
@@ -245,11 +277,11 @@ export function LiveOrderTracker({
                 exit={{ opacity: 0, x: 16 }}
                 className={cn(
                   'flex items-center gap-3 p-3 rounded-[18px] transition-all border',
-                  isLatest ? 'opacity-100' : 'opacity-50'
+                  isLatest ? 'opacity-100 shadow-xs' : 'opacity-60'
                 )}
                 style={{
-                  background: isLatest ? 'var(--bg-surface)' : 'transparent',
-                  borderColor: isLatest ? 'var(--border-soft)' : 'transparent',
+                  background: isLatest ? '#FFF7ED' : '#F8FAFC',
+                  borderColor: isLatest ? 'rgba(255, 94, 0, 0.25)' : 'rgba(226, 232, 240, 0.8)',
                 }}
               >
                 <div
@@ -259,7 +291,10 @@ export function LiveOrderTracker({
                   <config.icon className="w-3.5 h-3.5" style={{ color: config.color }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-xs" style={{ color: isLatest ? '#fff' : 'var(--text-muted)' }}>
+                  <p
+                    className="font-bold text-xs"
+                    style={{ color: isLatest ? '#C2410C' : '#64748B' }}
+                  >
                     {config.label}
                   </p>
                 </div>
@@ -280,11 +315,11 @@ export function LiveOrderTracker({
       </div>
 
       {/* Live Indicator */}
-      {status !== 'delivered' && status !== 'cancelled' && (
-        <div className="mt-4 flex items-center justify-center gap-2 text-[11px] font-bold" style={{ color: 'var(--text-muted)' }}>
+      {status !== 'delivered' && (
+        <div className="mt-4 flex items-center justify-center gap-2 text-[11px] font-bold text-slate-500">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span>ระบบติดตามสถานะสดแบบเรียลไทม์</span>
         </div>

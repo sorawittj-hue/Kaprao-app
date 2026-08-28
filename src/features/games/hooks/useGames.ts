@@ -13,30 +13,28 @@ export function useWheelOfFortune() {
   const [spinsLeft, setSpinsLeft] = useState(MAX_SPINS_PER_DAY)
   const [lastWin, setLastWin] = useState<{ code: string; value: number } | null>(null)
 
-  useEffect(() => {
-    if (!user) {
-      setSpinsLeft(0)
-      return
-    }
+  const getStorageKey = useCallback(() => {
     const today = new Date().toDateString()
-    const storageKey = `${WHEEL_STORAGE_KEY}_${user.id}_${today}`
-    const spinsUsed = parseInt(localStorage.getItem(storageKey) || '0')
+    const id = user?.id || 'guest_user'
+    return `${WHEEL_STORAGE_KEY}_${id}_${today}`
+  }, [user?.id])
+
+  useEffect(() => {
+    const storageKey = getStorageKey()
+    const spinsUsed = parseInt(localStorage.getItem(storageKey) || '0', 10)
     setSpinsLeft(Math.max(0, MAX_SPINS_PER_DAY - spinsUsed))
-  }, [user])
+  }, [getStorageKey])
 
   const recordSpin = useCallback((code: string, value: number) => {
-    if (!user) return
-    
-    const today = new Date().toDateString()
-    const storageKey = `${WHEEL_STORAGE_KEY}_${user.id}_${today}`
-    const spinsUsed = parseInt(localStorage.getItem(storageKey) || '0')
+    const storageKey = getStorageKey()
+    const spinsUsed = parseInt(localStorage.getItem(storageKey) || '0', 10)
     
     localStorage.setItem(storageKey, (spinsUsed + 1).toString())
     setSpinsLeft(Math.max(0, MAX_SPINS_PER_DAY - spinsUsed - 1))
     setLastWin({ code, value })
-  }, [user])
+  }, [getStorageKey])
 
-  const canSpin = spinsLeft > 0 && !!user
+  const canSpin = spinsLeft > 0
 
   return {
     spinsLeft,
@@ -51,45 +49,62 @@ export function useWheelOfFortune() {
 export function useQuickReorder() {
   const { user } = useAuthStore()
 
-  const { data: recentOrders, isLoading } = useQuery({
+  const { data: recentOrders = [], isLoading } = useQuery({
     queryKey: ['quick-reorder', user?.id],
     queryFn: async () => {
-      if (!user?.id) return []
-      
-      // Ensure user.id is a valid UUID before querying to prevent 400 Bad Request
-      if (!isValidUUID(user.id)) {
-        console.warn('⚠️ Invalid userId format for quick reorder, skipping fetch:', user.id)
-        return []
-      }
-      
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(5)
+      let orders: Order[] = []
 
-      if (error) throw error
-      return (data || []) as unknown as Order[]
+      if (user?.id && isValidUUID(user.id)) {
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        if (!error && data) {
+          orders = data as unknown as Order[]
+        }
+      }
+
+      // Also check local storage for recent guest / cached orders
+      if (orders.length === 0) {
+        try {
+          const localKeys = ['kaprao_order_history', 'kaprao52_guest_orders', 'guest_orders', 'kaprao_saved_orders']
+          for (const key of localKeys) {
+            const saved = localStorage.getItem(key)
+            if (saved) {
+              const parsed = JSON.parse(saved)
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                orders = parsed
+                break
+              }
+            }
+          }
+        } catch {}
+      }
+
+      return orders
     },
-    enabled: !!user?.id,
+    staleTime: 30000,
   })
 
   const getUniqueOrders = useCallback(() => {
-    if (!recentOrders) return []
+    if (!recentOrders || recentOrders.length === 0) return []
     
     const seen = new Set<string>()
     const unique: Order[] = []
     
     for (const order of recentOrders) {
-      const key = (order.items || []).map(i => i.name).join(',')
+      if (!order.items || order.items.length === 0) continue
+      const key = order.items.map(i => i.name).join(',')
       if (!seen.has(key)) {
         seen.add(key)
         unique.push(order)
       }
     }
     
-    return unique.slice(0, 3)
+    return unique.slice(0, 4)
   }, [recentOrders])
 
   return {

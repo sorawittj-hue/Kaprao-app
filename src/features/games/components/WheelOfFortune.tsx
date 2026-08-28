@@ -287,29 +287,30 @@ export function WheelOfFortune({ isOpen, onClose, onWin }: WheelOfFortuneProps) 
           <AnimatePresence>
             {showResult && lastWin && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="mb-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200"
+                exit={{ opacity: 0, y: -15 }}
+                className="mb-4 p-4 rounded-2xl border shadow-sm text-center"
+                style={{
+                  background: 'linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%)',
+                  borderColor: 'rgba(34,197,94,0.3)',
+                }}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-green-700">คุณได้รับ</p>
-                    <p className="text-lg font-black text-green-800">{lastWin.label}</p>
-                  </div>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-emerald-600" />
+                  <p className="text-sm font-black text-emerald-900">ยินดีด้วย! คุณได้รับ</p>
                 </div>
-                <div className="mt-3 p-2 bg-white rounded-lg">
-                  <p className="text-xs text-gray-500">โค้ดส่วนลด</p>
-                  <p className="text-xl font-black text-gray-800 tracking-wider">{lastWin.code}</p>
+                <p className="text-2xl font-black text-emerald-600 mb-2">{lastWin.label}</p>
+                <div className="p-2.5 bg-white rounded-xl border border-emerald-200 shadow-xs mb-3">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">โค้ดคูปองของคุณ</p>
+                  <p className="text-lg font-black text-slate-800 tracking-wider font-mono">{lastWin.code}</p>
                 </div>
                 <Button
                   onClick={handleUsePrize}
-                  className="w-full mt-3 bg-green-500 hover:bg-green-600"
+                  fullWidth
+                  className="bg-gradient-to-r from-emerald-500 to-green-600 text-white font-black py-3 rounded-xl shadow-md"
                 >
-                  ใช้โค้ดนี้เลย
+                  ใช้ส่วนลดทันที
                 </Button>
               </motion.div>
             )}
@@ -324,29 +325,29 @@ export function WheelOfFortune({ isOpen, onClose, onWin }: WheelOfFortuneProps) 
               size="lg"
               fullWidth
               className={cn(
-                'bg-gradient-to-r from-pink-500 to-emerald-600 hover:from-pink-600 hover:to-emerald-700',
-                (spinsLeft <= 0 || isSpinning) && 'opacity-50 cursor-not-allowed'
+                'text-white font-black py-3.5 rounded-2xl shadow-md cursor-pointer transition-all',
+                spinsLeft > 0 && !isSpinning
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600'
+                  : 'opacity-50 cursor-not-allowed bg-slate-300'
               )}
             >
               {isSpinning ? (
                 'กำลังหมุน...'
               ) : spinsLeft <= 0 ? (
-                'หมดสิทธิ์วันนี้'
+                'หมดสิทธิ์หมุนวันนี้ (พรุ่งนี้มาใหม่นะ)'
               ) : (
                 <>
                   <RotateCcw className="w-5 h-5 mr-2" />
-                  หมุนเลย!
+                  หมุนวงล้อเลย! ({spinsLeft} ครั้ง)
                 </>
               )}
             </Button>
           )}
 
-          {/* Guest notice */}
-          {!user && (
-            <p className="text-center text-xs text-gray-400 mt-4">
-              เข้าสู่ระบบเพื่อเก็บสะสมสิทธิ์หมุน
-            </p>
-          )}
+          {/* Footer note */}
+          <p className="text-center text-[11px] font-medium text-slate-400 mt-4">
+            สิทธิ์หมุนวงล้อจะรีเซ็ตฟรีทุกวันเวลา 00:00 น.
+          </p>
         </motion.div>
       </motion.div>
     </AnimatePresence>
