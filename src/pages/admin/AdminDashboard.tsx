@@ -54,7 +54,7 @@ export default function AdminDashboard() {
   }
 
   const statCards = [
-    { title: 'ออเดอร์ใหม่', value: stats?.pendingOrders ?? 0, icon: ClipboardList, color: 'text-amber-400', bg: 'bg-[var(--bg-base)]mber-500/10', border: 'border-amber-500/20', trend: 'Live', onClick: () => navigate('/admin/orders?status=pending') },
+    { title: 'ออเดอร์ใหม่', value: stats?.pendingOrders ?? 0, icon: ClipboardList, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', trend: 'Live', onClick: () => navigate('/admin/orders?status=pending') },
     { title: 'กำลังทำอาหาร', value: stats?.cookingOrders ?? 0, icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', trend: 'Cooking', onClick: () => navigate('/admin/orders?status=preparing') },
     { title: 'พร้อมเสิร์ฟ / ส่ง', value: stats?.readyOrders ?? 0, icon: Package, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', trend: 'Ready', onClick: () => navigate('/admin/orders?status=ready') },
     { title: 'เสร็จสิ้นวันนี้', value: stats?.completedOrders ?? 0, icon: CheckCircle, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', trend: 'Done', onClick: () => navigate('/admin/orders?status=delivered') },

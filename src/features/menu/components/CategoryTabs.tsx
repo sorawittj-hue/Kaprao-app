@@ -1,10 +1,12 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useMenuStore } from '@/store'
+import { useMenuItems } from '@/features/menu/hooks/useMenu'
 import { categories } from '../api/menuApi'
 import { cn } from '@/utils/cn'
 import { hapticLight } from '@/utils/haptics'
 
+// Emoji icons mapped to Lucide/icon names
 const iconMap: Record<string, string> = {
   heart: '❤️', 'pepper-hot': '🌶️', utensils: '🍽️', 'bread-slice': '🧄',
   'bowl-food': '🥘', bacon: '🍜', 'mug-hot': '🍲', 'utensil-spoon': '🥄',
@@ -24,32 +26,27 @@ const catGradients: Record<string, string> = {
   gray:    'linear-gradient(135deg, #6B7280, #374151)',
 }
 
-const catGlows: Record<string, string> = {
-  red:     '0 6px 20px rgba(239,68,68,0.4)',
-  orange:  '0 6px 20px rgba(255,94,0,0.5)',
-  yellow:  '0 6px 20px rgba(245,158,11,0.4)',
-  amber:   '0 6px 20px rgba(217,119,6,0.4)',
-  emerald: '0 6px 20px rgba(16,185,129,0.4)',
-  pink:    '0 6px 20px rgba(236,72,153,0.4)',
-  purple:  '0 6px 20px rgba(139,92,246,0.4)',
-  blue:    '0 6px 20px rgba(59,130,246,0.4)',
-  teal:    '0 6px 20px rgba(20,184,166,0.4)',
-  gray:    '0 6px 20px rgba(107,114,128,0.3)',
-}
-
 export function CategoryTabs() {
-  const { activeCategory, setActiveCategory } = useMenuStore()
+  const { activeCategory, setActiveCategory, favorites } = useMenuStore()
+  const { data: menuItems } = useMenuItems()
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Count items per category
+  const countByCategory = (catId: string): number => {
+    if (!menuItems) return 0
+    if (catId === 'favorites') return favorites.length
+    return menuItems.filter(item => item.category === catId && item.isAvailable).length
+  }
 
   return (
     <div className="relative">
       {/* Edge fades */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none"
+        className="absolute left-0 top-0 bottom-0 w-6 z-10 pointer-events-none"
         style={{ background: 'linear-gradient(to right, var(--bg-base), transparent)' }}
       />
       <div
-        className="absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none"
+        className="absolute right-0 top-0 bottom-0 w-6 z-10 pointer-events-none"
         style={{ background: 'linear-gradient(to left, var(--bg-base), transparent)' }}
       />
 
@@ -62,7 +59,7 @@ export function CategoryTabs() {
         {categories.map((category) => {
           const isActive = activeCategory === category.id
           const grad = catGradients[category.color] || catGradients.orange
-          const glow = catGlows[category.color] || catGlows.orange
+          const count = countByCategory(category.id)
 
           return (
             <motion.button
@@ -74,23 +71,26 @@ export function CategoryTabs() {
               onClick={() => {
                 setActiveCategory(category.id)
                 hapticLight()
-                document.getElementById(`cat-${category.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+                document.getElementById(`cat-${category.id}`)?.scrollIntoView({
+                  behavior: 'smooth', block: 'nearest', inline: 'center'
+                })
               }}
               whileTap={{ scale: 0.9 }}
               whileHover={!isActive ? { y: -2 } : undefined}
               className={cn(
-                'flex items-center gap-1.5 px-4 py-2.5 rounded-[16px] whitespace-nowrap flex-shrink-0',
+                'flex items-center gap-1.5 px-3.5 py-2.5 rounded-[16px] whitespace-nowrap flex-shrink-0',
                 'transition-all duration-200 text-[13px] min-h-[44px]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500',
                 isActive ? 'font-black text-white' : 'font-bold'
               )}
               style={isActive ? {
                 background: grad,
-                boxShadow: glow,
+                boxShadow: '0 4px 14px rgba(255,85,0,0.35)',
               } : {
-                background: 'var(--bg-card)',
-                color: 'var(--text-muted)',
-                border: '1px solid var(--border-subtle)',
+                background: '#FFFFFF',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-soft)',
+                boxShadow: '0 2px 6px rgba(15, 23, 42, 0.04)',
               }}
             >
               <motion.span
@@ -101,6 +101,23 @@ export function CategoryTabs() {
                 {iconMap[category.icon]}
               </motion.span>
               <span>{category.name}</span>
+
+              {/* Item count badge */}
+              {count > 0 && (
+                <span
+                  className="text-[9px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+                  style={isActive ? {
+                    background: 'rgba(255,255,255,0.25)',
+                    color: '#FFFFFF',
+                  } : {
+                    background: 'var(--bg-surface)',
+                    color: 'var(--text-muted)',
+                    border: '1px solid var(--border-subtle)',
+                  }}
+                >
+                  {count}
+                </span>
+              )}
             </motion.button>
           )
         })}

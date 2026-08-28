@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore, useUIStore } from '@/store'
 import { initLiff, getLineProfile, isLiffLoggedIn } from '@/lib/liff'
 import { supabase, isConfigured } from '@/lib/supabase'
+import { BrandLogo } from '@/components/brand/BrandLogo'
+import { hapticHeavy, hapticMedium } from '@/utils/haptics'
 import type { User } from '@/types'
 
 interface AuthProviderProps {
@@ -28,7 +30,7 @@ function WelcomeModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center"
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Backdrop */}
@@ -37,143 +39,90 @@ function WelcomeModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="absolute inset-0"
-            style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}
+            style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(16px)' }}
           />
 
           {/* Modal Card */}
           <motion.div
-            initial={{ opacity: 0, y: 80, scale: 0.95 }}
+            initial={{ opacity: 0, y: 100, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 80, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="relative w-full max-w-sm mx-4 mb-4 sm:mb-0 rounded-3xl overflow-hidden"
-            style={{ background: '#FFFFFF', boxShadow: '0 32px 80px -12px rgba(0,0,0,0.35)' }}
+            exit={{ opacity: 0, y: 100, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+            className="relative w-full max-w-sm rounded-t-[36px] sm:rounded-[36px] overflow-hidden p-6 pb-9 shadow-2xl space-y-5"
+            style={{ background: 'var(--bg-base)' }}
           >
-            {/* Decorative top gradient */}
-            <div
-              className="h-2 w-full"
-              style={{ background: 'linear-gradient(90deg, #FF6B00, #FF8C42, #FFB347, #FF6B00)', backgroundSize: '200%' }}
-            />
-
-            <div className="p-6">
-              {/* Logo + Title */}
-              <div className="text-center mb-6">
-                <motion.div
-                  initial={{ scale: 0, rotate: -10 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.15, type: 'spring', stiffness: 400 }}
-                  className="w-20 h-20 rounded-[22px] mx-auto mb-4 flex items-center justify-center relative"
-                  style={{
-                    background: 'linear-gradient(135deg, #FF6B00 0%, #FF8C42 50%, #FFB347 100%)',
-                    boxShadow: '0 12px 32px -6px rgba(255, 107, 0, 0.45)',
-                  }}
-                >
-                  <span className="text-white font-black text-4xl">K</span>
-                  <motion.div
-                    animate={{ scale: [1, 1.3, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-                    className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-green-500 rounded-full border-2 border-white flex items-center justify-center text-sm"
-                    style={{ boxShadow: '0 4px 10px rgba(34,197,94,0.5)' }}
-                  >
-                    🔥
-                  </motion.div>
-                </motion.div>
-
-                <motion.h2
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-2xl font-black text-gray-900 mb-1"
-                >
-                  ยินดีต้อนรับ!
-                </motion.h2>
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 }}
-                  className="text-gray-500 text-sm leading-relaxed"
-                >
-                  กะเพรา 52 — เมนูเด็ด สั่งง่าย ส่งไวถึงที่
-                </motion.p>
+            {/* Logo + Title */}
+            <div className="text-center pt-2">
+              <div className="flex justify-center mb-3">
+                <BrandLogo size="lg" />
               </div>
-
-              {/* Benefits Grid */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="grid grid-cols-3 gap-2.5 mb-6"
-              >
-                {[
-                  { icon: '⭐', label: 'สะสมแต้ม', sub: 'ทุกออเดอร์' },
-                  { icon: '🎟️', label: 'ลุ้นหวย', sub: 'รอบรัฐบาล' },
-                  { icon: '🎁', label: 'แลกรางวัล', sub: 'อิ่มฟรี!' },
-                ].map((b) => (
-                  <div
-                    key={b.label}
-                    className="rounded-2xl p-3 text-center"
-                    style={{ background: 'linear-gradient(135deg, #FFF7ED, #FFEDD5)' }}
-                  >
-                    <div className="text-2xl mb-1">{b.icon}</div>
-                    <p className="text-[11px] font-black text-gray-700 leading-tight">{b.label}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{b.sub}</p>
-                  </div>
-                ))}
-              </motion.div>
-
-              {/* CTA Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 }}
-                className="space-y-3"
-              >
-                {/* LINE Login - Primary */}
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={onLineLogin}
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-center gap-3 text-white font-black py-4 rounded-2xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                  style={{
-                    background: isLoading ? '#aaa' : '#00B900',
-                    boxShadow: '0 8px 24px -4px rgba(0, 185, 0, 0.45)',
-                  }}
-                >
-                  {/* LINE Logo SVG */}
-                  <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .345-.285.63-.631.63s-.63-.285-.63-.63V8.108c0-.345.283-.63.63-.63.346 0 .63.285.63.63v4.771zm-1.086.532c0 .225-.177.405-.399.405h-.001c-.221 0-.399-.18-.399-.405v-.164h.8v.164zm-1.94-.532c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.631c-.691 0-1.25-.563-1.25-1.257V8.108c0-.345.284-.63.631-.63.345 0 .63.285.63.63v4.771c0 .173.14.315.315.315h.674c.348 0 .629.283.629.63 0 .344-.282.629-.629.629zM3.678 8.735c0-.345.285-.63.631-.63h2.505c.345 0 .627.285.627.63s-.282.63-.627.63H4.938v1.126h1.481c.346 0 .628.283.628.63 0 .344-.282.629-.628.629H4.938v1.756c0 .345-.286.63-.631.63-.346 0-.629-.285-.629-.63V8.735z" />
-                  </svg>
-                  <span className="text-base">
-                    {isLoading ? 'กำลังโหลด...' : 'เข้าสู่ระบบด้วย LINE'}
-                  </span>
-                </motion.button>
-
-                {/* Guest - Secondary */}
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={onGuestLogin}
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-center gap-2 text-gray-600 font-bold py-3.5 rounded-2xl transition-all disabled:opacity-50 border-2 border-gray-200 hover:border-gray-300 bg-white"
-                >
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="text-sm">ดูเมนูก่อน (ไม่ต้อง Login)</span>
-                </motion.button>
-              </motion.div>
-
-              {/* Fine print */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-center text-[11px] text-gray-400 mt-4 leading-relaxed"
-              >
-                สั่งในโหมด Guest ได้เลย — เข้าสู่ระบบทีหลังก็ยังได้พอยต์คืน! 🎉
-              </motion.p>
+              <h2 className="text-xl font-black text-slate-900 mb-1">
+                ยินดีต้อนรับสู่ กะเพรา 52
+              </h2>
+              <p className="text-xs font-bold text-slate-500 max-w-xs mx-auto">
+                ต้นตำรับผัดกะเพราพรีเมียม สั่งง่าย ส่งไวถึงที่
+              </p>
             </div>
+
+            {/* Benefits Grid */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { icon: '⭐', label: 'สะสมแต้ม', sub: 'ทุกออเดอร์' },
+                { icon: '🎟️', label: 'สลากกินฟรี', sub: 'รอบรัฐบาล' },
+                { icon: '⚡', label: 'สูตรโปรด', sub: 'สั่งไว 1 คลิก' },
+              ].map((b) => (
+                <div
+                  key={b.label}
+                  className="rounded-[18px] p-2.5 text-center border border-amber-200/60 bg-gradient-to-b from-amber-50/80 to-orange-50/40"
+                >
+                  <div className="text-xl mb-0.5">{b.icon}</div>
+                  <p className="text-[11px] font-black text-slate-900 leading-tight">{b.label}</p>
+                  <p className="text-[9px] font-bold text-amber-800 mt-0.5">{b.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="space-y-2.5 pt-1">
+              {/* LINE Login - Primary */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => {
+                  hapticHeavy()
+                  onLineLogin()
+                }}
+                disabled={isLoading}
+                className="w-full h-13 flex items-center justify-center gap-3 text-white font-black text-sm rounded-[20px] shadow-lg shadow-emerald-500/25 transition-all disabled:opacity-60 cursor-pointer"
+                style={{
+                  background: 'linear-gradient(135deg, #00C300, #00A000)',
+                }}
+              >
+                <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .345-.285.63-.631.63s-.63-.285-.63-.63V8.108c0-.345.283-.63.63-.63.346 0 .63.285.63.63v4.771zm-1.086.532c0 .225-.177.405-.399.405h-.001c-.221 0-.399-.18-.399-.405v-.164h.8v.164zm-1.94-.532c0 .345-.282.63-.631.63-.345 0-.627-.285-.627-.63V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.631c-.691 0-1.25-.563-1.25-1.257V8.108c0-.345.284-.63.631-.63.345 0 .63.285.63.63v4.771c0 .173.14.315.315.315h.674c.348 0 .629.283.629.63 0 .344-.282.629-.629.629zM3.678 8.735c0-.345.285-.63.631-.63h2.505c.345 0 .627.285.627.63s-.282.63-.627.63H4.938v1.126h1.481c.346 0 .628.283.628.63 0 .344-.282.629-.628.629H4.938v1.756c0 .345-.286.63-.631.63-.346 0-.629-.285-.629-.63V8.735z" />
+                </svg>
+                <span>{isLoading ? 'กำลังโหลด...' : 'เข้าสู่ระบบด้วย LINE (1-Tap)'}</span>
+              </motion.button>
+
+              {/* Guest - Secondary */}
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => {
+                  hapticMedium()
+                  onGuestLogin()
+                }}
+                disabled={isLoading}
+                className="w-full h-12 flex items-center justify-center gap-2 text-slate-700 font-bold text-xs rounded-[18px] border border-slate-200 hover:border-slate-300 bg-slate-50 cursor-pointer transition-all"
+              >
+                <span>ดูเมนูก่อน (สั่งได้เลย ไม่ต้อง Login)</span>
+              </motion.button>
+            </div>
+
+            {/* Fine print */}
+            <p className="text-center text-[10px] text-slate-400 font-medium leading-relaxed">
+              🛡️ สั่งในโหมด Guest ได้ทันที — เข้าสู่ระบบทีหลังก็ยังได้แต้มสะสมคืน 100%!
+            </p>
           </motion.div>
         </motion.div>
       )}

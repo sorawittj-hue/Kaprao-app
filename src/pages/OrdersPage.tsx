@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Clock, RefreshCw, Smartphone, PackageX, Zap } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Smartphone, ChevronRight, ShoppingBag } from 'lucide-react'
 import { useOrders } from '@/features/orders/hooks/useOrders'
 import { useAuthStore, useUIStore } from '@/store'
 import { Container } from '@/components/layout/Container'
@@ -14,12 +14,12 @@ import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
 import { cn } from '@/utils/cn'
 
 const slideUpItem = {
-  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  hidden: { opacity: 0, y: 16, scale: 0.98 },
   visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 320, damping: 28 } }
 }
 const staggerList = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.05 } }
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
 }
 
 export default function OrdersPage() {
@@ -27,6 +27,7 @@ export default function OrdersPage() {
   const { user, isGuest } = useAuthStore()
   const { addToast } = useUIStore()
 
+  const [activeTab, setActiveTab] = useState<'all' | 'active' | 'completed'>('all')
   const guestIdentity = isGuest ? getOrCreateGuestIdentity() : null
 
   const { data: orders, isLoading, refetch, isRefetching } = useOrders(
@@ -47,7 +48,13 @@ export default function OrdersPage() {
   })
 
   const activeOrders = orders?.filter(o => ['placed', 'confirmed', 'preparing', 'ready'].includes(o.status)) || []
-  const pastOrders = orders?.filter(o => ['delivered', 'cancelled'].includes(o.status)) || []
+  const completedOrders = orders?.filter(o => ['delivered', 'cancelled'].includes(o.status)) || []
+
+  const displayedOrders = activeTab === 'active'
+    ? activeOrders
+    : activeTab === 'completed'
+    ? completedOrders
+    : (orders || [])
 
   const handleLogin = async () => {
     hapticHeavy()
@@ -60,165 +67,206 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen pb-32 relative" style={{ background: 'var(--bg-base)' }}>
-
-      {/* Ambient orbs */}
-      <div className="fixed top-0 inset-x-0 pointer-events-none z-0 overflow-hidden" style={{ height: '40vh' }}>
+    <div className="min-h-screen pb-36 relative" style={{ background: 'var(--bg-base)' }}>
+      {/* Ambient Glow */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div
-          className="absolute -top-16 right-0 w-64 h-64 rounded-full opacity-15 blur-[60px]"
-          style={{ background: 'radial-gradient(circle, #3B82F6 0%, transparent 70%)' }}
+          className="absolute -top-24 -right-12 w-[340px] h-[340px] rounded-full opacity-15"
+          style={{
+            background: 'radial-gradient(circle, #FF5500 0%, transparent 70%)',
+            filter: 'blur(70px)',
+          }}
         />
       </div>
 
-      <Container className="py-4 relative z-10 space-y-5 max-w-2xl mx-auto px-4">
+      <Container className="py-4 relative z-10 space-y-4 max-w-2xl mx-auto px-4">
 
-        {/* Premium Header */}
-        <div className="flex items-center justify-between">
+        {/* ── Top Navigation Bar ── */}
+        <div className="flex items-center justify-between pt-1">
           <motion.button
             type="button"
             aria-label="ย้อนกลับ"
-            whileTap={{ scale: 0.9 }}
-            onClick={() => { hapticLight(); navigate(-1) }}
-            className="w-11 h-11 rounded-[16px] flex items-center justify-center text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-soft)',
-            }}
+            whileTap={{ scale: 0.88 }}
+            onClick={() => { hapticLight(); navigate('/') }}
+            className="w-11 h-11 rounded-[18px] flex items-center justify-center cursor-pointer shadow-sm"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)' }}
           >
-            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+            <ArrowLeft className="w-5 h-5 text-slate-700" aria-hidden="true" />
           </motion.button>
 
           <div className="text-center">
-            <h1 className="text-[17px] font-black tracking-tight text-white">ประวัติออเดอร์</h1>
-            <p className="text-[9px] font-black uppercase tracking-[0.15em] text-blue-400 mt-0.5">Order History</p>
+            <h1 className="text-base font-black tracking-tight text-slate-900">ประวัติคำสั่งซื้อ</h1>
+            <p className="text-[9px] font-black uppercase tracking-[0.14em] text-orange-500 mt-0.5">
+              ORDER TRACKER
+            </p>
           </div>
 
           <motion.button
             type="button"
             aria-label="โหลดข้อมูลใหม่"
             aria-busy={isRefetching}
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.88 }}
             onClick={() => { hapticMedium(); refetch() }}
             className={cn(
-              'w-11 h-11 rounded-[16px] flex items-center justify-center text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400',
+              'w-11 h-11 rounded-[18px] flex items-center justify-center cursor-pointer shadow-sm',
               isRefetching ? 'opacity-50 pointer-events-none' : ''
             )}
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-soft)',
-            }}
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)' }}
           >
-            <RefreshCw className={cn('w-4.5 h-4.5', isRefetching ? 'animate-spin' : '')} aria-hidden="true" />
+            <RefreshCw
+              className={cn('w-4.5 h-4.5 text-slate-700', isRefetching ? 'animate-spin' : '')}
+              aria-hidden="true"
+            />
           </motion.button>
         </div>
 
-        {/* Guest Banner */}
+        {/* ── Guest Sync Card ── */}
         <AnimatePresence>
           {isGuest && (
             <motion.div
-              initial={{ opacity: 0, height: 0, scale: 0.95 }}
-              animate={{ opacity: 1, height: 'auto', scale: 1 }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, height: 0 }}
+              className="rounded-[24px] p-4 flex items-center justify-between gap-3 border shadow-sm"
+              style={{
+                background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
+                borderColor: 'rgba(245, 158, 11, 0.3)',
+              }}
             >
-              <div
-                className="rounded-[20px] p-4 relative overflow-hidden border border-white/10"
-                style={{ background: 'var(--bg-card)' }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="font-black text-white text-sm mb-0.5">ผู้เยี่ยมชมระบบ</p>
-                    <p className="text-gray-400 text-[10px] font-bold">เชื่อมต่อ LINE เพื่อบันทึกประวัติถาวร</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleLogin}
-                    aria-label="เข้าสู่ระบบด้วย LINE"
-                    className="text-white px-4 py-2.5 rounded-full font-black text-xs flex items-center gap-1.5 flex-shrink-0 active:scale-95 transition-transform"
-                    style={{
-                      background: 'linear-gradient(135deg, #00C900, #00A000)',
-                      boxShadow: '0 6px 16px -4px rgba(0,185,0,0.4)'
-                    }}
-                  >
-                    <Smartphone className="w-3.5 h-3.5" aria-hidden="true" />
-                    Login
-                  </button>
-                </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-black text-xs text-amber-950">บันทึกประวัติถาวร</p>
+                <p className="text-[11px] font-medium text-amber-900/80 mt-0.5">
+                  ผูก LINE เพื่อรับแต้มสะสม & ลุ้นหวยฟรีทุกออเดอร์
+                </p>
               </div>
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.92 }}
+                onClick={handleLogin}
+                className="text-white px-3.5 py-2 rounded-full font-black text-xs flex items-center gap-1.5 flex-shrink-0 cursor-pointer shadow-md"
+                style={{ background: '#00C300' }}
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>ผูก LINE</span>
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Orders Content */}
+        {/* ── Filter Tabs ── */}
+        <div
+          className="flex p-1 rounded-[18px] border shadow-sm"
+          style={{ background: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
+        >
+          {[
+            { id: 'all', label: 'ทั้งหมด', count: orders?.length || 0 },
+            { id: 'active', label: 'กำลังทำ', count: activeOrders.length, highlight: activeOrders.length > 0 },
+            { id: 'completed', label: 'สำเร็จแล้ว', count: completedOrders.length },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  hapticLight()
+                  setActiveTab(tab.id as any)
+                }}
+                className={cn(
+                  'flex-1 py-2.5 rounded-[14px] font-black text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer relative',
+                  isActive ? 'text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                )}
+                style={
+                  isActive
+                    ? {
+                        background: 'linear-gradient(135deg, #FF5500, #E03E00)',
+                        boxShadow: '0 3px 12px rgba(255, 85, 0, 0.30)',
+                      }
+                    : {}
+                }
+              >
+                <span>{tab.label}</span>
+                {tab.count > 0 && (
+                  <span
+                    className={cn(
+                      'text-[10px] font-black px-1.5 py-0.2 rounded-full',
+                      isActive
+                        ? 'bg-white/25 text-white'
+                        : tab.highlight
+                        ? 'bg-orange-100 text-orange-600 font-black'
+                        : 'bg-slate-100 text-slate-500'
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* ── Orders Feed ── */}
         {isLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-3 pt-2">
+            <OrderCardSkeleton />
             <OrderCardSkeleton />
             <OrderCardSkeleton />
           </div>
-        ) : !orders || orders.length === 0 ? (
+        ) : displayedOrders.length === 0 ? (
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-[28px] p-10 text-center border border-white/10"
-            style={{ background: 'var(--bg-card)' }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="rounded-[28px] p-8 text-center border shadow-sm space-y-4 my-6"
+            style={{
+              background: 'var(--bg-card)',
+              borderColor: 'var(--border-soft)',
+            }}
           >
-            <div className="w-16 h-16 rounded-full bg-[var(--bg-card)]/5 flex items-center justify-center mx-auto mb-4 border border-white/10 text-gray-500">
-              <PackageX className="w-8 h-8" />
-            </div>
-            <h2 className="font-black text-white text-lg mb-1">ยังไม่มีประวัติการสั่งซื้อ</h2>
-            <p className="text-xs text-gray-400 font-medium mb-6">คุณยังไม่ได้ทำการสั่งซื้อรายการอาหารใดๆ</p>
-            <button
-              onClick={() => navigate('/')}
-              className="btn-brand px-6 py-3 rounded-full font-black text-xs inline-flex items-center gap-2"
+            <div
+              className="w-16 h-16 rounded-[22px] flex items-center justify-center mx-auto"
+              style={{
+                background: 'rgba(255, 85, 0, 0.08)',
+                border: '1px solid rgba(255, 85, 0, 0.15)',
+              }}
             >
-              <Zap className="w-4 h-4" /> สั่งอาหารเลย!
-            </button>
+              <ShoppingBag className="w-8 h-8 text-orange-500" />
+            </div>
+            <div>
+              <h3 className="font-black text-base text-slate-900">
+                {activeTab === 'active'
+                  ? 'ไม่มีออเดอร์ที่กำลังดำเนินการ'
+                  : activeTab === 'completed'
+                  ? 'ยังไม่มีประวัติออเดอร์ที่เสร็จสิ้น'
+                  : 'ยังไม่มีประวัติการสั่งซื้อ'}
+              </h3>
+              <p className="text-xs font-medium text-slate-500 mt-1 max-w-xs mx-auto">
+                หิวกะเพราร้อน ๆ รสเด็ด สั่งตอนนี้รอรับความอร่อยได้ทันที!
+              </p>
+            </div>
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                hapticMedium()
+                navigate('/')
+              }}
+              className="px-6 py-3 rounded-full font-black text-xs text-white cursor-pointer shadow-md inline-flex items-center gap-1.5"
+              style={{
+                background: 'linear-gradient(135deg, #FF5500, #E03E00)',
+                boxShadow: '0 4px 14px rgba(255, 85, 0, 0.35)',
+              }}
+            >
+              <span>สั่งอาหารเลย</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </motion.button>
           </motion.div>
         ) : (
-          <motion.div variants={staggerList} initial="hidden" animate="visible" className="space-y-6">
-
-            {/* Active Orders Section */}
-            {activeOrders.length > 0 && (
-              <motion.div variants={slideUpItem} className="space-y-3">
-                <div className="flex items-center justify-between px-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
-                    <h2 className="text-sm font-black text-white">กำลังดำเนินการ ({activeOrders.length})</h2>
-                  </div>
-                  <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20">
-                    Live
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  {activeOrders.map(order => (
-                    <OrderCard
-                      key={order.id}
-                      order={order}
-                      onClick={() => navigate(`/orders/${order.id}${order.trackingToken ? `?token=${order.trackingToken}` : ''}`)}
-                    />
-                  ))}
-                </div>
+          <motion.div variants={staggerList} initial="hidden" animate="visible" className="space-y-3 pt-1">
+            {displayedOrders.map((order) => (
+              <motion.div key={order.id} variants={slideUpItem}>
+                <OrderCard order={order} />
               </motion.div>
-            )}
-
-            {/* Past Orders Section */}
-            {pastOrders.length > 0 && (
-              <motion.div variants={slideUpItem} className="space-y-3">
-                <div className="flex items-center justify-between px-1">
-                  <h2 className="text-sm font-black text-white">ประวัติที่ผ่านมา ({pastOrders.length})</h2>
-                  <Clock className="w-4 h-4 text-gray-500" />
-                </div>
-                <div className="space-y-3">
-                  {pastOrders.map(order => (
-                    <OrderCard
-                      key={order.id}
-                      order={order}
-                      onClick={() => navigate(`/orders/${order.id}${order.trackingToken ? `?token=${order.trackingToken}` : ''}`)}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
+            ))}
           </motion.div>
         )}
 

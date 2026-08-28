@@ -1,15 +1,56 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { Home, ClipboardList, Ticket, User, ShoppingCart } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '@/store'
 import { hapticLight } from '@/utils/haptics'
 
 const navItems = [
-  { path: '/',        icon: Home,          label: 'หน้าหลัก', activeColor: '#FF5E00', activeBg: 'rgba(255,94,0,0.12)',   activeGlow: 'rgba(255,94,0,0.3)' },
-  { path: '/orders',  icon: ClipboardList, label: 'ออเดอร์',  activeColor: '#38BDF8', activeBg: 'rgba(56,189,248,0.10)', activeGlow: 'rgba(56,189,248,0.25)' },
-  { path: '/lottery', icon: Ticket,        label: 'หวย',      activeColor: '#4ADE80', activeBg: 'rgba(74,222,128,0.10)', activeGlow: 'rgba(74,222,128,0.25)' },
-  { path: '/cart',    icon: ShoppingCart,  label: 'ตะกร้า',   activeColor: '#4ADE80', activeBg: 'rgba(74,222,128,0.10)', activeGlow: 'rgba(74,222,128,0.25)', showBadge: true },
-  { path: '/profile', icon: User,          label: 'โปรไฟล์', activeColor: '#C084FC', activeBg: 'rgba(192,132,252,0.10)', activeGlow: 'rgba(192,132,252,0.25)' },
+  {
+    path: '/',
+    icon: Home,
+    label: 'หน้าหลัก',
+    activeColor: '#FF5500',
+    activeBg: 'rgba(255,85,0,0.10)',
+    activeGlow: 'rgba(255,85,0,0.25)',
+    activeGradient: 'linear-gradient(135deg, rgba(255,85,0,0.12), rgba(255,58,0,0.06))',
+  },
+  {
+    path: '/orders',
+    icon: ClipboardList,
+    label: 'ออเดอร์',
+    activeColor: '#0284C7',
+    activeBg: 'rgba(2,132,199,0.10)',
+    activeGlow: 'rgba(2,132,199,0.25)',
+    activeGradient: 'linear-gradient(135deg, rgba(2,132,199,0.12), rgba(14,165,233,0.06))',
+  },
+  {
+    path: '/lottery',
+    icon: Ticket,
+    label: 'ลุ้นรางวัล',
+    activeColor: '#D97706',
+    activeBg: 'rgba(217,119,6,0.10)',
+    activeGlow: 'rgba(217,119,6,0.25)',
+    activeGradient: 'linear-gradient(135deg, rgba(217,119,6,0.12), rgba(245,158,11,0.06))',
+  },
+  {
+    path: '/cart',
+    icon: ShoppingCart,
+    label: 'ตะกร้า',
+    activeColor: '#16A34A',
+    activeBg: 'rgba(22,163,74,0.10)',
+    activeGlow: 'rgba(22,163,74,0.25)',
+    activeGradient: 'linear-gradient(135deg, rgba(22,163,74,0.12), rgba(34,197,94,0.06))',
+    showBadge: true,
+  },
+  {
+    path: '/profile',
+    icon: User,
+    label: 'โปรไฟล์',
+    activeColor: '#9333EA',
+    activeBg: 'rgba(147,51,234,0.10)',
+    activeGlow: 'rgba(147,51,234,0.25)',
+    activeGradient: 'linear-gradient(135deg, rgba(147,51,234,0.12), rgba(168,85,247,0.06))',
+  },
 ]
 
 export function BottomNav() {
@@ -27,22 +68,16 @@ export function BottomNav() {
       role="navigation"
       aria-label="เมนูหลัก"
     >
-      <div className="max-w-md mx-auto px-4 pb-3 pt-6 pointer-events-auto">
+      <div className="max-w-md mx-auto px-3 pb-2.5 pt-5 pointer-events-auto">
         <div
-          className="h-[68px] rounded-[28px] flex justify-around items-center px-2 relative overflow-hidden"
+          className="h-[66px] rounded-[26px] flex justify-around items-center px-1.5 relative overflow-hidden"
           style={{
-            background: 'rgba(18, 18, 22, 0.96)',
-            backdropFilter: 'blur(40px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-            boxShadow: '0 -1px 0 rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.07), 0 0 0 1px rgba(255,255,255,0.05)',
+            background: 'rgba(255, 255, 255, 0.92)',
+            backdropFilter: 'blur(36px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(36px) saturate(180%)',
+            boxShadow: '0 16px 40px -6px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
           }}
         >
-          {/* Subtle inner highlight */}
-          <div
-            className="absolute inset-x-0 top-0 h-px"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)' }}
-          />
-
           {navItems.map((item) => (
             <NavLink
               key={item.path}
@@ -50,57 +85,83 @@ export function BottomNav() {
               end={item.path === '/'}
               onClick={() => hapticLight()}
               aria-label={item.label}
-              className="relative flex flex-col items-center justify-center flex-1 h-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1 rounded-[22px] touch-manipulation select-none"
+              className="relative flex flex-col items-center justify-center flex-1 h-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1 rounded-[20px] touch-manipulation select-none cursor-pointer"
             >
               {({ isActive }) => (
                 <>
-                  {/* Active pill */}
+                  {/* Animated active pill */}
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div
+                        key="active-pill"
+                        layoutId="nav-pill"
+                        className="absolute inset-y-1.5 inset-x-0.5 rounded-[18px]"
+                        style={{ background: item.activeGradient }}
+                        initial={{ opacity: 0, scale: 0.85 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ type: 'spring', stiffness: 480, damping: 38 }}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  {/* Glow line under active */}
                   {isActive && (
                     <motion.div
-                      layoutId="nav-pill"
-                      className="absolute inset-y-2 inset-x-0.5 rounded-[18px]"
-                      style={{ background: item.activeBg }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                      layoutId="nav-glow"
+                      className="absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-[2.5px] rounded-full"
+                      style={{ background: item.activeColor }}
+                      initial={{ opacity: 0, scaleX: 0 }}
+                      animate={{ opacity: 1, scaleX: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 480, damping: 38 }}
                     />
                   )}
 
-                  <div className="relative z-10 flex flex-col items-center justify-center">
-                    <motion.div
-                      animate={{
-                        y: isActive ? -2 : 0,
-                        scale: isActive ? 1.15 : 1,
-                      }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-                      style={isActive ? { filter: `drop-shadow(0 0 6px ${item.activeGlow})` } : undefined}
-                    >
-                      <item.icon
-                        className="w-[21px] h-[21px] transition-colors duration-200"
-                        style={{ color: isActive ? item.activeColor : '#505058' }}
-                        strokeWidth={isActive ? 2.5 : 2}
-                      />
-                    </motion.div>
-
-                    {/* Cart badge */}
-                    {item.showBadge && totalItems > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        role="status"
-                        aria-label={`${totalItems} รายการในตะกร้า`}
-                        className="absolute -top-2.5 -right-2.5 min-w-[17px] h-[17px] rounded-full text-white text-[9px] font-black flex items-center justify-center px-1 border-2"
-                        style={{
-                          background: 'linear-gradient(135deg, #FF5E00, #FF2D00)',
-                          borderColor: 'var(--bg-base)',
-                          boxShadow: '0 2px 8px rgba(255,45,0,0.5)'
+                  <div className="relative z-10 flex flex-col items-center justify-center gap-0.5">
+                    <div className="relative">
+                      <motion.div
+                        animate={{
+                          y: isActive ? -1 : 0,
+                          scale: isActive ? 1.15 : 1,
                         }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 32 }}
                       >
-                        {totalItems > 99 ? '99+' : totalItems}
-                      </motion.span>
-                    )}
+                        <item.icon
+                          className="transition-colors duration-200"
+                          style={{
+                            width: 20, height: 20,
+                            color: isActive ? item.activeColor : '#94A3B8',
+                          }}
+                          strokeWidth={isActive ? 2.5 : 2}
+                        />
+                      </motion.div>
+
+                      {/* Cart badge */}
+                      {item.showBadge && totalItems > 0 && (
+                        <motion.span
+                          initial={{ scale: 0, rotate: -20 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          className="absolute -top-[8px] -right-[8px] min-w-[16px] h-[16px] rounded-full text-white text-[8px] font-black flex items-center justify-center px-[3px] border-[2px]"
+                          style={{
+                            background: 'linear-gradient(135deg, #FF5500, #E03E00)',
+                            borderColor: '#FFFFFF',
+                            boxShadow: '0 2px 8px rgba(255,85,0,0.4)',
+                          }}
+                          role="status"
+                          aria-label={`${totalItems} รายการในตะกร้า`}
+                        >
+                          {totalItems > 99 ? '99+' : totalItems}
+                        </motion.span>
+                      )}
+                    </div>
 
                     <span
-                      className="text-[9px] font-black mt-0.5 tracking-wide transition-colors duration-200"
-                      style={{ color: isActive ? item.activeColor : '#505058' }}
+                      className="text-[10px] tracking-tight transition-all duration-200"
+                      style={{
+                        color: isActive ? item.activeColor : '#64748B',
+                        fontWeight: isActive ? 900 : 600,
+                      }}
                     >
                       {item.label}
                     </span>
@@ -114,5 +175,3 @@ export function BottomNav() {
     </nav>
   )
 }
-
-export default BottomNav

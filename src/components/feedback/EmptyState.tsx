@@ -82,8 +82,8 @@ export function EmptyState({
         <motion.div
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-28 h-28 rounded-[28px] bg-[var(--bg-card)] flex items-center justify-center border border-white/10 shadow-2xl"
-          style={{ background: '#1A1A1E' }}
+          className="relative w-28 h-28 rounded-[28px] flex items-center justify-center shadow-md"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', boxShadow: '0 4px 20px rgba(15,23,42,0.06)' }}
         >
           {currentConfig.icon}
         </motion.div>
@@ -94,7 +94,8 @@ export function EmptyState({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="relative z-10 text-xl font-black text-white mb-2 tracking-tight"
+        className="relative z-10 text-xl font-black mb-2 tracking-tight"
+        style={{ color: 'var(--text-primary)' }}
       >
         {currentConfig.title}
       </motion.h3>
@@ -104,7 +105,8 @@ export function EmptyState({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="relative z-10 text-gray-400 text-xs font-medium leading-relaxed mb-6 max-w-xs"
+        className="relative z-10 text-xs font-medium leading-relaxed mb-6 max-w-xs"
+        style={{ color: 'var(--text-secondary)' }}
       >
         {currentConfig.description}
       </motion.p>

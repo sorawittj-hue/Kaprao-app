@@ -6,6 +6,7 @@
 export interface User {
   id: string
   lineUserId?: string
+  phoneNumber?: string
   displayName: string
   pictureUrl?: string
   points: number

@@ -43,12 +43,12 @@ export function SearchBarWithSuggestions({
       }
     }
 
-    // Popular searches (hardcoded for now)
+    // Popular searches
     setPopularSearches([
-      { type: 'popular', text: 'กะเพราหมูสับ', menuItemId: 1 },
-      { type: 'popular', text: 'กะเพราไก่', menuItemId: 2 },
-      { type: 'popular', text: 'ไข่เจียว', menuItemId: 5 },
-      { type: 'popular', text: 'ต้มยำ', menuItemId: 10 },
+      { type: 'popular', text: 'ผัดกะเพรา', menuItemId: 1 },
+      { type: 'popular', text: 'กะเพราหมูกรอบ', menuItemId: 2 },
+      { type: 'popular', text: 'กะเพรากุ้ง', menuItemId: 4 },
+      { type: 'popular', text: 'ข้าวผัด', menuItemId: 10 },
     ])
   }, [])
 

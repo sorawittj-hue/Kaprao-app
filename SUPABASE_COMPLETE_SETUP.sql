@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- Columns ที่อาจขาดในฐานข้อมูลเดิม (ALTER ... ADD COLUMN IF NOT EXISTS ปลอดภัย)
 ALTER TABLE public.profiles
     ADD COLUMN IF NOT EXISTS line_user_id   text UNIQUE,
+    ADD COLUMN IF NOT EXISTS phone_number   text,
     ADD COLUMN IF NOT EXISTS display_name   text,
     ADD COLUMN IF NOT EXISTS picture_url    text,
     ADD COLUMN IF NOT EXISTS avatar         text,
@@ -44,6 +45,7 @@ ALTER TABLE public.profiles
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_profiles_line_user_id ON public.profiles(line_user_id);
+CREATE INDEX IF NOT EXISTS idx_profiles_phone_number ON public.profiles(phone_number);
 CREATE INDEX IF NOT EXISTS idx_profiles_tier          ON public.profiles(tier);
 
 
@@ -645,49 +647,42 @@ INSERT INTO public.menu_items (id, name, description, price, category, image_url
 OVERRIDING SYSTEM VALUE
 VALUES
     -- ══════════════════════════════════════════════
-    -- 🌶️ หมวด: กะเพรา (kaprao) — 7 เมนู
+    -- 🌶️ หมวด 1: กะเพรา (kaprao)
     -- ══════════════════════════════════════════════
-    (1,  'กะเพราหมูสับ',        'หมูสับเนื้อแน่น ผัดกะเพราพริกสด หอมร้อนแรง',               55,  'kaprao',     '/images/kaprao-moo-sap.jpg',         true,  true, true),
-    (2,  'กะเพราหมูกรอบ',       'หมูกรอบเหลืองอร่าม ผัดกะเพราสูตรเด็ด',                     65,  'kaprao',     '/images/kaprao-moo-krob.jpg',        true,  true, true),
-    (3,  'กะเพราไข่เยี่ยวม้า',  'ไข่เยี่ยวม้าทอดกรอบ ผัดกะเพราพริกแห้ง เมนูยอดฮิต',         75,  'kaprao',     '/images/kaprao-kai-yiao-ma.jpg',     true,  true, true),
-    (4,  'กะเพรากุ้ง',          'กุ้งสดตัวใหญ่ ผัดกะเพราพริกสด กลิ่นหอมฟุ้ง',               85,  'kaprao',     '/images/kaprao-kung.jpg',            false, true, true),
-    (13, 'กะเพราหมูเด้ง',       'หมูเด้งเนื้อหนึบกรอบ ผัดกะเพราเผ็ดจัดจ้าน',               65,  'kaprao',     '/images/kaprao-moo-deng.jpg',        false, true, true),
-    (15, 'กะเพราสันคอหมู',      'สันคอหมูสไลซ์นุ่ม ผัดกะเพราพริกแห้ง',                      55,  'kaprao',     '/images/kaprao-san-ko.jpg',          false, true, true),
-    (17, 'กะเพราหน่อไม้',       'หน่อไม้ดองผัดกะเพรา กรุบกรอบเผ็ดร้อน',                     50,  'kaprao',     '/images/kaprao-nor-mai.jpg',         false, true, false),
+    (1,  'ผัดกะเพรา',             'ผัดกะเพราพริกแห้งสูตรเด็ด รสจัดจ้าน หอมใบกะเพราแท้ (เลือกเนื้อสัตว์ได้)', 55,  'kaprao', '/images/kaprao-moo-sap.jpg',      true,  true, true),
+    (2,  'กะเพราหมูกรอบ',          'หมูกรอบชิ้นใหญ่ กรอบนอกนุ่มใน คั่วกะเพราพริกแห้งสูตรเด็ด',             70,  'kaprao', '/images/kaprao-moo-krob.jpg',     true,  true, false),
+    (3,  'กะเพราไข่เยี่ยวม้า',       'ไข่เยี่ยวม้าทอดกรอบ ผัดกะเพราพริกแห้งร่วมกับเนื้อสัตว์ที่คุณเลือก',     75,  'kaprao', '/images/kaprao-kai-yiao-ma.jpg',  true,  true, true),
+    (4,  'กะเพรากุ้ง',             'กุ้งสดตัวโตเนื้อเด้ง ผัดกะเพราพริกสดจัดจ้านกลิ่นหอมฟุ้ง',               85,  'kaprao', '/images/kaprao-kung.jpg',         true,  true, false),
 
     -- ══════════════════════════════════════════════
-    -- 🧄 หมวด: กระเทียม (garlic) — 3 เมนู
+    -- 🧄 หมวด 2: ผัดกระเทียม (garlic)
     -- ══════════════════════════════════════════════
-    (5,  'หมูสับกระเทียม',      'หมูสับผัดกระเทียมพริกไทย โรยกระเทียมเจียว',                 60,  'garlic',     '/images/moo-sap-kra-thiam.jpg',     true,  true, true),
-    (6,  'กุ้งกระเทียม',        'กุ้งทอดกรอบ ราดกระเทียมเจียวสูตรพิเศษ',                    90,  'garlic',     '/images/kung-kra-thiam.jpg',        true,  true, true),
-    (16, 'สันคอหมูกระเทียม',    'สันคอหมูสไลซ์นุ่ม ผัดกระเทียมพริกไทย โรยกระเทียมเจียว',    55,  'garlic',     '/images/san-ko-kra-thiam.jpg',      false, true, true),
+    (5,  'ผัดกระเทียม',           'ผัดกระเทียมพริกไทยสูตรเข้มข้น โรยกระเทียมเจียวกรอบหอมฟุ้ง (เลือกเนื้อสัตว์ได้)', 55, 'garlic', '/images/moo-sap-kra-thiam.jpg',  true,  true, true),
+    (6,  'หมูกรอบผัดกระเทียม',     'หมูกรอบทอดกรอบ ผัดกระเทียมพริกไทยสูตรพิเศษ',                          70, 'garlic', '/images/san-ko-kra-thiam.jpg',   false, true, false),
+    (7,  'กุ้งผัดกระเทียม',        'กุ้งสดตัวใหญ่ทอดกรอบ คลุกเคล้ากระเทียมพริกไทยสูตรลับ',                85, 'garlic', '/images/kung-kra-thiam.jpg',     true,  true, false),
 
     -- ══════════════════════════════════════════════
-    -- 🥘 หมวด: พริกแกง (curry) — 1 เมนู
+    -- 🥘 หมวด 3: ผัดพริกแกง (curry)
     -- ══════════════════════════════════════════════
-    (7,  'พริกแกงหมูชิ้น',      'ผัดพริกแกงเผ็ดร้อน หมูชิ้นนุ่มๆ ถั่วฝักยาว',              60,  'curry',      '/images/prik-kang-moo-chin.jpg',    false, true, true),
+    (8,  'ผัดพริกแกง',           'เครื่องแกงใต้แท้ผัดกะทิหอมๆ ใส่ถั่วฝักยาวกรอบอร่อย (เลือกเนื้อสัตว์ได้)', 55, 'curry',  '/images/prik-kang-moo-chin.jpg', true,  true, true),
+    (9,  'พริกแกงหมูกรอบ',        'พริกแกงใต้เข้มข้น ผัดคลุกเคล้าหมูกรอบชิ้นโต',                         70, 'curry',  '/images/prik-kang-moo-chin.jpg', false, true, false),
 
     -- ══════════════════════════════════════════════
-    -- 🍳 หมวด: เมนูไข่ (egg) — 3 เมนู
+    -- 🎋 หมวด 4: ผัดหน่อไม้ (bamboo)
     -- ══════════════════════════════════════════════
-    (8,  'ไข่ดาวซอสมะขาม',      'ไข่ดาวกรอบร้อน ราดซอสมะขามหวานอมเปรี้ยว หอมหัวหอมเจียว',  45,  'egg',        '/images/khai-dao-rod-sot-makham.jpg', true, true, false),
-    (9,  'ไข่เจียวหมูสับ',      'ไข่เจียวฟูนุ่มเหลืองอร่าม ใส่หมูสับเนื้อแน่น',            45,  'egg',        '/images/khai-jiao-prik-sot.jpg',    false, true, true),
-    (10, 'ไข่คั่ว',             'ไข่คั่วสูตรเด็ด นุ่มลื่น ราดซอสน้ำปลา',                   40,  'egg',        '/images/khai-khon.jpg',             false, true, false),
+    (10, 'ผัดหน่อไม้ดอง',         'หน่อไม้ดองกรุบกรอบ ผัดพริกสดจัดจ้านเข้มข้น (เลือกเนื้อสัตว์ได้)',        55, 'bamboo', '/images/kaprao-nor-mai.jpg',    true,  true, true),
+    (11, 'หน่อไม้ดองผัดหมูกรอบ',   'หน่อไม้ดองผัดพริกสดใส่หมูกรอบ เผ็ดเปรี้ยวกรุบกรอบลงตัว',               70, 'bamboo', '/images/kaprao-nor-mai.jpg',    false, true, false),
 
     -- ══════════════════════════════════════════════
-    -- 🦐 หมวด: ซอสมะขาม (tamarind) — 1 เมนู
+    -- 🍜 หมวด 5: ก๋วยเตี๋ยว & เส้น (noodle)
     -- ══════════════════════════════════════════════
-    (12, 'กุ้งราดซอสมะขาม',     'กุ้งทอดกรอบ ราดซอสมะขามหวานเปรี้ยว พริกแห้ง',              95,  'tamarind',   '/images/kung-rod-sot-makham.jpg',   true,  true, true),
+    (12, 'มาม่าผัดกะเพรา',        'เส้นมาม่าเหนียวนุ่ม ผัดกะเพราพริกแห้งรสจัดจ้าน (เลือกเนื้อสัตว์ได้)',      55, 'noodle', '/images/mama-pad-kaprao.jpg',    true,  true, true),
+    (13, 'มาม่าผัดกะเพราหมูกรอบ',  'มาม่าผัดกะเพราใส่หมูกรอบเน้นๆ อร่อยเต็มคำ',                           70, 'noodle', '/images/mama-pad-kaprao.jpg',    false, true, false),
 
     -- ══════════════════════════════════════════════
-    -- 🍜 หมวด: เมนูเส้น (noodle) — 1 เมนู
+    -- 🍚 หมวด 6: อื่นๆ (others)
     -- ══════════════════════════════════════════════
-    (14, 'มาม่าผัดกะเพรา',      'มาม่าผัดแห้ง กะเพราสด หมูชิ้น เผ็ดจัดจ้าน',               50,  'noodle',     '/images/mama-pad-kaprao.jpg',       true,  true, true),
-
-    -- ══════════════════════════════════════════════
-    -- 🍚 หมวด: ข้าวผัด (fried-rice) — 1 เมนู
-    -- ══════════════════════════════════════════════
-    (11, 'ข้าวผัดหมูชิ้น',      'ข้าวผัดหอมกระเทียม หมูชิ้นนุ่ม ผักคะน้า ไข่',             55,  'fried-rice', '/images/khao-pad-moo-chin.jpg',     true,  true, true)
+    (14, 'ข้าวผัด',              'ข้าวผัดโบราณหอมกลิ่นกระทะ ข้าวเรียงเม็ดสวย ใส่ไข่และผัก (เลือกเนื้อสัตว์ได้)', 55, 'others', '/images/khao-pad-moo-chin.jpg',  true,  true, true)
 ON CONFLICT (id) DO NOTHING;
 
 

@@ -138,7 +138,7 @@ export function VoiceOrder({ isOpen, onClose, onSelect }: VoiceOrderProps) {
       setDetectedItems([])
       setTimeout(() => {
         setIsListening(false)
-        const mockCommand = 'ขอกะเพราหมูสับไข่ดาว ไม่เผ็ด'
+        const mockCommand = 'ขอผัดกะเพราโบราณไข่ดาว ไม่เผ็ด'
         setTranscript(mockCommand)
         processVoiceCommand(mockCommand)
       }, 3000)
@@ -240,7 +240,7 @@ export function VoiceOrder({ isOpen, onClose, onSelect }: VoiceOrderProps) {
               ) : (
                 <div className="text-center">
                   <p className="text-gray-400 text-sm">
-                    {transcript || 'เช่น "ข้าวกะเพราหมูสับพิเศษ ไม่เผ็ด เพิ่มไข่ดาว"'}
+                    {transcript || 'เช่น "ผัดกะเพราหมูสับ เผ็ดน้อย เพิ่มไข่ดาว"'}
                   </p>
                 </div>
               )}

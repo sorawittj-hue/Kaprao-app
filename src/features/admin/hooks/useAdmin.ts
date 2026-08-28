@@ -194,6 +194,19 @@ export function useUpdateCustomerPoints() {
   })
 }
 
+export function useUpdateCustomerTier() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ customerId, tier }: { customerId: string; tier: 'MEMBER' | 'SILVER' | 'GOLD' | 'VIP' }) =>
+      adminApi.updateCustomerTier(customerId, tier),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.customers() })
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.admin.customers(), 'detail', variables.customerId] })
+    },
+  })
+}
+
 export function useUpdateCustomerNotes() {
   const queryClient = useQueryClient()
 

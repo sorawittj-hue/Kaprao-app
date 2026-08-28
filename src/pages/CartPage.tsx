@@ -2,38 +2,30 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ArrowLeft,
-  Trash2,
-  Plus,
-  Minus,
-  ArrowRight,
-  Sparkles,
-  AlertCircle,
-  Truck,
-  MapPin,
-  Info,
-  Share2
+  ShoppingBag, Trash2, ArrowRight, ArrowLeft, Plus, Minus,
+  Truck, MapPin, Tag, Sparkles, AlertCircle, Share2, Info, Flame
 } from 'lucide-react'
 import { useCartStore, useAuthStore, useUIStore } from '@/store'
-import { Container } from '@/components/layout/Container'
-import { CouponInput } from '@/features/coupons/components/CouponInput'
 import { formatPrice } from '@/utils/formatPrice'
+import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
+import { cn } from '@/utils/cn'
+import { Container } from '@/components/layout/Container'
 import { EmptyState } from '@/components/feedback/EmptyState'
+import { CouponInput } from '@/features/coupons/components/CouponInput'
+import { CouponWalletModal } from '@/features/coupons/components/CouponWalletModal'
 import { SmartUpsell } from '@/features/cart/components/SmartUpsell'
 import { CollaborativeCartBadge, UserAvatar, useCollaborativeCart } from '@/features/collaboration/CollaborativeCart'
 import { getValidImageUrl } from '@/utils/getImageUrl'
-import { trackPageView, trackBeginCheckout } from '@/lib/analytics'
-import { useSEO } from '@/hooks/useSEO'
-import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
-import { cn } from '@/utils/cn'
+import { trackPageView } from '@/lib/analytics'
+import type { CartItem, SelectedOption } from '@/types'
 
 const slideUpItem = {
-  hidden: { opacity: 0, y: 20, scale: 0.98 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 320, damping: 28 } }
+  hidden: { opacity: 0, y: 24, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 320, damping: 26 } }
 }
 const staggerList = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.05 } }
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
 }
 
 export default function CartPage() {
@@ -43,67 +35,42 @@ export default function CartPage() {
 
   const {
     items,
-    updateQuantity,
     removeItem,
+    updateQuantity,
     clearCart,
     subtotal,
+    deliveryMethod,
+    setDeliveryMethod,
     discountAmount,
     couponCode,
     applyCoupon,
     removeCoupon,
     pointsUsed,
     setPointsUsed,
-    finalTotal,
-    deliveryMethod,
-    setDeliveryMethod,
   } = useCartStore()
 
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [showCouponWallet, setShowCouponWallet] = useState(false)
   const collabCart = useCollaborativeCart()
 
-  const maxPoints = user ? Math.min(user.points || 0, Math.floor(subtotal / 10) * 10) : 0
+  const totalQty = items.reduce((sum: number, i: CartItem) => sum + i.quantity, 0)
+  const pointsDiscount = pointsUsed / 10
+  const finalTotal = Math.max(0, subtotal - discountAmount - pointsDiscount)
+  const maxPoints = Math.min(user?.points || 0, Math.floor(subtotal * 10))
 
   useEffect(() => {
     trackPageView('/cart', 'Cart')
     window.scrollTo(0, 0)
-    if (items.length > 0) trackBeginCheckout(items as any, finalTotal)
   }, [])
 
-  useSEO({
-    title: 'ตะกร้าสินค้า | กะเพรา 52',
-    description: 'ตรวจสอบรายการอาหารในตะกร้าของคุณ พร้อมสั่งกะเพรารสเด็ดที่ กะเพรา 52'
-  })
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const joinId = urlParams.get('join')
-    if (joinId && user && !collabCart.isConnected) {
-      collabCart.joinCart(joinId).then((success: boolean) => {
-        if (success) addToast({ type: 'success', title: 'เข้าร่วมตะกร้าแบบกลุ่มสำเร็จแล้ว' })
-      })
-    }
-  }, [user, collabCart.isConnected, collabCart, addToast])
-
-  const handleShareCart = async () => {
-    hapticHeavy()
-    if (!user || isGuest) {
-      addToast({ type: 'error', title: 'ไม่สามารถแชร์ได้', message: 'กรุณาเข้าสู่ระบบผ่าน LINE' })
-      return
-    }
-    let cartId = collabCart.cart?.id
-    if (!cartId) cartId = (await collabCart.createCart()) || undefined
-    if (cartId) {
-      navigator.clipboard.writeText(`${window.location.origin}/cart?join=${cartId}`)
-      addToast({ type: 'success', title: 'คัดลอกลิงก์ตะกร้าปาร์ตี้แล้ว' })
-    }
-  }
-
-  const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
-    hapticLight()
-    if (newQuantity <= 0) {
-      removeItem(itemId)
+  const handleUpdateQuantity = (id: string, qty: number) => {
+    if (qty <= 0) {
+      hapticMedium()
+      removeItem(id)
+      addToast({ type: 'info', title: 'ลบรายการแล้ว' })
     } else {
-      updateQuantity(itemId, newQuantity)
+      hapticLight()
+      updateQuantity(id, qty)
     }
   }
 
@@ -114,31 +81,43 @@ export default function CartPage() {
     addToast({ type: 'info', title: 'ล้างตะกร้าเรียบร้อย' })
   }
 
-  /* Empty Cart View */
+  const handleShareCart = async () => {
+    hapticLight()
+    const url = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'มาร่วมสั่ง กะเพรา 52 กัน!',
+          text: `สั่งอาหารด้วยกัน มี ${totalQty} รายการแล้ว`,
+          url
+        })
+      } catch {}
+    } else {
+      navigator.clipboard.writeText(url)
+      addToast({ type: 'success', title: 'คัดลอกลิงก์แล้ว', message: 'ส่งให้เพื่อนเข้ามาร่วมสั่งได้เลย' })
+    }
+  }
+
+  /* ── Empty Cart View ── */
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col relative" style={{ background: 'var(--bg-base)' }}>
-        {/* Background Ambient Glow */}
-        <div className="fixed top-0 left-0 right-0 h-[40vh] pointer-events-none z-0 overflow-hidden">
-          <div
-            className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-[80px] opacity-20 pointer-events-none"
-            style={{ background: 'radial-gradient(circle, #FF5E00 0%, transparent 70%)' }}
-          />
-        </div>
-
-        <Container className="py-5 relative z-10 flex-1 flex flex-col px-4 max-w-lg mx-auto w-full">
-          <div className="flex items-center justify-between">
+      <div
+        className="min-h-screen safe-area-pt pb-28 flex flex-col relative"
+        style={{ background: 'var(--bg-base)' }}
+      >
+        <Container className="py-4 relative z-10 flex-1 flex flex-col px-4">
+          <div className="flex items-center justify-between pt-1">
             <motion.button
               type="button"
               aria-label="ย้อนกลับ"
               whileTap={{ scale: 0.9 }}
               onClick={() => { hapticLight(); navigate(-1) }}
-              className="w-11 h-11 rounded-[16px] flex items-center justify-center text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+              className="w-11 h-11 rounded-[18px] flex items-center justify-center cursor-pointer shadow-sm"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)' }}
             >
-              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+              <ArrowLeft className="w-5 h-5 text-slate-700" aria-hidden="true" />
             </motion.button>
-            <h1 className="text-base font-black text-white">ตะกร้าสินค้า</h1>
+            <h1 className="text-base font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>ตะกร้าสินค้า</h1>
             <div className="w-11" />
           </div>
 
@@ -150,53 +129,71 @@ export default function CartPage() {
     )
   }
 
-  /* Cart Has Items View */
+  /* ── Cart Has Items View ── */
   return (
-    <div className="min-h-screen safe-area-pt pb-48 relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
-      {/* Background Glow */}
-      <div className="fixed top-0 left-0 right-0 h-[35vh] pointer-events-none z-0 overflow-hidden">
+    <div
+      className="min-h-screen safe-area-pt pb-52 relative overflow-hidden"
+      style={{ background: 'var(--bg-base)' }}
+    >
+      {/* Ambient background orbs */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div
-          className="absolute -top-24 right-0 w-80 h-80 rounded-full blur-[70px] opacity-15 pointer-events-none"
-          style={{ background: 'radial-gradient(circle, #FF5E00 0%, transparent 70%)' }}
+          className="absolute -top-32 -right-16 w-[380px] h-[380px] rounded-full animate-glow-pulse"
+          style={{
+            background: 'radial-gradient(circle, rgba(255,85,0,0.10) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
+        />
+        <div
+          className="absolute top-1/2 -left-20 w-[240px] h-[240px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255,140,66,0.05) 0%, transparent 70%)',
+            filter: 'blur(48px)',
+          }}
         />
       </div>
 
-      <Container className="py-4 relative z-10 space-y-5 max-w-2xl mx-auto px-4">
-        {/* Navigation Header */}
-        <div className="flex items-center justify-between">
+      <Container className="py-4 relative z-10 space-y-4 max-w-2xl mx-auto px-4">
+
+        {/* ── Premium Navigation Header ── */}
+        <div className="flex items-center justify-between pt-1">
           <motion.button
             type="button"
             aria-label="ย้อนกลับ"
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.88 }}
             onClick={() => { hapticLight(); navigate(-1) }}
-            className="w-11 h-11 rounded-[16px] flex items-center justify-center text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+            className="w-11 h-11 rounded-[18px] flex items-center justify-center cursor-pointer transition-colors shadow-sm"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)' }}
           >
-            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+            <ArrowLeft className="w-5 h-5 text-slate-700" aria-hidden="true" />
           </motion.button>
 
           <div className="text-center">
-            <h1 className="text-lg font-black text-white tracking-tight flex items-center justify-center gap-2">
+            <h1 className="text-[17px] font-black tracking-tight flex items-center justify-center gap-2" style={{ color: 'var(--text-primary)' }}>
+              <ShoppingBag className="w-4.5 h-4.5" style={{ color: 'var(--brand)' }} />
               <span>ตะกร้าสินค้า</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full font-black bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                {items.reduce((sum, i) => sum + i.quantity, 0)} จาน
-              </span>
             </h1>
+            <p className="text-[9px] font-black uppercase tracking-[0.14em] mt-0.5" style={{ color: 'var(--brand)' }}>
+              {totalQty} รายการ • {formatPrice(subtotal)}
+            </p>
           </div>
 
           <motion.button
             type="button"
             aria-label="ล้างตะกร้า"
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.88 }}
             onClick={() => { hapticMedium(); setShowClearConfirm(true) }}
-            className="w-11 h-11 rounded-[16px] flex items-center justify-center text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-            style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+            className="w-11 h-11 rounded-[18px] flex items-center justify-center cursor-pointer"
+            style={{
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.18)',
+            }}
           >
-            <Trash2 className="w-4.5 h-4.5" aria-hidden="true" />
+            <Trash2 className="w-4.5 h-4.5 text-red-500" aria-hidden="true" />
           </motion.button>
         </div>
 
-        {/* Collaborative Party Cart Banner */}
+        {/* ── Collaborative Party Cart Banner ── */}
         <AnimatePresence>
           {collabCart.isConnected && (
             <motion.div
@@ -206,14 +203,17 @@ export default function CartPage() {
               className="overflow-hidden"
             >
               <div
-                className="p-4 rounded-[22px] border border-white/10 relative overflow-hidden"
-                style={{ background: 'var(--bg-card)' }}
+                className="p-4 rounded-[22px] relative overflow-hidden shine-sweep"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(56,189,248,0.08), rgba(14,165,233,0.04))',
+                  border: '1px solid rgba(56,189,248,0.20)',
+                }}
               >
                 <div className="flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-3">
                     <CollaborativeCartBadge count={collabCart.connectedUsers.length} />
                     <div>
-                      <p className="font-black text-white text-xs">ปาร์ตี้ตะกร้ากลุ่ม</p>
+                      <p className="font-black text-xs" style={{ color: 'var(--text-primary)' }}>ปาร์ตี้ตะกร้ากลุ่ม</p>
                       <div className="flex items-center -space-x-2 mt-1">
                         {collabCart.connectedUsers.map((u: any, i: number) => (
                           <motion.div
@@ -221,7 +221,8 @@ export default function CartPage() {
                             initial={{ x: -10, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ delay: i * 0.1 }}
-                            className="border-2 border-[#1A1A1E] rounded-full"
+                            className="border-2 rounded-full"
+                            style={{ borderColor: 'var(--bg-card)' }}
                           >
                             <UserAvatar user={u} />
                           </motion.div>
@@ -231,7 +232,7 @@ export default function CartPage() {
                   </div>
                   <button
                     onClick={handleShareCart}
-                    className="bg-[var(--bg-surface)] hover:bg-white/10 text-white font-black text-xs px-4 py-2 rounded-full border border-white/10 flex items-center gap-1.5 active:scale-95 transition-transform"
+                    className="bg-white/80 hover:bg-white text-sky-700 font-black text-xs px-4 py-2 rounded-full border border-sky-500/20 flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-sm"
                   >
                     <Share2 className="w-3.5 h-3.5" />
                     แชร์ลิงก์
@@ -242,89 +243,151 @@ export default function CartPage() {
           )}
         </AnimatePresence>
 
-        {/* Items List */}
         <motion.div variants={staggerList} initial="hidden" animate="visible" className="space-y-4">
-          <motion.div variants={slideUpItem} className="rounded-[28px] p-4 border border-white/10 space-y-3" style={{ background: 'var(--bg-card)' }}>
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <h2 className="font-black text-white text-sm flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                รายการอาหารที่สั่ง ({items.length})
-              </h2>
+
+          {/* ── Items List Card ── */}
+          <motion.div
+            variants={slideUpItem}
+            className="rounded-[28px] overflow-hidden"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-soft)',
+              boxShadow: '0 2px 14px rgba(15, 23, 42, 0.04)',
+            }}
+          >
+            {/* Card Header */}
+            <div
+              className="flex items-center justify-between px-5 py-4 border-b"
+              style={{ borderColor: 'var(--border-subtle)' }}
+            >
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center"
+                  style={{ background: 'var(--brand-bg)', border: '1px solid var(--brand-border)' }}
+                >
+                  <Flame className="w-3.5 h-3.5" style={{ color: 'var(--brand)' }} />
+                </div>
+                <h2 className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>รายการสั่งอาหาร</h2>
+              </div>
+              <span className="badge-brand">{items.length} เมนู</span>
             </div>
 
-            <div className="space-y-3">
+            {/* Items */}
+            <div className="p-4 space-y-3">
               <AnimatePresence>
-                {items.map((item) => (
+                {items.map((item: CartItem, idx: number) => (
                   <motion.div
                     key={item.id}
                     layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, x: -50, height: 0 }}
-                    className="p-3.5 rounded-[20px] flex gap-3.5 relative overflow-hidden border border-white/5"
-                    style={{ background: 'var(--bg-surface)' }}
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0, transition: { delay: idx * 0.04 } }}
+                    exit={{ opacity: 0, x: -60, scale: 0.9, height: 0 }}
+                    className="flex gap-3.5 p-3.5 rounded-[20px] relative overflow-hidden"
+                    style={{
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-subtle)',
+                    }}
                   >
-                    {/* Item Image */}
-                    <div className="relative w-20 h-20 flex-shrink-0 rounded-[16px] overflow-hidden border border-white/10 bg-black/30">
+                    {/* Food Image */}
+                    <div className="relative w-[76px] h-[76px] flex-shrink-0 rounded-[16px] overflow-hidden bg-slate-100">
                       <img
                         src={getValidImageUrl(item.menuItem.imageUrl)}
                         alt={item.menuItem.name}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
-                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-md">
+                      {/* Quantity badge on image */}
+                      <motion.div
+                        key={item.quantity}
+                        initial={{ scale: 1.4 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-lg"
+                        style={{
+                          background: 'linear-gradient(135deg, #FF5500, #E03E00)',
+                          boxShadow: '0 2px 8px rgba(255,85,0,0.4)',
+                        }}
+                      >
                         {item.quantity}
-                      </div>
+                      </motion.div>
                     </div>
 
                     {/* Item Info */}
                     <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                       <div>
                         <div className="flex justify-between items-start gap-2">
-                          <h3 className="font-black text-white text-sm leading-snug line-clamp-1">
+                          <h3 className="font-black text-sm leading-snug line-clamp-1" style={{ color: 'var(--text-primary)' }}>
                             {item.menuItem.name}
                           </h3>
-                          <span className="font-black text-sm text-gradient-fire flex-shrink-0">
+                          <span className="font-black text-sm text-gradient-fire flex-shrink-0 num-display">
                             {formatPrice(item.subtotal)}
                           </span>
                         </div>
 
-                        {/* Selected Options */}
+                        {/* Options */}
                         {item.selectedOptions && item.selectedOptions.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {item.selectedOptions.map(o => (
-                              <span key={o.optionId} className="text-[10px] font-bold bg-white/5 text-gray-300 px-2 py-0.5 rounded-md border border-white/5">
-                                {o.name} {o.price > 0 && `(+฿${o.price})`}
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {item.selectedOptions.map((o: SelectedOption) => (
+                              <span
+                                key={o.optionId}
+                                className="text-[9.5px] font-bold px-2 py-0.5 rounded-md"
+                                style={{
+                                  background: '#FFFFFF',
+                                  color: 'var(--text-secondary)',
+                                  border: '1px solid var(--border-soft)',
+                                  boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
+                                }}
+                              >
+                                {o.name}{o.price > 0 ? ` +฿${o.price}` : ''}
                               </span>
                             ))}
                           </div>
                         )}
 
+                        {/* Note */}
                         {item.note && (
-                          <div className="flex items-center gap-1 text-[10px] text-amber-400 mt-1 italic">
-                            <Info className="w-3 h-3 flex-shrink-0" />
-                            <span className="font-medium truncate">"{item.note}"</span>
+                          <div className="flex items-center gap-1 mt-1.5">
+                            <Info className="w-3 h-3 flex-shrink-0 text-amber-500" />
+                            <span className="text-[9.5px] font-medium text-amber-600 truncate italic">
+                              "{item.note}"
+                            </span>
                           </div>
                         )}
                       </div>
 
                       {/* Quantity Controls */}
                       <div className="flex items-center justify-between pt-2">
-                        <span className="text-[10px] font-bold text-gray-500">฿{item.menuItem.price} / จาน</span>
+                        <span className="text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>
+                          ฿{item.menuItem.price} / จาน
+                        </span>
 
-                        <div className="flex items-center gap-2 p-1 rounded-full bg-black/40 border border-white/10">
+                        <div
+                          className="flex items-center gap-1.5 px-1 py-1 rounded-full"
+                          style={{ background: '#FFFFFF', border: '1px solid var(--border-soft)', boxShadow: '0 1px 4px rgba(15, 23, 42, 0.05)' }}
+                        >
                           <motion.button
-                            whileTap={{ scale: 0.8 }}
+                            whileTap={{ scale: 0.75 }}
                             onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                            className="w-7 h-7 flex items-center justify-center text-gray-300 rounded-full hover:bg-white/10"
+                            className="w-7 h-7 flex items-center justify-center text-red-500 rounded-full hover:bg-red-50 transition-colors cursor-pointer"
                             aria-label="ลดจำนวน"
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </motion.button>
-                          <span className="w-5 text-center font-black text-xs text-white">{item.quantity}</span>
+
+                          <motion.span
+                            key={item.quantity}
+                            initial={{ scale: 1.3 }}
+                            animate={{ scale: 1 }}
+                            className="w-6 text-center font-black text-sm num-display"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {item.quantity}
+                          </motion.span>
+
                           <motion.button
-                            whileTap={{ scale: 0.8 }}
+                            whileTap={{ scale: 0.75 }}
                             onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                            className="w-7 h-7 flex items-center justify-center text-orange-400 rounded-full hover:bg-white/10"
+                            className="w-7 h-7 flex items-center justify-center rounded-full transition-colors cursor-pointer"
+                            style={{ color: 'var(--brand)' }}
                             aria-label="เพิ่มจำนวน"
                           >
                             <Plus className="w-3.5 h-3.5" />
@@ -337,138 +400,234 @@ export default function CartPage() {
               </AnimatePresence>
             </div>
 
-            {/* Smart Upsell Section */}
+            {/* Smart Upsell */}
             {!isGuest && (
-              <div className="pt-2">
+              <div className="px-4 pb-4">
                 <SmartUpsell />
               </div>
             )}
           </motion.div>
 
-          {/* Delivery Method Toggle */}
-          <motion.div variants={slideUpItem} className="rounded-[28px] p-4 border border-white/10 space-y-3" style={{ background: 'var(--bg-card)' }}>
-            <div className="flex items-center gap-2 text-white font-black text-xs uppercase tracking-wider">
-              <Truck className="w-4 h-4 text-orange-400" />
-              <span>วิธีรับอาหาร / จัดส่ง</span>
+          {/* ── Delivery Method ── */}
+          <motion.div
+            variants={slideUpItem}
+            className="rounded-[28px] p-5 space-y-4"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-soft)',
+              boxShadow: '0 2px 14px rgba(15, 23, 42, 0.04)',
+            }}
+          >
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,85,0,0.10)', border: '1px solid rgba(255,85,0,0.20)' }}
+              >
+                <Truck className="w-3.5 h-3.5" style={{ color: 'var(--brand)' }} />
+              </div>
+              <h2 className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>วิธีรับอาหาร</h2>
             </div>
 
-            <div className="flex bg-[var(--bg-surface)] p-1 rounded-[18px] relative border border-white/5">
-              <button
-                type="button"
-                onClick={() => { setDeliveryMethod('workplace'); hapticLight(); }}
-                className={cn(
-                  "flex-1 py-3 rounded-[14px] font-black text-xs flex items-center justify-center gap-2 relative z-10 transition-colors",
-                  deliveryMethod === 'workplace' ? "text-white" : "text-gray-400"
-                )}
-              >
-                <MapPin className="w-3.5 h-3.5" /> รับที่ทำงาน
-              </button>
-              <button
-                type="button"
-                onClick={() => { setDeliveryMethod('village'); hapticLight(); }}
-                className={cn(
-                  "flex-1 py-3 rounded-[14px] font-black text-xs flex items-center justify-center gap-2 relative z-10 transition-colors",
-                  deliveryMethod === 'village' ? "text-white" : "text-gray-400"
-                )}
-              >
-                <Truck className="w-3.5 h-3.5" /> ส่งหมู่บ้าน
-              </button>
+            <div
+              className="flex p-1 rounded-[20px] relative"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}
+            >
+              {(['workplace', 'village'] as const).map(method => (
+                <button
+                  key={method}
+                  type="button"
+                  onClick={() => { setDeliveryMethod(method); hapticLight() }}
+                  className={cn(
+                    'flex-1 py-3 rounded-[16px] font-black text-xs flex items-center justify-center gap-2 relative z-10 transition-colors cursor-pointer',
+                    deliveryMethod === method ? 'text-white' : 'text-slate-600'
+                  )}
+                >
+                  {method === 'workplace' ? <MapPin className="w-3.5 h-3.5" /> : <Truck className="w-3.5 h-3.5" />}
+                  {method === 'workplace' ? 'รับที่ทำงาน' : 'ส่งหมู่บ้าน'}
+                </button>
+              ))}
 
               <motion.div
                 initial={false}
                 animate={{ x: deliveryMethod === 'workplace' ? '0%' : '100%' }}
-                className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-[#FF5E00] to-[#FF3A00] rounded-[14px] shadow-lg shadow-orange-500/25 z-0"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-[16px] z-0"
+                style={{
+                  background: 'linear-gradient(135deg, #FF5500, #E03E00)',
+                  boxShadow: '0 4px 16px rgba(255,85,0,0.30)',
+                }}
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               />
             </div>
           </motion.div>
 
-          {/* Coupons & Points Section */}
-          <motion.div variants={slideUpItem} className="rounded-[28px] p-5 space-y-4 border border-white/10" style={{ background: 'var(--bg-card)' }}>
-            <div className="flex items-center gap-2 text-white font-black text-xs uppercase tracking-wider">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>ส่วนลด & สิทธิพิเศษ</span>
+          {/* ── Coupons & Points ── */}
+          <motion.div
+            variants={slideUpItem}
+            className="rounded-[28px] p-5 space-y-4"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-soft)',
+              boxShadow: '0 2px 14px rgba(15, 23, 42, 0.04)',
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(217,119,6,0.10)', border: '1px solid rgba(217,119,6,0.20)' }}
+                >
+                  <Tag className="w-3.5 h-3.5 text-amber-600" />
+                </div>
+                <h2 className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>ส่วนลด & สิทธิพิเศษ</h2>
+              </div>
+
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.94 }}
+                onClick={() => {
+                  hapticLight()
+                  setShowCouponWallet(true)
+                }}
+                className="px-3 py-1 rounded-full text-xs font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 cursor-pointer flex items-center gap-1"
+              >
+                <span>🎟️ เลือกคูปอง</span>
+              </motion.button>
             </div>
 
             <CouponInput
               orderTotal={subtotal}
-              menuItemIds={items.map(i => i.menuItem.id)}
+              menuItemIds={items.map((i: CartItem) => i.menuItem.id)}
               appliedCoupon={couponCode ? { couponId: 1, discount: discountAmount, code: couponCode, name: couponCode } : null}
-              onApply={(res) => applyCoupon(res.code, res.discount)}
+              onApply={(res: { code: string; discount: number }) => applyCoupon(res.code, res.discount)}
               onRemove={() => removeCoupon()}
             />
 
             {!isGuest && user && maxPoints >= 10 && (
-              <div className="p-3.5 rounded-[18px] border border-amber-500/20 bg-amber-500/10">
+              <div
+                className="p-4 rounded-[18px]"
+                style={{
+                  background: 'rgba(245,158,11,0.08)',
+                  border: '1px solid rgba(245,158,11,0.22)',
+                }}
+              >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-black text-amber-300 text-xs">ใช้พอยต์สะสมลดเพิ่ม</p>
-                    <p className="text-[10px] text-amber-200/70 font-medium">10 พอยต์ = 10 บาท (มี {user.points} pts)</p>
+                    <p className="font-black text-amber-700 text-xs">ใช้พอยต์สะสมลดเพิ่ม</p>
+                    <p className="text-[10px] font-medium mt-0.5 text-slate-500">
+                      10 pts = ฿10 ลด • คุณมี {user.points} pts
+                    </p>
                   </div>
-                  <button
+                  <motion.button
                     type="button"
+                    whileTap={{ scale: 0.92 }}
                     onClick={() => {
                       hapticMedium()
                       setPointsUsed(pointsUsed > 0 ? 0 : Math.min(maxPoints, 50))
                     }}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-full font-black text-xs transition-all",
+                      'px-4 py-2 rounded-full font-black text-xs transition-all cursor-pointer',
                       pointsUsed > 0
-                        ? "bg-amber-500 text-white shadow-md shadow-amber-500/30"
-                        : "bg-white/10 text-amber-300 border border-amber-500/30 hover:bg-white/20"
+                        ? 'text-white'
+                        : 'text-amber-700'
                     )}
+                    style={pointsUsed > 0
+                      ? { background: 'linear-gradient(135deg, #F59E0B, #D97706)', boxShadow: '0 4px 14px rgba(245,158,11,0.35)' }
+                      : { background: '#FFFFFF', border: '1px solid rgba(245,158,11,0.3)', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.04)' }
+                    }
                   >
-                    {pointsUsed > 0 ? `ใช้ ${pointsUsed} pts` : 'ใช้พอยต์'}
-                  </button>
+                    {pointsUsed > 0 ? `✓ ใช้ ${pointsUsed} pts` : 'ใช้พอยต์'}
+                  </motion.button>
                 </div>
               </div>
             )}
           </motion.div>
 
-          {/* Order Summary */}
-          <motion.div variants={slideUpItem} className="rounded-[28px] p-5 space-y-3 border border-white/10" style={{ background: 'var(--bg-card)' }}>
-            <h2 className="text-xs font-black uppercase tracking-wider text-gray-400">สรุปยอดรวม</h2>
-            <div className="space-y-2 text-xs font-bold text-gray-300">
-              <div className="flex justify-between">
-                <span>ราคารวมสินค้า</span>
-                <span className="text-white">{formatPrice(subtotal)}</span>
+          {/* ── Order Summary ── */}
+          <motion.div
+            variants={slideUpItem}
+            className="rounded-[28px] p-5 space-y-3"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-soft)',
+              boxShadow: '0 2px 14px rgba(15, 23, 42, 0.04)',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <h2 className="text-xs font-black uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                สรุปยอดรวม
+              </h2>
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="flex justify-between text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>
+                <span>ราคารวมสินค้า ({totalQty} รายการ)</span>
+                <span className="num-display" style={{ color: 'var(--text-primary)' }}>{formatPrice(subtotal)}</span>
               </div>
+
               {discountAmount > 0 && (
-                <div className="flex justify-between text-green-400">
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="flex justify-between text-xs font-bold text-emerald-600"
+                >
                   <span>ส่วนลดคูปอง ({couponCode})</span>
-                  <span>-{formatPrice(discountAmount)}</span>
-                </div>
+                  <span className="num-display">-{formatPrice(discountAmount)}</span>
+                </motion.div>
               )}
+
               {pointsUsed > 0 && (
-                <div className="flex justify-between text-amber-400">
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="flex justify-between text-xs font-bold text-amber-600"
+                >
                   <span>ส่วนลดพอยต์ ({pointsUsed} pts)</span>
-                  <span>-{formatPrice(pointsUsed)}</span>
-                </div>
+                  <span className="num-display">-{formatPrice(pointsDiscount)}</span>
+                </motion.div>
               )}
-              <div className="pt-2 flex justify-between items-baseline text-sm font-black text-white border-t border-white/5">
-                <span>ยอดชำระสุทธิ</span>
-                <span className="text-xl text-gradient-fire">{formatPrice(finalTotal)}</span>
+
+              <div
+                className="pt-3 flex justify-between items-center"
+                style={{ borderTop: '1px solid var(--border-subtle)' }}
+              >
+                <span className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>ยอดชำระสุทธิ</span>
+                <motion.span
+                  key={finalTotal}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  className="text-2xl font-black text-gradient-fire num-display"
+                >
+                  {formatPrice(finalTotal)}
+                </motion.span>
               </div>
             </div>
           </motion.div>
+
         </motion.div>
       </Container>
 
-      {/* Floating Sticky Bar (Above BottomNav) */}
-      <div className="fixed bottom-[84px] left-0 right-0 z-40 p-4 pointer-events-none">
+      {/* ── Floating Checkout Bar (Above BottomNav) ── */}
+      <div className="fixed bottom-[84px] left-0 right-0 z-40 px-4 py-2 pointer-events-none">
         <div className="max-w-md mx-auto pointer-events-auto">
-          <div
-            className="p-3.5 rounded-[24px] flex items-center justify-between gap-4"
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3, type: 'spring', stiffness: 300, damping: 28 }}
+            className="flex items-center justify-between gap-3 px-4 py-3 rounded-[26px]"
             style={{
-              background: 'rgba(20, 20, 24, 0.96)',
-              backdropFilter: 'blur(30px)',
-              border: '1px solid rgba(255, 94, 0, 0.3)',
-              boxShadow: '0 10px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255, 94, 0, 0.1)'
+              background: 'rgba(255, 255, 255, 0.94)',
+              backdropFilter: 'blur(36px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(36px) saturate(180%)',
+              border: '1px solid rgba(255, 85, 0, 0.20)',
+              boxShadow: '0 16px 40px -6px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.05)',
             }}
           >
             <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">ยอดรวมทั้งหมด</p>
-              <p className="text-xl font-black text-gradient-fire leading-none mt-0.5">
+              <p className="text-[9px] font-black uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                ยอดรวม
+              </p>
+              <p className="text-xl font-black text-gradient-fire leading-none mt-0.5 num-display">
                 {formatPrice(finalTotal)}
               </p>
             </div>
@@ -478,16 +637,16 @@ export default function CartPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => { hapticHeavy(); navigate('/checkout') }}
-              className="flex-1 max-w-[200px] h-13 btn-brand rounded-full font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-orange-500/30"
+              className="flex-1 max-w-[180px] h-[48px] btn-brand rounded-[18px] font-black text-sm flex items-center justify-center gap-2 cursor-pointer text-white"
             >
               <span>ชำระเงิน</span>
               <ArrowRight className="w-4 h-4" />
             </motion.button>
-          </div>
+          </motion.div>
         </div>
       </div>
 
-      {/* Clear Confirm Modal */}
+      {/* ── Clear Cart Confirm Modal ── */}
       <AnimatePresence>
         {showClearConfirm && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -496,40 +655,69 @@ export default function CartPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowClearConfirm(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              className="absolute inset-0 bg-black/60"
+              style={{ backdropFilter: 'blur(16px)' }}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.88, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="rounded-[28px] w-full max-w-sm p-6 relative z-10 text-center border border-white/10"
-              style={{ background: 'var(--bg-card)' }}
+              exit={{ opacity: 0, scale: 0.92, y: 16 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className="rounded-[32px] w-full max-w-sm p-6 relative z-10 text-center"
+              style={{
+                background: '#FFFFFF',
+                border: '1px solid rgba(239,68,68,0.20)',
+                boxShadow: '0 24px 60px rgba(15,23,42,0.20)',
+              }}
             >
-              <div className="w-14 h-14 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto mb-4 border border-red-500/30">
-                <AlertCircle className="w-7 h-7" />
-              </div>
-              <h3 className="font-black text-lg text-white mb-1">ล้างรายการในตะกร้า?</h3>
-              <p className="text-xs text-gray-400 mb-6">รายการอาหารทั้งหมดในตะกร้าจะถูกลบออก</p>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 400 }}
+                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                style={{
+                  background: 'rgba(239,68,68,0.10)',
+                  border: '1px solid rgba(239,68,68,0.20)',
+                }}
+              >
+                <AlertCircle className="w-8 h-8 text-red-500" />
+              </motion.div>
+              <h3 className="font-black text-lg mb-1.5" style={{ color: 'var(--text-primary)' }}>ล้างรายการในตะกร้า?</h3>
+              <p className="text-xs font-medium mb-6" style={{ color: 'var(--text-secondary)' }}>
+                รายการอาหารทั้งหมด {totalQty} รายการจะถูกลบออก
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setShowClearConfirm(false)}
-                  className="py-3 rounded-full font-bold text-xs bg-white/10 text-gray-300 hover:bg-white/15"
+                  className="py-3 rounded-[18px] font-bold text-sm cursor-pointer transition-colors"
+                  style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}
                 >
                   ยกเลิก
                 </button>
-                <button
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.95 }}
                   onClick={confirmClearCart}
-                  className="py-3 rounded-full font-bold text-xs bg-red-500 text-white shadow-lg shadow-red-500/30"
+                  className="py-3 rounded-[18px] font-bold text-sm text-white cursor-pointer"
+                  style={{
+                    background: 'linear-gradient(135deg, #EF4444, #DC2626)',
+                    boxShadow: '0 6px 20px rgba(239,68,68,0.30)',
+                  }}
                 >
                   ยืนยันล้างตะกร้า
-                </button>
+                </motion.button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      {/* Coupon Wallet Selector Modal */}
+      <CouponWalletModal
+        isOpen={showCouponWallet}
+        onClose={() => setShowCouponWallet(false)}
+      />
     </div>
   )
 }

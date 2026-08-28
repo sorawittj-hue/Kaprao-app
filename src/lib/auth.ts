@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { isLiffInitialized } from './liff'
 import { useAuthStore } from '@/store'
+import type { User } from '@/types'
 
 // ─── Login with LINE ──────────────────────────────────────────────────────────
 export async function loginWithLine(): Promise<void> {
@@ -12,24 +13,7 @@ export async function loginWithLine(): Promise<void> {
   }
 
   if (!initialized) {
-    // If VITE_LIFF_ID is missing from build, check or prompt for custom LIFF ID
-    const savedLiffId = localStorage.getItem('kaprao_liff_id')
-    if (!savedLiffId) {
-      const userLiffId = window.prompt(
-        'กรุณากรอก LIFF ID จาก LINE Developers Console เพื่อทำการเข้าสู่ระบบด้วย LINE (เช่น 200xxxxxxx-xxxxxxx):'
-      )
-      if (userLiffId && userLiffId.trim()) {
-        localStorage.setItem('kaprao_liff_id', userLiffId.trim())
-        const newlyInit = await initLiff()
-        if (!newlyInit) {
-          throw new Error('LIFF ID ที่ระบุไม่ถูกต้อง หรือ domain นี้ไม่ได้ถูกใส่ใน LINE Developer Console Endpoint URL')
-        }
-      } else {
-        throw new Error('จำเป็นต้องมี LIFF ID ในการเข้าสู่ระบบด้วย LINE')
-      }
-    } else {
-      throw new Error('ไม่สามารถเริ่มต้นระบบ LINE LIFF ได้ กรุณาเช็ค LIFF ID หรือ Callback Domain ใน LINE Developer Console')
-    }
+    throw new Error('ไม่สามารถเชื่อมต่อ LINE LIFF ได้ในขณะนี้ กรุณาเข้าใช้งานผ่านเบอร์โทรศัพท์หรือโหมดผู้เยี่ยมชม')
   }
 
   const liff = (await import('@line/liff')).default
@@ -42,9 +26,60 @@ export async function loginWithLine(): Promise<void> {
   }
 }
 
-// ─── Guest Mode (no Supabase session needed) ──────────────────────────────────
-// Guest mode is now handled purely in the AuthStore (isGuest: true, user: null)
-// No Supabase anonymous session creation — keeps things simple & avoids conflicts
+// ─── Login with Phone Number ──────────────────────────────────────────────────
+export async function loginWithPhone(phoneNumber: string, displayName: string = 'สมาชิกกะเพรา 52'): Promise<User> {
+  const cleanPhone = phoneNumber.replace(/[^0-9]/g, '')
+  if (cleanPhone.length < 9) {
+    throw new Error('กรุณาระบุเบอร์โทรศัพท์ให้ถูกต้องอย่างน้อย 9-10 หลัก')
+  }
+
+  const userId = `usr_phone_${cleanPhone}`
+  const user: User = {
+    id: userId,
+    phoneNumber: cleanPhone,
+    displayName: displayName.trim() || `ลูกค้า ${cleanPhone.slice(-4)}`,
+    points: 20, // Free welcome points for phone login!
+    totalOrders: 0,
+    tier: 'MEMBER',
+    isAdmin: false,
+    createdAt: new Date().toISOString(),
+  }
+
+  useAuthStore.getState().setUser(user)
+  localStorage.setItem('kaprao_user_data', JSON.stringify(user))
+
+  // Claim any pending guest order
+  const pending = getPendingGuestOrder()
+  if (pending.orderId && pending.trackingToken) {
+    try {
+      await claimGuestOrder(Number(pending.orderId), pending.trackingToken)
+      clearPendingGuestOrder()
+    } catch (_) { /* noop */ }
+  }
+
+  return user
+}
+
+// ─── Login with Demo / Fast Member Account ────────────────────────────────────
+export function loginWithDemoAccount(name: string = 'สมาชิกทดสอบ (VIP)'): User {
+  const user: User = {
+    id: 'usr_demo_' + Date.now(),
+    lineUserId: 'U_demo_' + Date.now(),
+    displayName: name,
+    points: 150,
+    totalOrders: 5,
+    tier: 'GOLD',
+    isAdmin: false,
+    pictureUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    createdAt: new Date().toISOString(),
+  }
+
+  useAuthStore.getState().setUser(user)
+  localStorage.setItem('kaprao_user_data', JSON.stringify(user))
+  return user
+}
+
+// ─── Guest Mode (Zero Supabase barrier) ────────────────────────────────────────
 export function enterGuestMode(): void {
   const { setGuest } = useAuthStore.getState()
   setGuest()
@@ -52,7 +87,6 @@ export function enterGuestMode(): void {
 }
 
 // ─── Claim Guest Order After LINE Login ───────────────────────────────────────
-// This is called automatically by AuthProvider — but can be called manually too
 export async function claimGuestOrder(orderId: number, trackingToken: string): Promise<{
   success: boolean
   pointsEarned: number
@@ -83,7 +117,6 @@ export async function logout(): Promise<void> {
   const { logout: storeLogout } = useAuthStore.getState()
 
   try {
-    // Logout from LINE if initialized
     if (isLiffInitialized()) {
       const liff = (await import('@line/liff')).default
       if (liff.isLoggedIn()) {
@@ -94,10 +127,10 @@ export async function logout(): Promise<void> {
     console.warn('LINE logout warning:', e)
   }
 
-  // Logout from Supabase
-  await supabase.auth.signOut()
+  try {
+    await supabase.auth.signOut()
+  } catch (_) { /* noop */ }
 
-  // Clear all stored data
   localStorage.removeItem('kaprao_user_data')
   localStorage.removeItem('kaprao_orders')
   localStorage.removeItem('kaprao52-auth-storage')
@@ -106,7 +139,6 @@ export async function logout(): Promise<void> {
   sessionStorage.removeItem('pending_guest_order_id')
   sessionStorage.removeItem('pending_guest_tracking_token')
 
-  // Update store
   storeLogout()
 }
 

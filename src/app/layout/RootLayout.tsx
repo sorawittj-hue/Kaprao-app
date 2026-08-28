@@ -6,7 +6,7 @@ import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner'
 
 export function RootLayout() {
   return (
-    <div className="min-h-screen text-white relative overflow-x-hidden" style={{ background: 'var(--bg-base)' }}>
+    <div className="min-h-screen relative overflow-x-hidden" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
       {/* Skip to content for keyboard users */}
       <a
         href="#main-content"

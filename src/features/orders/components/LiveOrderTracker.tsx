@@ -21,57 +21,65 @@ const statusConfig: Record<OrderStatus, {
   label: string
   icon: React.ElementType
   color: string
-  bgColor: string
+  glow: string
+  bg: string
   description: string
 }> = {
   pending: {
     label: 'รอการยืนยัน',
     icon: Clock,
-    color: 'text-amber-500',
-    bgColor: 'bg-amber-100',
+    color: '#F59E0B',
+    glow: 'rgba(245,158,11,0.35)',
+    bg: 'rgba(245,158,11,0.12)',
     description: 'ร้านกำลังตรวจสอบออเดอร์ของคุณ',
   },
   placed: {
-    label: 'ยืนยันแล้ว',
+    label: 'รับออเดอร์แล้ว',
     icon: CheckCircle2,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-100',
+    color: '#38BDF8',
+    glow: 'rgba(56,189,248,0.35)',
+    bg: 'rgba(56,189,248,0.12)',
     description: 'ออเดอร์ของคุณได้รับการยืนยันแล้ว',
   },
   confirmed: {
-    label: 'กำลังเตรียม',
+    label: 'กำลังจัดเตรียม',
     icon: ChefHat,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-100',
-    description: 'กำลังปรุงอาหารให้คุณ',
+    color: '#FB923C',
+    glow: 'rgba(251,146,60,0.35)',
+    bg: 'rgba(251,146,60,0.12)',
+    description: 'เชฟกำลังจัดเตรียมวัตถุดิบ',
   },
   preparing: {
-    label: 'กำลังทำ',
+    label: 'กำลังปรุงอาหาร',
     icon: ChefHat,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-100',
-    description: 'เชฟกำลังปรุงอาหารอย่างพิถีพิถัน',
+    color: '#FF5E00',
+    glow: 'rgba(255,94,0,0.4)',
+    bg: 'rgba(255,94,0,0.14)',
+    description: 'เชฟกำลังผัดกะเพราอย่างพิถีพิถัน',
   },
   ready: {
-    label: 'พร้อมรับ',
+    label: 'พร้อมรับ / จัดส่ง',
     icon: Package,
-    color: 'text-green-500',
-    bgColor: 'bg-green-100',
-    description: 'อาหารพร้อมรับแล้ว!',
+    color: '#22C55E',
+    glow: 'rgba(34,197,94,0.35)',
+    bg: 'rgba(34,197,94,0.12)',
+    description: 'อาหารปรุงเสร็จแล้ว พร้อมส่งให้คุณ!',
   },
   delivered: {
-    label: 'เสร็จสิ้น',
+    label: 'จัดส่งสำเร็จ',
     icon: CheckCircle2,
-    color: 'text-gray-500',
-    bgColor: 'bg-gray-100',
-    description: 'ขอบคุณที่ใช้บริการ',
+    color: '#9CA3AF',
+    glow: 'rgba(156,163,175,0.2)',
+    bg: 'rgba(156,163,175,0.10)',
+    description: 'ขอบคุณที่อุดหนุนกะเพรา 52 ครับ',
   },
   cancelled: {
-    label: 'ยกเลิก',
+    label: 'ยกเลิกออเดอร์',
     icon: AlertCircle,
-    color: 'text-red-500',
-    bgColor: 'bg-red-100',
-    description: 'ออเดอร์ถูกยกเลิก',
+    color: '#EF4444',
+    glow: 'rgba(239,68,68,0.35)',
+    bg: 'rgba(239,68,68,0.12)',
+    description: 'ออเดอร์นี้ถูกยกเลิกแล้ว',
   },
 }
 
@@ -87,8 +95,6 @@ export function LiveOrderTracker({
 
   // Subscribe to real-time order updates
   useEffect(() => {
-    console.log('🔴 Subscribing to order:', orderId)
-
     const channel = supabase
       .channel(`order-${orderId}`)
       .on(
@@ -100,7 +106,6 @@ export function LiveOrderTracker({
           filter: `id=eq.${orderId}`,
         },
         (payload) => {
-          console.log('📦 Order update received:', payload)
           const newStatus = (payload.new as { status: OrderStatus }).status
           setStatus(newStatus)
           setLastUpdated(new Date())
@@ -109,14 +114,13 @@ export function LiveOrderTracker({
       .subscribe()
 
     return () => {
-      console.log('🔴 Unsubscribing from order:', orderId)
       supabase.removeChannel(channel)
     }
   }, [orderId])
 
   const currentConfig = statusConfig[status]
-  const currentStep = statusOrder.indexOf(status)
-  const progress = Math.max(0, (currentStep / (statusOrder.length - 1)) * 100)
+  const currentStep = Math.max(0, statusOrder.indexOf(status))
+  const progress = Math.max(0, Math.min(100, (currentStep / (statusOrder.length - 1)) * 100))
 
   // Calculate estimated time remaining
   const getTimeRemaining = () => {
@@ -135,41 +139,68 @@ export function LiveOrderTracker({
   const timeRemaining = getTimeRemaining()
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-soft">
+    <div
+      className="rounded-[28px] p-5 relative overflow-hidden"
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-soft)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+      }}
+    >
+      {/* Glow orb */}
+      <div
+        className="absolute top-0 right-0 w-36 h-36 rounded-full pointer-events-none opacity-20"
+        style={{ background: currentConfig.color, filter: 'blur(40px)' }}
+      />
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 relative z-10">
         <div className="flex items-center gap-3">
           <motion.div
             key={status}
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
-            className={cn('w-12 h-12 rounded-full flex items-center justify-center', currentConfig.bgColor)}
+            className="w-12 h-12 rounded-[18px] flex items-center justify-center border"
+            style={{
+              background: currentConfig.bg,
+              borderColor: `${currentConfig.color}40`,
+              boxShadow: `0 4px 16px ${currentConfig.glow}`,
+            }}
           >
-            <currentConfig.icon className={cn('w-6 h-6', currentConfig.color)} />
+            <currentConfig.icon className="w-6 h-6" style={{ color: currentConfig.color }} />
           </motion.div>
           <div>
-            <h3 className="font-bold text-gray-800">{currentConfig.label}</h3>
-            <p className="text-xs text-gray-500">{currentConfig.description}</p>
+            <h3 className="font-black text-white text-base leading-tight">{currentConfig.label}</h3>
+            <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+              {currentConfig.description}
+            </p>
           </div>
         </div>
 
         {timeRemaining && (
           <div className="text-right">
-            <p className="text-sm font-bold text-brand-600">{timeRemaining}</p>
-            <p className="text-[10px] text-gray-400">
-              อัพเดท {lastUpdated.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+            <p className="text-xs font-black text-gradient-fire num-display">{timeRemaining}</p>
+            <p className="text-[10px] font-bold" style={{ color: 'var(--text-micro)' }}>
+              อัปเดต {lastUpdated.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
         )}
       </div>
 
       {/* Progress Bar */}
-      <div className="relative mb-8">
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="relative mb-7 px-1">
+        <div
+          className="h-2 rounded-full overflow-hidden"
+          style={{ background: 'var(--bg-surface)' }}
+        >
           <motion.div
-            className={cn('h-full rounded-full transition-colors duration-500',
-              status === 'cancelled' ? 'bg-red-500' : 'bg-brand-500'
-            )}
+            className="h-full rounded-full"
+            style={{
+              background: status === 'cancelled'
+                ? '#EF4444'
+                : 'linear-gradient(90deg, #FF5E00, #FF3A00, #22C55E)',
+              boxShadow: '0 0 12px rgba(255,94,0,0.5)',
+            }}
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ type: 'spring', stiffness: 50, damping: 15 }}
@@ -177,7 +208,7 @@ export function LiveOrderTracker({
         </div>
 
         {/* Step Indicators */}
-        <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between">
+        <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between px-1 pointer-events-none">
           {statusOrder.slice(0, -1).map((stepStatus, index) => {
             const isCompleted = index <= currentStep
             const isCurrent = index === currentStep
@@ -185,13 +216,14 @@ export function LiveOrderTracker({
             return (
               <motion.div
                 key={stepStatus}
-                className={cn(
-                  'w-4 h-4 rounded-full border-2 transition-colors duration-300',
-                  isCompleted ? 'bg-brand-500 border-brand-500' : 'bg-white border-gray-300',
-                  isCurrent && 'ring-4 ring-brand-500/20'
-                )}
-                animate={isCurrent ? { scale: [1, 1.2, 1] } : {}}
-                transition={{ duration: 1, repeat: Infinity }}
+                className="w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 flex items-center justify-center"
+                style={{
+                  background: isCompleted ? '#FF5E00' : 'var(--bg-surface)',
+                  borderColor: isCompleted ? '#FF5E00' : 'var(--border-subtle)',
+                  boxShadow: isCurrent ? '0 0 0 4px rgba(255,94,0,0.25)' : 'none',
+                }}
+                animate={isCurrent ? { scale: [1, 1.25, 1] } : {}}
+                transition={{ duration: 1.5, repeat: Infinity }}
               />
             )
           })}
@@ -199,7 +231,7 @@ export function LiveOrderTracker({
       </div>
 
       {/* Status Timeline */}
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         <AnimatePresence mode="popLayout">
           {statusOrder.slice(0, currentStep + 1).reverse().map((stepStatus, index) => {
             const config = statusConfig[stepStatus]
@@ -208,29 +240,37 @@ export function LiveOrderTracker({
             return (
               <motion.div
                 key={stepStatus}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -16 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
+                exit={{ opacity: 0, x: 16 }}
                 className={cn(
-                  'flex items-center gap-3 p-3 rounded-xl transition-colors',
-                  isLatest ? 'bg-gray-50' : 'opacity-60'
+                  'flex items-center gap-3 p-3 rounded-[18px] transition-all border',
+                  isLatest ? 'opacity-100' : 'opacity-50'
                 )}
+                style={{
+                  background: isLatest ? 'var(--bg-surface)' : 'transparent',
+                  borderColor: isLatest ? 'var(--border-soft)' : 'transparent',
+                }}
               >
-                <div className={cn('w-8 h-8 rounded-full flex items-center justify-center', config.bgColor)}>
-                  <config.icon className={cn('w-4 h-4', config.color)} />
+                <div
+                  className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: config.bg }}
+                >
+                  <config.icon className="w-3.5 h-3.5" style={{ color: config.color }} />
                 </div>
-                <div className="flex-1">
-                  <p className={cn('font-bold text-sm', isLatest ? 'text-gray-800' : 'text-gray-600')}>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-xs" style={{ color: isLatest ? '#fff' : 'var(--text-muted)' }}>
                     {config.label}
                   </p>
                 </div>
                 {isLatest && (
                   <motion.span
-                    className="text-xs text-brand-600 font-medium"
+                    className="text-[10px] font-black px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(255,94,0,0.15)', color: '#FF5E00' }}
                     animate={{ opacity: [1, 0.5, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    ล่าสุด
+                    ปัจจุบัน
                   </motion.span>
                 )}
               </motion.div>
@@ -241,12 +281,12 @@ export function LiveOrderTracker({
 
       {/* Live Indicator */}
       {status !== 'delivered' && status !== 'cancelled' && (
-        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-400">
+        <div className="mt-4 flex items-center justify-center gap-2 text-[11px] font-bold" style={{ color: 'var(--text-muted)' }}>
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
           </span>
-          <span>อัพเดทแบบเรียลไทม์</span>
+          <span>ระบบติดตามสถานะสดแบบเรียลไทม์</span>
         </div>
       )}
     </div>

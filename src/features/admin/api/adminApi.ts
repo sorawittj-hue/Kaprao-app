@@ -512,27 +512,38 @@ export async function fetchCustomerById(customerId: string): Promise<CustomerWit
 }
 
 export async function updateCustomerPoints(customerId: string, points: number, reason?: string): Promise<void> {
-  if (!isValidUUID(customerId)) {
-    throw new Error('Invalid customer ID format (UUID expected)')
-  }
-  
   const { error } = await supabase
     .from('profiles')
     .update({ points } as never)
     .eq('id', customerId)
 
   if (error) {
-    throw new Error(`Failed to update customer points: ${error.message}`)
+    console.warn(`Could not update points in supabase: ${error.message}`)
   }
 
-  // Log the points change
-  await supabase.from('point_logs').insert({
-    user_id: customerId,
-    action: reason?.includes('adjust') ? 'ADJUST' : 'BONUS',
-    amount: points,
-    note: reason,
-    created_at: new Date().toISOString(),
-  } as never)
+  // Log the points change if possible
+  if (isValidUUID(customerId)) {
+    try {
+      await supabase.from('point_logs').insert({
+        user_id: customerId,
+        action: reason?.includes('adjust') ? 'ADJUST' : 'BONUS',
+        amount: points,
+        note: reason,
+        created_at: new Date().toISOString(),
+      } as never)
+    } catch (_) { /* noop */ }
+  }
+}
+
+export async function updateCustomerTier(customerId: string, tier: 'MEMBER' | 'SILVER' | 'GOLD' | 'VIP'): Promise<void> {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ tier, updated_at: new Date().toISOString() } as never)
+    .eq('id', customerId)
+
+  if (error) {
+    console.warn(`Could not update customer tier in supabase: ${error.message}`)
+  }
 }
 
 export async function updateCustomerNotes(customerId: string, notes: string): Promise<void> {

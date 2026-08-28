@@ -5,7 +5,7 @@ import {
   ArrowUpDown, TrendingUp, Gift, Calendar, Phone,
   Mail, ChevronRight, X
 } from 'lucide-react'
-import { useCustomers, useUpdateCustomerPoints } from '@/features/admin/hooks/useAdmin'
+import { useCustomers, useUpdateCustomerPoints, useUpdateCustomerTier } from '@/features/admin/hooks/useAdmin'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/feedback/EmptyState'
 import { useToast } from '@/app/providers/ToastProvider'
@@ -432,7 +432,17 @@ interface CustomerDetailModalProps {
 }
 
 function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDetailModalProps) {
-  // const { data: customerDetail } = useCustomerDetail(customer.id)
+  const updateTierMutation = useUpdateCustomerTier()
+  const { showToast } = useToast()
+
+  const handleTierChange = async (newTier: 'MEMBER' | 'SILVER' | 'GOLD' | 'VIP') => {
+    try {
+      await updateTierMutation.mutateAsync({ customerId: customer.id, tier: newTier })
+      showToast({ type: 'success', title: 'อัปเดตระดับสมาชิกแล้ว', message: `เปลี่ยนระดับเป็น ${newTier} เรียบร้อย` })
+    } catch {
+      showToast({ type: 'error', title: 'ไม่สามารถอัปเดตได้' })
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
@@ -486,6 +496,29 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
             </div>
           </div>
 
+          {/* Tier Management Pills */}
+          <div className="mb-6">
+            <h3 className="font-bold text-gray-200 mb-2.5">ปรับระดับสมาชิก (Tier Upgrade)</h3>
+            <div className="flex flex-wrap gap-2">
+              {(['MEMBER', 'SILVER', 'GOLD', 'VIP'] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => handleTierChange(t)}
+                  disabled={updateTierMutation.isPending}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border",
+                    customer.tier === t
+                      ? "bg-orange-500 text-white border-orange-500 shadow-sm"
+                      : "bg-[var(--bg-surface)] text-gray-300 border-white/10 hover:border-orange-400"
+                  )}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Contact Info */}
           <div className="mb-6">
             <h3 className="font-bold text-gray-200 mb-3">ข้อมูลติดต่อ</h3>
@@ -507,7 +540,7 @@ function CustomerDetailModal({ customer, onClose, onUpdatePoints }: CustomerDeta
 
           {/* Tier Progress */}
           <div className="mb-6">
-            <h3 className="font-bold text-gray-200 mb-3">ระดับสมาชิก</h3>
+            <h3 className="font-bold text-gray-200 mb-3">ความคืบหน้าระดับสมาชิก</h3>
             <div className="bg-gray-100 rounded-full h-3 overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all"

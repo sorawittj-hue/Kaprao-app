@@ -17,6 +17,8 @@ interface AuthState {
   setError: (error: string | null) => void
   logout: () => void
   updatePoints: (points: number) => void
+  addPoints: (amount: number) => void
+  deductPoints: (amount: number) => void
   incrementOrderCount: () => void
   setHasHydrated: (state: boolean) => void
 }
@@ -79,6 +81,16 @@ export const useAuthStore = create<AuthState>()(
         updatePoints: (points) =>
           set((state) => ({
             user: state.user ? { ...state.user, points } : null,
+          })),
+
+        addPoints: (amount) =>
+          set((state) => ({
+            user: state.user ? { ...state.user, points: (state.user.points || 0) + amount } : null,
+          })),
+
+        deductPoints: (amount) =>
+          set((state) => ({
+            user: state.user ? { ...state.user, points: Math.max(0, (state.user.points || 0) - amount) } : null,
           })),
 
         incrementOrderCount: () =>

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Download, X, Share, PlusSquare, Sparkles } from 'lucide-react'
 import { showInstallPrompt, isPWA } from '@/lib/pwa'
 import { hapticLight, hapticHeavy } from '@/utils/haptics'
+import { BrandLogo } from '@/components/brand/BrandLogo'
 
 export function PWAInstallBanner() {
   const [showBanner, setShowBanner] = useState(false)
@@ -88,19 +89,19 @@ export function PWAInstallBanner() {
               </button>
 
               <div className="flex items-center gap-3 pr-6">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6B00] to-[#FF8C42] flex items-center justify-center font-black text-2xl shadow-lg border border-white/20 flex-shrink-0">
-                  K
+                <div className="flex-shrink-0">
+                  <BrandLogo size="sm" showTagline={false} />
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span className="font-extrabold text-sm text-white">ติดตั้งแอป Kaprao52</span>
-                    <span className="inline-flex items-center gap-0.5 bg-brand-500/30 text-amber-300 text-[10px] font-black px-1.5 py-0.5 rounded-full border border-brand-400/40">
+                    <span className="inline-flex items-center gap-0.5 bg-orange-500/30 text-amber-300 text-[10px] font-black px-1.5 py-0.5 rounded-full border border-orange-400/40">
                       <Sparkles className="w-2.5 h-2.5" />
                       เร็วขึ้น 3 เท่า
                     </span>
                   </div>
-                  <p className="text-[11px] text-white/70 mt-0.5">
-                    เปิดใช้งานบนมือถือ/แท็บเล็ตได้เต็มจอ ไม่ต้องผ่านเบราว์เซอร์
+                  <p className="text-[11px] text-white/80 mt-0.5">
+                    เปิดใช้งานบนมือถือได้เต็มจอ ไม่ต้องผ่านเบราว์เซอร์
                   </p>
                 </div>
               </div>

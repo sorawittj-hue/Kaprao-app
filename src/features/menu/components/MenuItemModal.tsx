@@ -1,16 +1,15 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Plus, Minus, Flame, Egg, Beef, CheckCircle2 } from 'lucide-react'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
+import { X, Plus, Minus, Flame, Check, ChevronDown, ShoppingCart, AlertCircle, Bookmark } from 'lucide-react'
 import type { MenuItem, SelectedOption } from '@/types'
 import { useCartStore, useUIStore } from '@/store'
-import { Button } from '@/components/ui/Button'
 import { formatPrice } from '@/utils/formatPrice'
 import { cn } from '@/utils/cn'
-import { hapticAddToCart, hapticLight } from '@/utils/haptics'
+import { hapticAddToCart, hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
 import { getValidImageUrl } from '@/utils/getImageUrl'
-import { SmartUpsell } from './SmartUpsell'
-import { useMagnetic } from '@/hooks/useMagnetic'
+import { useGlobalOptions, isOptionAvailable } from '../hooks/useGlobalOptions'
+import { saveMealPreset } from './SavedCustomMeals'
 
 interface MenuItemModalProps {
   item: MenuItem | null
@@ -18,103 +17,176 @@ interface MenuItemModalProps {
   onClose: () => void
 }
 
-// Default options for menu items - defined outside component to maintain reference stability
+// ─── Options Data ────────────────────────────────────────────────
 const MEAT_OPTIONS: SelectedOption[] = [
-  { optionId: 'meat_sap', name: 'หมูสับ', price: 0 },
-  { optionId: 'meat_sanko', name: 'หมูสันคอสไลด์', price: 0 },
-  { optionId: 'meat_kai', name: 'ไก่', price: 0 },
-  { optionId: 'meat_kai_sap', name: 'ไก่สับ', price: 0 },
-  { optionId: 'meat_krob', name: 'หมูกรอบ', price: 15 },
+  { optionId: 'meat_sap',     name: 'หมูสับ',          price: 0  },
+  { optionId: 'meat_sanko',   name: 'หมูสันคอสไลด์',   price: 0  },
+  { optionId: 'meat_kai',     name: 'ไก่ชิ้น',         price: 0  },
+  { optionId: 'meat_kai_sap', name: 'ไก่สับ',          price: 0  },
+  { optionId: 'meat_krob',    name: 'หมูกรอบ',         price: 15 },
+  { optionId: 'meat_kung',    name: 'กุ้ง',            price: 25 },
 ]
-
 const EGG_OPTIONS: SelectedOption[] = [
-  { optionId: 'no_egg', name: 'ไม่ใส่ไข่', price: 0 },
-  { optionId: 'egg_khon', name: 'ไข่ข้น', price: 10 },
-  { optionId: 'egg_dao', name: 'ไข่ดาว', price: 10 },
-  { optionId: 'egg_jiao', name: 'ไข่เจียว', price: 10 },
-  { optionId: 'egg_yiaoma', name: 'ไข่เยี่ยวม้า', price: 15 },
-  { optionId: 'egg_tom', name: 'ไข่ต้ม', price: 10 },
+  { optionId: 'no_egg',      name: 'ไม่ใส่ไข่',       price: 0  },
+  { optionId: 'egg_dao',     name: 'ไข่ดาว',           price: 10 },
+  { optionId: 'egg_khon',    name: 'ไข่ข้น',           price: 10 },
+  { optionId: 'egg_jiao',    name: 'ไข่เจียว',         price: 10 },
+  { optionId: 'egg_tom',     name: 'ไข่ต้ม',           price: 10 },
+  { optionId: 'egg_yiaoma',  name: 'ไข่เยี่ยวม้า',    price: 15 },
 ]
-
 const SPICE_OPTIONS: SelectedOption[] = [
-  { optionId: 'no_spicy', name: 'ไม่เผ็ด', price: 0 },
-  { optionId: 'mild', name: 'เผ็ดน้อย', price: 0 },
-  { optionId: 'medium', name: 'เผ็ดกลาง', price: 0 },
-  { optionId: 'spicy', name: 'เผ็ด', price: 0 },
-  { optionId: 'very_spicy', name: 'เผ็ดมาก', price: 0 },
-  { optionId: 'extreme', name: 'เผ็ดสุดขีด', price: 0 },
+  { optionId: 'no_spicy',    name: 'ไม่เผ็ด (0)',       price: 0 },
+  { optionId: 'mild',        name: 'เผ็ดน้อย (1)',      price: 0 },
+  { optionId: 'medium',      name: 'เผ็ดกลาง (2)',      price: 0 },
+  { optionId: 'spicy',       name: 'เผ็ด (3)',          price: 0 },
+  { optionId: 'very_spicy',  name: 'เผ็ดมาก (4)',       price: 0 },
+  { optionId: 'extreme',     name: 'เผ็ดสุดขีด (5) 🔥', price: 0 },
 ]
-
 const EXTRA_OPTIONS: SelectedOption[] = [
-  { optionId: 'extra_rice', name: 'เพิ่มข้าว', price: 10 },
-  { optionId: 'extra_meat', name: 'เพิ่มเนื้อ', price: 15 },
+  { optionId: 'extra_special', name: 'พิเศษ', price: 10 },
 ]
 
-import { useGlobalOptions, isOptionAvailable } from '../hooks/useGlobalOptions'
+// ─── Spice color helpers ────────────────────────────────────────
+const SPICE_COLORS = ['#22C55E','#84CC16','#F59E0B','#EF4444','#DC2626','#991B1B']
+const SPICE_BG     = ['rgba(34,197,94,0.12)','rgba(132,204,22,0.12)','rgba(245,158,11,0.12)',
+                       'rgba(239,68,68,0.12)','rgba(220,38,38,0.12)','rgba(153,27,27,0.18)']
 
+// ─── Chip option button ─────────────────────────────────────────
+function OptionChip({
+  label, price, selected, disabled, onSelect,
+  accentColor = '#FF5E00',
+}: {
+  label: string; price: number; selected: boolean; disabled?: boolean
+  onSelect: () => void; accentColor?: string
+}) {
+  return (
+    <motion.button
+      type="button"
+      whileTap={{ scale: 0.93 }}
+      disabled={disabled}
+      onClick={() => { if (!disabled) { hapticLight(); onSelect() } }}
+      className={cn(
+        'relative flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-[14px] border text-[13px] font-bold transition-all cursor-pointer',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400',
+        disabled && 'opacity-40 cursor-not-allowed'
+      )}
+      style={selected ? {
+        background: `rgba(${hexToRgb(accentColor)},0.15)`,
+        borderColor: accentColor,
+        color: accentColor,
+        boxShadow: `0 0 0 1px ${accentColor}40`,
+      } : {
+        background: 'var(--bg-surface)',
+        borderColor: 'var(--border-subtle)',
+        color: 'var(--text-muted)',
+      }}
+    >
+      {selected && (
+        <motion.span
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+        >
+          <Check className="w-3 h-3 flex-shrink-0" />
+        </motion.span>
+      )}
+      <span>{label}</span>
+      {price > 0 && (
+        <span
+          className="text-[10px] font-black px-1.5 py-0.5 rounded-full"
+          style={selected ? {
+            background: accentColor,
+            color: '#fff',
+          } : {
+            background: 'var(--bg-card)',
+            color: 'var(--text-micro)',
+          }}
+        >
+          +{price}
+        </span>
+      )}
+      {disabled && (
+        <span className="text-[9px] font-bold text-gray-400">หมด</span>
+      )}
+    </motion.button>
+  )
+}
+
+// ─── Section Header ─────────────────────────────────────────────
+function SectionHeader({ label, required }: { label: string; required?: boolean }) {
+  return (
+    <div className="flex items-center justify-between mb-3">
+      <p className="font-black text-[14px]" style={{ color: 'var(--text-primary)' }}>{label}</p>
+      {required && (
+        <span
+          className="text-[9px] font-black px-2 py-0.5 rounded-full"
+          style={{ background: 'rgba(255,94,0,0.12)', color: '#FF5E00', border: '1px solid rgba(255,94,0,0.25)' }}
+        >
+          จำเป็น
+        </span>
+      )}
+    </div>
+  )
+}
+
+// ─── Main Component ─────────────────────────────────────────────
 export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
-  const magneticButton = useMagnetic<HTMLButtonElement>()
   const { addItem } = useCartStore()
   const { addToast } = useUIStore()
   const { data: globalOptions = [] } = useGlobalOptions()
+  const contentRef = useRef<HTMLDivElement>(null)
 
-  // Use item.id as dependency instead of item object to prevent infinite re-renders
   const itemId = item?.id
 
-  const [quantity, setQuantity] = useState(1)
+  const [quantity, setQuantity]         = useState(1)
   const [selectedMeat, setSelectedMeat] = useState<SelectedOption | null>(null)
-  const [selectedEgg, setSelectedEgg] = useState<SelectedOption>(EGG_OPTIONS[0])
+  const [selectedEgg, setSelectedEgg]   = useState<SelectedOption>(EGG_OPTIONS[0])
   const [selectedSpice, setSelectedSpice] = useState<SelectedOption>(SPICE_OPTIONS[2])
   const [selectedExtras, setSelectedExtras] = useState<SelectedOption[]>([])
-  const [note, setNote] = useState('')
-  const [activeTab, setActiveTab] = useState<'meat' | 'egg' | 'spicy' | 'extra'>('meat')
-  const [isAdding, setIsAdding] = useState(false)
-
-  // Track the last item ID we reset for to prevent duplicate resets (use ref to avoid re-render)
+  const [note, setNote]                 = useState('')
+  const [isAdding, setIsAdding]         = useState(false)
+  const [imageLoaded, setImageLoaded]   = useState(false)
+  const [showNoteInput, setShowNoteInput] = useState(false)
   const resetItemRef = useRef<number | null>(null)
 
-  // Reset state when item changes - only when itemId actually changes
+  // Drag-to-dismiss
+  const dragY = useMotionValue(0)
+  const backdropOpacity = useTransform(dragY, [0, 200], [1, 0])
+
+  // Reset state when item changes
   useEffect(() => {
     if (itemId && isOpen && itemId !== resetItemRef.current) {
       resetItemRef.current = itemId
       setQuantity(1)
-
-      // Select first available meat
+      setImageLoaded(false)
       const firstAvailableMeat = item?.requiresMeat
         ? MEAT_OPTIONS.find(o => isOptionAvailable(o.optionId, globalOptions)) || MEAT_OPTIONS[0]
         : null
       setSelectedMeat(firstAvailableMeat)
-
-      // Select first available egg (excluding 'no_egg' which is always available at index 0)
       setSelectedEgg(EGG_OPTIONS[0])
-
       setSelectedSpice(SPICE_OPTIONS[2])
       setSelectedExtras([])
       setNote('')
-      setActiveTab(item?.requiresMeat ? 'meat' : 'egg')
+      setShowNoteInput(false)
+      contentRef.current?.scrollTo({ top: 0, behavior: 'instant' })
     }
   }, [itemId, isOpen, item?.requiresMeat, globalOptions])
 
-  // Lock body scroll when modal is open, clear resetItemRef when closed
+  // Scroll lock
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
-      // Clear resetItemRef when modal closes so reopening same item works
       resetItemRef.current = null
     }
-    return () => {
-      document.body.style.overflow = ''
-    }
+    return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  // Close on Escape key
+  // Escape key
   useEffect(() => {
     if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen, onClose])
@@ -123,47 +195,34 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
     hapticLight()
     setSelectedExtras(prev => {
       const exists = prev.find(o => o.optionId === option.optionId)
-      if (exists) return prev.filter(o => o.optionId !== option.optionId)
-      return [...prev, option]
+      return exists ? prev.filter(o => o.optionId !== option.optionId) : [...prev, option]
     })
   }, [])
 
-  const calculateTotal = useMemo(() => {
+  const unitPrice = useMemo(() => {
     if (!item) return 0
-    const basePrice = item.price
-    const meatPrice = selectedMeat?.price || 0
-    const eggPrice = selectedEgg.price
-    const extrasPrice = selectedExtras.reduce((sum, opt) => sum + opt.price, 0)
-    const unitPrice = basePrice + meatPrice + eggPrice + extrasPrice
-    return unitPrice * quantity
-  }, [item, selectedMeat, selectedEgg, selectedExtras, quantity])
-
-  const calculateUnitPrice = useMemo(() => {
-    if (!item) return 0
-    const basePrice = item.price
-    const meatPrice = selectedMeat?.price || 0
-    const eggPrice = selectedEgg.price
-    const extrasPrice = selectedExtras.reduce((sum, opt) => sum + opt.price, 0)
-    return basePrice + meatPrice + eggPrice + extrasPrice
+    return item.price
+      + (selectedMeat?.price || 0)
+      + selectedEgg.price
+      + selectedExtras.reduce((s, o) => s + o.price, 0)
   }, [item, selectedMeat, selectedEgg, selectedExtras])
+
+  const totalPrice = unitPrice * quantity
 
   const handleAddToCart = useCallback(() => {
     if (isAdding || !item) return
+    // Require meat selection if item requires meat
+    if (item.requiresMeat && !selectedMeat) return
 
     setIsAdding(true)
     hapticAddToCart()
 
-    // Build selected options array
     const options: SelectedOption[] = [
-      selectedMeat,
-      selectedEgg,
-      selectedSpice,
-      ...selectedExtras,
+      selectedMeat, selectedEgg, selectedSpice, ...selectedExtras,
     ].filter(Boolean) as SelectedOption[]
 
-    // Build note from selections
     const optionNotes = [
-      selectedMeat ? `เนื้อ: ${selectedMeat.name}` : null,
+      selectedMeat         ? `เนื้อ: ${selectedMeat.name}`            : null,
       selectedEgg.optionId !== 'no_egg' ? `ไข่: ${selectedEgg.name}` : null,
       `ความเผ็ด: ${selectedSpice.name}`,
       ...selectedExtras.map(e => e.name),
@@ -174,35 +233,51 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
       : optionNotes.join(', ')
 
     addItem(item, quantity, options, fullNote)
+    addToast({ type: 'cart-add', title: 'เพิ่มลงตะกร้าแล้ว!', message: `${item.name} ×${quantity}`, imageUrl: item.imageUrl })
 
-    addToast({
-      type: 'cart-add',
-      title: 'เพิ่มลงตะกร้าแล้ว!',
-      message: `${item.name} x${quantity}`,
-      imageUrl: item.imageUrl,
-    })
-
-    // Animate and close
-    setTimeout(() => {
-      setIsAdding(false)
-      onClose()
-    }, 300)
+    setTimeout(() => { setIsAdding(false); onClose() }, 280)
   }, [isAdding, item, quantity, selectedMeat, selectedEgg, selectedSpice, selectedExtras, note, addItem, addToast, onClose])
 
-  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) onClose()
-  }, [onClose])
+  const [isSavedAsPreset, setIsSavedAsPreset] = useState(false)
 
-  const tabConfig = useMemo(() => ({
-    meat: { icon: Beef, label: 'เนื้อ', activeClass: 'bg-red-50 border-red-500 text-red-600 shadow-sm' },
-    egg: { icon: Egg, label: 'ไข่', activeClass: 'bg-yellow-50 border-yellow-500 text-yellow-600 shadow-sm' },
-    spicy: { icon: Flame, label: 'ระดับความเผ็ด', activeClass: 'bg-orange-50 border-orange-500 text-orange-600 shadow-sm' },
-    extra: { icon: Plus, label: 'พิเศษ', activeClass: 'bg-brand-50 border-brand-500 text-brand-600 shadow-sm' },
-  }), [])
+  const handleSavePreset = useCallback(() => {
+    if (!item) return
+    if (item.requiresMeat && !selectedMeat) {
+      addToast({ type: 'error', title: 'กรุณาเลือกเนื้อสัตว์ก่อน' })
+      return
+    }
+    hapticHeavy()
+    const presetName = `${item.name} (${selectedMeat?.name || 'ต้นตำรับ'})`
+    saveMealPreset({
+      name: presetName,
+      menuItem: item,
+      selectedMeat,
+      selectedEgg,
+      selectedSpice,
+      selectedExtras,
+      note: note.trim() || undefined,
+      totalPrice: unitPrice,
+    })
+    setIsSavedAsPreset(true)
+    addToast({
+      type: 'success',
+      title: 'บันทึกเป็นสูตรโปรดแล้ว!',
+      message: 'สามารถกดสั่งด่วนใน 1 คลิกได้จากหน้าหลัก',
+    })
+    setTimeout(() => setIsSavedAsPreset(false), 2000)
+  }, [item, selectedMeat, selectedEgg, selectedSpice, selectedExtras, note, unitPrice, addToast])
+
+  const handleDragEnd = useCallback((_: unknown, info: { offset: { y: number } }) => {
+    if (info.offset.y > 100) onClose()
+    else dragY.set(0)
+  }, [onClose, dragY])
 
   if (!item) return null
 
-  const modalContent = (
+  const meatRequired = !!item.requiresMeat
+  const noMeatSelected = meatRequired && !selectedMeat
+
+  const modal = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -211,385 +286,383 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={handleBackdropClick}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[140]"
+            onClick={onClose}
+            className="fixed inset-0 z-[140]"
+            style={{
+              opacity: backdropOpacity,
+              background: 'rgba(0,0,0,0.72)',
+              backdropFilter: 'blur(4px)'
+            }}
           />
 
-          {/* Modal */}
+          {/* Sheet */}
           <motion.div
-            initial={{ opacity: 0, y: '100%' }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.3 }}
+            onDragEnd={handleDragEnd}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
             role="dialog"
             aria-modal="true"
-            aria-labelledby="menu-item-modal-title"
-            className="fixed inset-x-0 bottom-0 z-[150] bg-[var(--bg-card)] rounded-t-3xl max-h-[90vh] overflow-hidden"
+            aria-labelledby="modal-title"
+            className="fixed inset-x-0 bottom-0 z-[150] overflow-hidden flex flex-col"
+            style={{
+              y: dragY,
+              maxHeight: '92dvh',
+              borderRadius: '28px 28px 0 0',
+              background: '#FFFFFF',
+              boxShadow: '0 -16px 50px rgba(15, 23, 42, 0.16)',
+            }}
           >
-            {/* Handle Bar */}
-            <div className="flex justify-center pt-3 pb-1" aria-hidden="true">
-              <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+            {/* ── Drag handle ── */}
+            <div className="flex justify-center pt-3 pb-1 flex-shrink-0 cursor-grab active:cursor-grabbing" aria-hidden>
+              <div className="w-10 h-1.5 rounded-full" style={{ background: '#CBD5E1' }} />
             </div>
 
-            <div className="overflow-y-auto max-h-[calc(90vh-60px)]">
-              {/* Header Image with Premium Gradient */}
-              <div className="relative h-56 bg-gray-100">
-                <img
-                  src={getValidImageUrl(item.imageUrl)}
-                  alt={item.name}
-                  loading="eager"
-                  decoding="async"
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Smooth Gradient blend into content */}
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1A1A1E] to-transparent pointer-events-none" />
+            {/* ── Hero Image ── */}
+            <div className="relative flex-shrink-0" style={{ height: 220 }}>
+              {!imageLoaded && (
+                <div className="absolute inset-0 skeleton" />
+              )}
+              <img
+                src={getValidImageUrl(item.imageUrl)}
+                alt={item.name}
+                loading="eager"
+                decoding="async"
+                onLoad={() => setImageLoaded(true)}
+                className={cn(
+                  'w-full h-full object-cover transition-opacity duration-400',
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                )}
+              />
+              {/* Bottom gradient */}
+              <div className="absolute inset-x-0 bottom-0 h-28 pointer-events-none"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 10%, transparent)' }} />
 
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="ปิดหน้าต่าง"
-                  className="absolute top-4 right-4 w-10 h-10 bg-[var(--bg-card)]/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all text-gray-600 hover:text-white z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              {/* Close button */}
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.88 }}
+                onClick={onClose}
+                aria-label="ปิด"
+                className="absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer z-10"
+                style={{
+                  background: 'rgba(0,0,0,0.55)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                }}
+              >
+                <X className="w-4 h-4 text-white" />
+              </motion.button>
+
+              {/* Recommended badge */}
+              {item.isRecommended && (
+                <div
+                  className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black text-white z-10"
+                  style={{ background: 'linear-gradient(135deg,#FF5E00,#FF3A00)', boxShadow: '0 4px 12px rgba(255,58,0,0.5)' }}
                 >
-                  <X className="w-5 h-5" aria-hidden="true" />
-                </button>
+                  <Flame className="w-3 h-3" />
+                  แนะนำ
+                </div>
+              )}
 
-                {item.isRecommended && (
-                  <span className="absolute top-4 left-4 bg-brand-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10 flex items-center gap-1">
-                    <Flame className="w-3 h-3" />
-                    แนะนำ
-                  </span>
+              {/* Title overlay */}
+              <div className="absolute bottom-0 inset-x-0 px-5 pb-3">
+                <h2 id="modal-title" className="font-black text-[22px] text-white leading-tight"
+                  style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+                  {item.name}
+                </h2>
+                {item.description && (
+                  <p className="text-white/60 text-[12px] mt-0.5 line-clamp-1">{item.description}</p>
                 )}
               </div>
+            </div>
 
-              {/* Content */}
-              <div className="p-5 space-y-6">
-                {/* Title & Price */}
-                <div className="flex items-start justify-between">
+            {/* ── Scrollable content ── */}
+            <div ref={contentRef} className="flex-1 overflow-y-auto overscroll-contain">
+              <div className="px-5 pt-4 pb-4 space-y-6">
+
+                {/* ── MEAT ── */}
+                {meatRequired && (
                   <div>
-                    <h2 id="menu-item-modal-title" className="text-xl font-black text-gray-200">{item.name}</h2>
-                    <p className="text-sm text-gray-500 mt-1">{item.description}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-black text-brand-600">{formatPrice(calculateUnitPrice)}</p>
-                    {calculateUnitPrice !== item.price && (
-                      <p className="text-xs text-gray-400 line-through">{formatPrice(item.price)}</p>
+                    <SectionHeader label="เลือกเนื้อ" required />
+                    <div className="flex flex-wrap gap-2">
+                      {MEAT_OPTIONS.map(opt => {
+                        const avail = isOptionAvailable(opt.optionId, globalOptions)
+                        return (
+                          <OptionChip
+                            key={opt.optionId}
+                            label={opt.name}
+                            price={opt.price}
+                            selected={selectedMeat?.optionId === opt.optionId}
+                            disabled={!avail}
+                            accentColor="#EF4444"
+                            onSelect={() => setSelectedMeat(opt)}
+                          />
+                        )
+                      })}
+                    </div>
+                    {noMeatSelected && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-1.5 mt-2 text-[11px] font-bold text-red-400"
+                      >
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        กรุณาเลือกเนื้อก่อน
+                      </motion.p>
                     )}
                   </div>
-                </div>
+                )}
 
-                {/* Tab Navigation */}
-                <div className="flex gap-2 overflow-x-auto hide-scrollbar">
-                  {(Object.keys(tabConfig) as Array<keyof typeof tabConfig>).map((tab) => {
-                    const config = tabConfig[tab]
-                    const Icon = config.icon
-                    const isActive = activeTab === tab
-
-                    if (tab === 'meat' && !item.requiresMeat) return null;
-
-                    return (
-                      <button
-                        key={tab}
-                        onClick={() => {
-                          setActiveTab(tab)
-                          hapticLight()
-                        }}
-                        className={cn(
-                          'flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm whitespace-nowrap transition-all border-2',
-                          isActive
-                            ? config.activeClass
-                            : 'bg-[var(--bg-card)] border-white/10 text-gray-500 hover:bg-[var(--bg-surface)] hover:border-white/10'
-                        )}
-                      >
-                        <Icon className="w-4 h-4" />
-                        {config.label}
-                      </button>
-                    )
-                  })}
-                </div>
-
-                {/* Tab Content */}
-                <div className="space-y-3">
-                  {activeTab === 'meat' && (
-                    <>
-                      <p className="text-sm font-bold text-gray-700">เลือกเนื้อ</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        {MEAT_OPTIONS.map((meat) => {
-                          const isAvailable = isOptionAvailable(meat.optionId, globalOptions)
-                          const isSelected = selectedMeat?.optionId === meat.optionId
-                          
-                          return (
-                            <button
-                              key={meat.optionId}
-                              disabled={!isAvailable}
-                              onClick={() => {
-                                setSelectedMeat(meat)
-                                hapticLight()
-                              }}
-                              className={cn(
-                                'p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between h-auto',
-                                isSelected
-                                  ? 'border-red-500 bg-red-50/50 shadow-sm scale-[0.98]'
-                                  : isAvailable
-                                    ? 'border-white/10 bg-[var(--bg-card)] hover:border-red-200 hover:shadow-sm active:scale-95'
-                                    : 'border-gray-50 bg-[var(--bg-surface)]/50 opacity-60 grayscale cursor-not-allowed'
-                              )}
-                            >
-                              <div className="w-full flex justify-between items-start mb-1">
-                                <p className={cn("font-bold text-sm transition-colors", isSelected ? "text-red-700" : "text-gray-700")}>
-                                  {meat.name}
-                                </p>
-                                {isSelected && (
-                                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                                    <CheckCircle2 className="w-5 h-5 text-red-500" />
-                                  </motion.div>
-                                )}
-                              </div>
-                              
-                              <div className="h-5 flex items-end">
-                                {meat.price > 0 && isAvailable && (
-                                  <p className="text-sm font-bold text-red-500">+{formatPrice(meat.price)}</p>
-                                )}
-                              </div>
-                              
-                              {!isAvailable && (
-                                <span className="absolute top-2 right-2 bg-gray-300 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                                  หมด
-                                </span>
-                              )}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </>
-                  )}
-
-                  {activeTab === 'egg' && (
-                    <>
-                      <p className="text-sm font-bold text-gray-700">เลือกไข่</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        {EGG_OPTIONS.map((egg) => {
-                          const isAvailable = egg.optionId === 'no_egg' || isOptionAvailable(egg.optionId, globalOptions);
-                          const isSelected = selectedEgg.optionId === egg.optionId;
-                          
-                          return (
-                            <button
-                              key={egg.optionId}
-                              disabled={!isAvailable}
-                              onClick={() => {
-                                setSelectedEgg(egg)
-                                hapticLight()
-                              }}
-                              className={cn(
-                                'p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between h-auto',
-                                isSelected
-                                  ? 'border-yellow-500 bg-yellow-50/50 shadow-sm scale-[0.98]'
-                                  : isAvailable
-                                    ? 'border-white/10 bg-[var(--bg-card)] hover:border-yellow-200 hover:shadow-sm active:scale-95'
-                                    : 'border-gray-50 bg-[var(--bg-surface)]/50 opacity-60 grayscale cursor-not-allowed'
-                              )}
-                            >
-                              <div className="w-full flex justify-between items-start mb-1">
-                                <p className={cn("font-bold text-sm transition-colors", isSelected ? "text-yellow-700" : "text-gray-700")}>
-                                  {egg.name}
-                                </p>
-                                {isSelected && (
-                                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                                    <CheckCircle2 className="w-5 h-5 text-yellow-500" />
-                                  </motion.div>
-                                )}
-                              </div>
-                              
-                              <div className="h-5 flex items-end">
-                                {egg.price > 0 && isAvailable && (
-                                  <p className="text-sm font-bold text-yellow-600">+{formatPrice(egg.price)}</p>
-                                )}
-                              </div>
-                              
-                              {!isAvailable && (
-                                <span className="absolute top-2 right-2 bg-gray-300 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                                  หมด
-                                </span>
-                              )}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </>
-                  )}
-
-                  {activeTab === 'spicy' && (
-                    <>
-                      <p className="text-sm font-bold text-gray-700">เลือกระดับความเผ็ด</p>
-                      <div className="space-y-3">
-                        {SPICE_OPTIONS.map((spice, index) => {
-                          const isSelected = selectedSpice.optionId === spice.optionId;
-                          return (
-                            <button
-                              key={spice.optionId}
-                              onClick={() => {
-                                setSelectedSpice(spice)
-                                hapticLight()
-                              }}
-                              className={cn(
-                                'w-full p-4 rounded-2xl border-2 flex items-center justify-between transition-all',
-                                isSelected
-                                  ? 'border-orange-500 bg-orange-50/50 shadow-sm scale-[0.98]'
-                                  : 'border-white/10 bg-[var(--bg-card)] hover:border-orange-200 hover:shadow-sm active:scale-95'
-                              )}
-                            >
-                              <div className="flex items-center gap-4">
-                                <div className={cn(
-                                  'w-10 h-10 rounded-xl flex items-center justify-center shadow-inner',
-                                  index === 0 ? 'bg-green-100 text-green-600' :
-                                    index === 1 ? 'bg-yellow-100 text-yellow-600' :
-                                      index === 2 ? 'bg-orange-100 text-orange-600' :
-                                        'bg-red-100 text-red-600'
-                                )}>
-                                  <Flame className="w-5 h-5" />
-                                </div>
-                                <span className={cn(
-                                  "font-bold text-base", 
-                                  isSelected ? "text-orange-700" : "text-gray-700"
-                                )}>
-                                  {spice.name}
-                                </span>
-                              </div>
-                              {isSelected && (
-                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                                  <CheckCircle2 className="w-6 h-6 text-orange-500" />
-                                </motion.div>
-                              )}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </>
-                  )}
-
-                  {activeTab === 'extra' && (
-                    <>
-                      <p className="text-sm font-bold text-gray-700">เพิ่มเติม (เลือกได้หลายอย่าง)</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        {EXTRA_OPTIONS.map((extra) => {
-                          const isSelected = selectedExtras.find(e => e.optionId === extra.optionId)
-                          return (
-                            <button
-                              key={extra.optionId}
-                              onClick={() => toggleExtra(extra)}
-                              className={cn(
-                                'p-4 rounded-2xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between h-auto',
-                                isSelected
-                                  ? 'border-brand-500 bg-brand-50/50 shadow-sm scale-[0.98]'
-                                  : 'border-white/10 bg-[var(--bg-card)] hover:border-brand-200 hover:shadow-sm active:scale-95'
-                              )}
-                            >
-                              <div className="w-full flex justify-between items-start mb-1">
-                                <p className={cn("font-bold text-sm transition-colors", isSelected ? "text-brand-700" : "text-gray-700")}>
-                                  {extra.name}
-                                </p>
-                                {isSelected && (
-                                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                                    <CheckCircle2 className="w-5 h-5 text-brand-500" />
-                                  </motion.div>
-                                )}
-                              </div>
-                              
-                              <div className="h-5 flex items-end">
-                                {extra.price > 0 ? (
-                                  <p className="text-sm font-bold text-brand-500">+{formatPrice(extra.price)}</p>
-                                ) : (
-                                  <p className="text-sm font-bold text-gray-500">ฟรี</p>
-                                )}
-                              </div>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Note Input */}
+                {/* ── EGG ── */}
                 <div>
-                  <p className="text-sm font-bold text-gray-700 mb-2">หมายเหตุพิเศษ</p>
-                  <textarea
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    placeholder="เช่น ไม่ใส่ผักชี, ผัดแห้งๆ..."
-                    rows={2}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-white/10 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all resize-none text-sm"
-                  />
-                </div>
-
-                {/* Summary */}
-                <div className="bg-[var(--bg-surface)] rounded-xl p-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">ราคาต่อชิ้น</span>
-                    <span>{formatPrice(calculateUnitPrice)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">จำนวน</span>
-                    <span>x{quantity}</span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10">
-                    <span>รวม</span>
-                    <span className="text-brand-600">{formatPrice(calculateTotal)}</span>
+                  <SectionHeader label="เลือกไข่" />
+                  <div className="flex flex-wrap gap-2">
+                    {EGG_OPTIONS.map(opt => {
+                      const avail = opt.optionId === 'no_egg' || isOptionAvailable(opt.optionId, globalOptions)
+                      return (
+                        <OptionChip
+                          key={opt.optionId}
+                          label={opt.name}
+                          price={opt.price}
+                          selected={selectedEgg.optionId === opt.optionId}
+                          disabled={!avail}
+                          accentColor="#F59E0B"
+                          onSelect={() => setSelectedEgg(opt)}
+                        />
+                      )
+                    })}
                   </div>
                 </div>
 
-                {/* Smart Upsell */}
-                <SmartUpsell 
-                  hasEgg={selectedEgg.optionId !== 'no_egg'} 
-                  onAddEgg={() => {
-                    const eggDao = EGG_OPTIONS.find(o => o.optionId === 'egg_dao') || EGG_OPTIONS[2]
-                    setSelectedEgg(eggDao)
-                  }}
-                />
-
-                {/* Quantity & Add to Cart */}
-                <div className="flex gap-3">
-                  {/* Quantity Selector */}
-                  <div className="flex items-center bg-gray-100 rounded-xl">
-                    <button
-                      onClick={() => {
-                        if (quantity > 1) {
-                          setQuantity(q => q - 1)
-                          hapticLight()
-                        }
-                      }}
-                      disabled={quantity <= 1}
-                      className="w-12 h-14 flex items-center justify-center text-gray-600 disabled:text-gray-400 active:scale-95 transition-transform"
-                    >
-                      <Minus className="w-5 h-5" />
-                    </button>
-                    <span className="w-12 text-center font-bold text-lg">{quantity}</span>
-                    <button
-                      onClick={() => {
-                        setQuantity(q => q + 1)
-                        hapticLight()
-                      }}
-                      className="w-12 h-14 flex items-center justify-center text-gray-600 active:scale-95 transition-transform"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  {/* Add Button */}
-                  <div className="flex-1 overflow-visible">
-                    <Button
-                      {...magneticButton}
-                      size="lg"
-                      fullWidth
-                      onClick={handleAddToCart}
-                      isLoading={isAdding}
-                    >
-                      <span>เพิ่มลงตะกร้า</span>
-                      <span className="ml-2">{formatPrice(calculateTotal)}</span>
-                    </Button>
+                {/* ── SPICE ── */}
+                <div>
+                  <SectionHeader label="ระดับความเผ็ด" required />
+                  <div className="grid grid-cols-3 gap-2">
+                    {SPICE_OPTIONS.map((opt, idx) => {
+                      const isSelected = selectedSpice.optionId === opt.optionId
+                      return (
+                        <motion.button
+                          key={opt.optionId}
+                          type="button"
+                          whileTap={{ scale: 0.91 }}
+                          onClick={() => { setSelectedSpice(opt); hapticMedium() }}
+                          className="relative flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-[14px] border transition-all cursor-pointer focus-visible:outline-none"
+                          style={isSelected ? {
+                            background: SPICE_BG[idx],
+                            borderColor: SPICE_COLORS[idx],
+                            boxShadow: `0 0 0 1px ${SPICE_COLORS[idx]}40`,
+                          } : {
+                            background: 'var(--bg-surface)',
+                            borderColor: 'var(--border-subtle)',
+                          }}
+                        >
+                          {/* Flame stack */}
+                          <div className="flex gap-px">
+                            {[...Array(Math.min(idx + 1, 5))].map((_, i) => (
+                              <Flame
+                                key={i}
+                                className="w-3 h-3"
+                                style={{ color: isSelected ? SPICE_COLORS[idx] : 'var(--text-micro)', opacity: isSelected ? 1 : 0.5 }}
+                              />
+                            ))}
+                          </div>
+                          <span
+                            className="text-[11px] font-black text-center leading-tight"
+                            style={{ color: isSelected ? SPICE_COLORS[idx] : 'var(--text-muted)' }}
+                          >
+                            {opt.name}
+                          </span>
+                          {isSelected && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full flex items-center justify-center"
+                              style={{ background: SPICE_COLORS[idx] }}
+                            >
+                              <Check className="w-2 h-2 text-white" strokeWidth={3} />
+                            </motion.div>
+                          )}
+                        </motion.button>
+                      )
+                    })}
                   </div>
                 </div>
+
+                {/* ── EXTRAS ── */}
+                <div>
+                  <SectionHeader label="เพิ่มเติม (เลือกได้หลายอย่าง)" />
+                  <div className="flex flex-wrap gap-2">
+                    {EXTRA_OPTIONS.map(opt => (
+                      <OptionChip
+                        key={opt.optionId}
+                        label={opt.name}
+                        price={opt.price}
+                        selected={!!selectedExtras.find(e => e.optionId === opt.optionId)}
+                        accentColor="#FF5E00"
+                        onSelect={() => toggleExtra(opt)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── NOTE ── */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => { setShowNoteInput(v => !v); hapticLight() }}
+                    className="flex items-center gap-2 text-[13px] font-bold cursor-pointer focus-visible:outline-none"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    <motion.span
+                      animate={{ rotate: showNoteInput ? 180 : 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </motion.span>
+                    หมายเหตุพิเศษ {note && <span className="text-orange-400">({note.length})</span>}
+                  </button>
+
+                  <AnimatePresence>
+                    {showNoteInput && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <textarea
+                          value={note}
+                          onChange={e => setNote(e.target.value)}
+                          placeholder="เช่น ไม่ใส่ผักชี, ผัดแห้งๆ, ไม่หวาน..."
+                          rows={2}
+                          maxLength={100}
+                          className="w-full mt-2.5 px-4 py-3 rounded-[16px] text-sm font-medium resize-none outline-none focus:ring-2 transition-all"
+                          style={{
+                            background: 'var(--bg-surface)',
+                            border: '1.5px solid var(--border-subtle)',
+                            color: 'var(--text-primary)',
+                          }}
+                          onFocus={e => (e.target.style.borderColor = '#FF5E00')}
+                          onBlur={e => (e.target.style.borderColor = 'var(--border-subtle)')}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* ── Favorite Preset Quick Save ── */}
+                <div className="pt-2">
+                  <motion.button
+                    type="button"
+                    whileTap={{ scale: 0.96 }}
+                    onClick={handleSavePreset}
+                    disabled={noMeatSelected}
+                    className={cn(
+                      'w-full py-3 px-4 rounded-[16px] border flex items-center justify-center gap-2 font-black text-xs transition-all cursor-pointer',
+                      isSavedAsPreset
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm'
+                        : 'bg-white border-orange-200 text-orange-600 hover:bg-orange-50/70 shadow-sm'
+                    )}
+                  >
+                    {isSavedAsPreset ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-600" />
+                        <span>บันทึกเป็นสูตรโปรดเรียบร้อย!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Bookmark className="w-4 h-4 fill-orange-500 text-orange-500" />
+                        <span>บันทึกชุดนี้เป็น "สูตรโปรดของฉัน"</span>
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+
+                {/* spacer for sticky bar */}
+                <div className="h-4" />
               </div>
+            </div>
+
+            {/* ── Sticky Bottom Bar ── */}
+            <div
+              className="flex-shrink-0 px-4 py-3 flex items-center gap-3"
+              style={{
+                background: 'var(--bg-card)',
+                borderTop: '1px solid var(--border-subtle)',
+                paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+              }}
+            >
+              {/* Quantity stepper */}
+              <div
+                className="flex items-center rounded-[16px] overflow-hidden flex-shrink-0"
+                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}
+              >
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.8 }}
+                  onClick={() => { if (quantity > 1) { setQuantity(q => q - 1); hapticLight() } }}
+                  disabled={quantity <= 1}
+                  className="w-11 h-11 flex items-center justify-center disabled:opacity-35 cursor-pointer"
+                >
+                  <Minus className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+                </motion.button>
+                <span className="w-8 text-center font-black text-[16px] num-display" style={{ color: 'var(--text-primary)' }}>
+                  {quantity}
+                </span>
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.8 }}
+                  onClick={() => { setQuantity(q => q + 1); hapticMedium() }}
+                  className="w-11 h-11 flex items-center justify-center cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" style={{ color: 'var(--text-primary)' }} />
+                </motion.button>
+              </div>
+
+              {/* Add to cart CTA */}
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.02 }}
+                onClick={handleAddToCart}
+                disabled={isAdding || noMeatSelected}
+                className="flex-1 h-11 rounded-[16px] flex items-center justify-between px-5 font-black text-[14px] text-white cursor-pointer disabled:opacity-50 transition-opacity"
+                style={{
+                  background: noMeatSelected
+                    ? 'rgba(255,255,255,0.1)'
+                    : 'linear-gradient(135deg, #FF5E00, #FF3A00)',
+                  boxShadow: noMeatSelected
+                    ? 'none'
+                    : '0 6px 20px rgba(255,58,0,0.45)',
+                }}
+              >
+                <span className="flex items-center gap-2">
+                  {isAdding ? (
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 0.6, repeat: Infinity, ease: 'linear' }}
+                      className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full block"
+                    />
+                  ) : (
+                    <ShoppingCart className="w-4 h-4" />
+                  )}
+                  {noMeatSelected ? 'เลือกเนื้อก่อน' : 'เพิ่มลงตะกร้า'}
+                </span>
+                <motion.span
+                  key={totalPrice}
+                  initial={{ y: -8, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  className="font-black text-[15px] num-display"
+                >
+                  {formatPrice(totalPrice)}
+                </motion.span>
+              </motion.button>
             </div>
           </motion.div>
         </>
@@ -597,7 +670,12 @@ export function MenuItemModal({ item, isOpen, onClose }: MenuItemModalProps) {
     </AnimatePresence>
   )
 
-  // Wait until mounted to avoid SSR issues if this was SSR, though Vite is mostly client-side
-  // document.body is always available in client-side Vite apps.
-  return createPortal(modalContent, document.body)
+  return createPortal(modal, document.body)
+}
+
+function hexToRgb(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `${r},${g},${b}`
 }

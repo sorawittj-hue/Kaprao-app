@@ -1,0 +1,47 @@
+name: Keep Supabase Database Alive
+
+on:
+  schedule:
+    # Run every 3 days at 00:00 UTC (07:00 AM Bangkok Time) to prevent Supabase inactivity auto-pause (7-day rule)
+    - cron: '0 0 */3 * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  ping-database:
+    name: Ping Supabase Postgres API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Supabase Database Endpoint
+        env:
+          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "⚠️ Warning: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY secret is not set."
+            echo "Please configure them in GitHub Repository Settings -> Secrets and variables -> Actions."
+            exit 0
+          fi
+
+          echo "🚀 Sending keep-alive ping to Supabase: $SUPABASE_URL"
+          
+          # Send a lightweight query to menu_items or auth
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "$SUPABASE_URL/rest/v1/menu_items?select=id&limit=1" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            -H "Content-Type: application/json" \
+            --connect-timeout 15 \
+            --max-time 30)
+
+          echo "📡 HTTP Response Status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+            echo "✅ Supabase is ACTIVE and Healthy! Next scheduled keep-alive ping in 3 days."
+          else
+            echo "⚠️ Warning: Received unexpected HTTP status $HTTP_STATUS. Retrying once..."
+            sleep 5
+            curl -f -X GET "$SUPABASE_URL/rest/v1/menu_items?select=id&limit=1" \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" || true
+          fi
