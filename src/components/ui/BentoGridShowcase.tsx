@@ -1,12 +1,9 @@
 import { motion } from 'framer-motion'
-import { Gift, Shuffle, Mic, RotateCcw, Calendar, Award } from 'lucide-react'
+import { RotateCcw, Calendar, Award, Mic } from 'lucide-react'
 import { hapticMedium } from '@/utils/haptics'
 
 interface BentoGridShowcaseProps {
-  spinsLeft: number
   checkedToday?: boolean
-  onOpenWheel: () => void
-  onOpenRandomizer: () => void
   onOpenVoice: () => void
   onOpenQuickOrder: () => void
   onOpenCheckIn?: () => void
@@ -14,10 +11,7 @@ interface BentoGridShowcaseProps {
 }
 
 export function BentoGridShowcase({
-  spinsLeft,
   checkedToday,
-  onOpenWheel,
-  onOpenRandomizer,
   onOpenVoice,
   onOpenQuickOrder,
   onOpenCheckIn,
@@ -25,17 +19,16 @@ export function BentoGridShowcase({
 }: BentoGridShowcaseProps) {
   const actions = [
     {
-      id: 'wheel',
-      title: 'หมุนวงล้อ',
-      badge: spinsLeft > 0 ? `${spinsLeft}` : undefined,
-      icon: Gift,
+      id: 'reorder',
+      title: 'สั่งซ้ำด่วน',
+      icon: RotateCcw,
       color: '#EA580C',
       bgColor: '#FFF7ED',
-      onClick: onOpenWheel,
+      onClick: onOpenQuickOrder,
     },
     {
       id: 'checkin',
-      title: 'เช็คอิน',
+      title: 'เช็คอินรับแต้ม',
       badge: !checkedToday ? 'แต้มฟรี' : undefined,
       icon: Calendar,
       color: '#D97706',
@@ -43,12 +36,12 @@ export function BentoGridShowcase({
       onClick: onOpenCheckIn,
     },
     {
-      id: 'random',
-      title: 'สุ่มเมนู',
-      icon: Shuffle,
-      color: '#7C3AED',
-      bgColor: '#F5F3FF',
-      onClick: onOpenRandomizer,
+      id: 'rewards',
+      title: 'แลกของรางวัล',
+      icon: Award,
+      color: '#DB2777',
+      bgColor: '#FDF2F8',
+      onClick: onOpenRewards,
     },
     {
       id: 'voice',
@@ -57,22 +50,6 @@ export function BentoGridShowcase({
       color: '#0284C7',
       bgColor: '#F0F9FF',
       onClick: onOpenVoice,
-    },
-    {
-      id: 'rewards',
-      title: 'แลกพอยต์',
-      icon: Award,
-      color: '#DB2777',
-      bgColor: '#FDF2F8',
-      onClick: onOpenRewards,
-    },
-    {
-      id: 'reorder',
-      title: 'สั่งซ้ำด่วน',
-      icon: RotateCcw,
-      color: '#059669',
-      bgColor: '#ECFDF5',
-      onClick: onOpenQuickOrder,
     },
   ]
 

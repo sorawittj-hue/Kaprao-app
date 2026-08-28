@@ -23,11 +23,8 @@ import { RewardsMarketplace } from '@/features/points/components/RewardsMarketpl
 
 // Interactive Feature Modals
 import {
-  WheelOfFortune,
-  FoodRandomizer,
   VoiceOrder,
   QuickOrderModal,
-  useWheelOfFortune
 } from '@/features/games'
 import type { MenuItem } from '@/types'
 
@@ -35,11 +32,8 @@ export default function HomePage() {
   const { data: menuItems, isLoading } = useMenuItems()
   const { activeCategory, searchQuery } = useMenuStore()
   const { addItem } = useCartStore()
-  const { spinsLeft } = useWheelOfFortune()
   const { data: isOpen } = useIsShopOpen()
 
-  const [showWheel, setShowWheel] = useState(false)
-  const [showRandomizer, setShowRandomizer] = useState(false)
   const [showVoice, setShowVoice] = useState(false)
   const [showQuickOrder, setShowQuickOrder] = useState(false)
   const [showCheckIn, setShowCheckIn] = useState(false)
@@ -66,9 +60,6 @@ export default function HomePage() {
             return item.category === activeCategory
           }))
     : []
-
-  const handleWheelWin = (code: string, value: number) => useCartStore.getState().applyCoupon(code, value)
-  const handleRandomizerSelect = (item: MenuItem) => setSelectedItem(item)
 
   const handleVoiceSelect = (item: MenuItem, options: { egg?: string; spicy?: string }) => {
     const selectedOptions = []
@@ -103,11 +94,8 @@ export default function HomePage() {
 
         {/* 3. Sleek Gourmet Quick Actions Strip */}
         <BentoGridShowcase
-          spinsLeft={spinsLeft}
           checkedToday={checkedToday}
-          onOpenWheel={() => setShowWheel(true)}
           onOpenCheckIn={() => setShowCheckIn(true)}
-          onOpenRandomizer={() => setShowRandomizer(true)}
           onOpenVoice={() => setShowVoice(true)}
           onOpenRewards={() => setShowRewards(true)}
           onOpenQuickOrder={() => setShowQuickOrder(true)}
@@ -116,7 +104,6 @@ export default function HomePage() {
         {/* 4. Saved Custom Meals (1-Tap Fast Reorder Strip) */}
         <SavedCustomMealsStrip />
 
-        {/* 5. Food Menu Feed (Immediate Visual Food Focus) */}
         {/* 5. Food Menu Feed (Immediate Visual Food Focus) */}
         <div className="pt-1 space-y-2.5">
           {/* Category Tabs */}
@@ -165,8 +152,6 @@ export default function HomePage() {
       <FloatingCart />
 
       {/* Feature Modals */}
-      <WheelOfFortune isOpen={showWheel} onClose={() => setShowWheel(false)} onWin={handleWheelWin} />
-      <FoodRandomizer isOpen={showRandomizer} onClose={() => setShowRandomizer(false)} onSelect={handleRandomizerSelect} />
       <VoiceOrder isOpen={showVoice} onClose={() => setShowVoice(false)} onSelect={handleVoiceSelect} />
       <QuickOrderModal isOpen={showQuickOrder} onClose={() => setShowQuickOrder(false)} onReorder={handleQuickReorder} />
       <DailyCheckInModal isOpen={showCheckIn} onClose={() => setShowCheckIn(false)} />
