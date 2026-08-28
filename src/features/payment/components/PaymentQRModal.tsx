@@ -95,7 +95,7 @@ export function PaymentQRModal({
                     level="M"
                     includeMargin={true}
                     imageSettings={{
-                      src: '/assets/icons/icon-192x192.png',
+                      src: '/Kaprao-app/assets/icons/icon-192x192.png',
                       height: 40,
                       width: 40,
                       excavate: true,

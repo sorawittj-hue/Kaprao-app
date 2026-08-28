@@ -26,8 +26,8 @@ export async function requestNotificationPermission(): Promise<boolean> {
 export function sendBrowserNotification(title: string, options: NotificationOptions) {
   if (Notification.permission === 'granted') {
     new Notification(title, {
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: '/Kaprao-app/assets/icons/icon-192x192.png',
+      badge: '/Kaprao-app/assets/icons/icon-192x192.png',
       ...options,
     })
 
@@ -218,7 +218,7 @@ export function scheduleDailyReminder(hour: number = 11) {
     setTimeout(() => {
       sendBrowserNotification('🍛 ถึงเวลาอาหาร!', {
         body: 'หิวหรือยัง? สั่งกะเพราอร่อยๆ กันเถอะ!',
-        icon: '/icons/icon-192x192.png',
+        icon: '/Kaprao-app/assets/icons/icon-192x192.png',
         tag: 'daily-reminder',
       })
       

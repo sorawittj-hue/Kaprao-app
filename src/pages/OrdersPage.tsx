@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, RefreshCw, Smartphone, ChevronRight, ShoppingBag } from 'lucide-react'
 import { useOrders } from '@/features/orders/hooks/useOrders'
-import { useAuthStore, useUIStore } from '@/store'
+import { useAuthStore } from '@/store'
 import { Container } from '@/components/layout/Container'
 import { OrderCard } from '@/features/orders/components/OrderCard'
 import { OrderCardSkeleton } from '@/components/ui/Skeleton'
@@ -12,6 +12,8 @@ import { useSEO } from '@/hooks/useSEO'
 import { getOrCreateGuestIdentity } from '@/features/v2/api/unifiedOrderApi'
 import { hapticLight, hapticMedium, hapticHeavy } from '@/utils/haptics'
 import { cn } from '@/utils/cn'
+
+import { AuthModal } from '@/components/auth/AuthModal'
 
 const slideUpItem = {
   hidden: { opacity: 0, y: 16, scale: 0.98 },
@@ -25,9 +27,9 @@ const staggerList = {
 export default function OrdersPage() {
   const navigate = useNavigate()
   const { user, isGuest } = useAuthStore()
-  const { addToast } = useUIStore()
 
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'completed'>('all')
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const guestIdentity = isGuest ? getOrCreateGuestIdentity() : null
 
   const { data: orders, isLoading, refetch, isRefetching } = useOrders(
@@ -56,14 +58,9 @@ export default function OrdersPage() {
     ? completedOrders
     : (orders || [])
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     hapticHeavy()
-    try {
-      const { loginWithLine } = await import('@/lib/auth')
-      await loginWithLine()
-    } catch {
-      addToast({ type: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', message: 'กรุณาลองใหม่อีกครั้ง' })
-    }
+    setIsAuthModalOpen(true)
   }
 
   return (
@@ -271,6 +268,11 @@ export default function OrdersPage() {
         )}
 
       </Container>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </div>
   )
 }
