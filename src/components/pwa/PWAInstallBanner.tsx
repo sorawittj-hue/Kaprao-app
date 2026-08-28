@@ -14,29 +14,32 @@ export function PWAInstallBanner() {
     // If already running in standalone PWA mode, don't show prompt
     if (isPWA()) return
 
-    // Check if dismissed recently (within 24h)
-    const dismissed = localStorage.getItem('kaprao_pwa_dismissed')
-    if (dismissed && Date.now() - parseInt(dismissed, 10) < 24 * 60 * 60 * 1000) {
-      return
-    }
-
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
     setIsIOSDevice(isIOS)
 
-    // Listen for install available event
-    const handleAvailable = () => {
-      setShowBanner(true)
+    // Listen for custom trigger to open install modal from buttons
+    const handleManualOpen = () => {
+      if (isIOS) {
+        setShowIOSModal(true)
+      } else {
+        handleInstallClick()
+      }
+    }
+    window.addEventListener('open-pwa-install', handleManualOpen)
+
+    // Check if dismissed recently in this session
+    const dismissed = sessionStorage.getItem('kaprao_pwa_dismissed')
+    if (!dismissed) {
+      const timer = setTimeout(() => setShowBanner(true), 1200)
+      return () => {
+        clearTimeout(timer)
+        window.removeEventListener('open-pwa-install', handleManualOpen)
+      }
     }
 
-    window.addEventListener('pwa-install-available', handleAvailable)
-
-    // Show for iOS after 2 seconds
-    if (isIOS) {
-      const timer = setTimeout(() => setShowBanner(true), 2000)
-      return () => clearTimeout(timer)
+    return () => {
+      window.removeEventListener('open-pwa-install', handleManualOpen)
     }
-
-    return () => window.removeEventListener('pwa-install-available', handleAvailable)
   }, [])
 
   const handleInstallClick = async () => {
@@ -47,6 +50,9 @@ export function PWAInstallBanner() {
       const installed = await showInstallPrompt()
       if (installed) {
         setShowBanner(false)
+      } else {
+        // If native prompt is not available or cancelled, show universal install modal
+        setShowIOSModal(true)
       }
     }
   }
@@ -54,7 +60,7 @@ export function PWAInstallBanner() {
   const handleDismiss = () => {
     hapticLight()
     setShowBanner(false)
-    localStorage.setItem('kaprao_pwa_dismissed', Date.now().toString())
+    sessionStorage.setItem('kaprao_pwa_dismissed', 'true')
   }
 
   if (!showBanner) return null
@@ -151,46 +157,80 @@ export function PWAInstallBanner() {
               </div>
 
               <h3 className="font-black text-xl text-gray-900 mb-2">
-                วิธีติดตั้งบน iPhone / iPad
+                {isIOSDevice ? 'วิธีติดตั้งบน iPhone / iPad' : 'วิธีติดตั้งแอปบนมือถือ'}
               </h3>
               <p className="text-xs text-gray-500 mb-6">
-                ทำตาม 2 ขั้นตอนง่ายๆ เพื่อเพิ่มแอปไปยังหน้าจอโฮมของคุณ:
+                {isIOSDevice
+                  ? 'ทำตาม 2 ขั้นตอนง่ายๆ เพื่อเพิ่มแอปไปยังหน้าจอโฮม:'
+                  : 'ทำตามขั้นตอนง่ายๆ เพื่อติดตั้งแอปลงในหน้าจอหลัก:'}
               </p>
 
-              <div className="space-y-4 text-left mb-6">
-                <div className="flex items-start gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                  <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center font-black text-sm flex-shrink-0">
-                    1
+              {isIOSDevice ? (
+                <div className="space-y-4 text-left mb-6">
+                  <div className="flex items-start gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                    <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center font-black text-sm flex-shrink-0">
+                      1
+                    </div>
+                    <div>
+                      <p className="font-bold text-xs text-gray-800 flex items-center gap-1">
+                        กดปุ่มแชร์ <Share className="w-3.5 h-3.5 text-blue-500 inline" /> ใน Safari
+                      </p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">
+                        แถบเครื่องมือด้านล่างหรือด้านบนของหน้าจอ
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-xs text-gray-800 flex items-center gap-1">
-                      กดปุ่มแชร์ <Share className="w-3.5 h-3.5 text-blue-500 inline" /> ใน Safari
-                    </p>
-                    <p className="text-[11px] text-gray-500 mt-0.5">
-                      แถบเครื่องมือด้านล่างหรือด้านบนของหน้าจอ
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex items-start gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                  <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center font-black text-sm flex-shrink-0">
-                    2
-                  </div>
-                  <div>
-                    <p className="font-bold text-xs text-gray-800 flex items-center gap-1">
-                      เลือก "เพิ่มไปยังหน้าจอโฮม" <PlusSquare className="w-3.5 h-3.5 text-gray-700 inline" />
-                    </p>
-                    <p className="text-[11px] text-gray-500 mt-0.5">
-                      (Add to Home Screen) จากเมนูที่ปรากฏขึ้น
-                    </p>
+                  <div className="flex items-start gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                    <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center font-black text-sm flex-shrink-0">
+                      2
+                    </div>
+                    <div>
+                      <p className="font-bold text-xs text-gray-800 flex items-center gap-1">
+                        เลือก "เพิ่มไปยังหน้าจอโฮม" <PlusSquare className="w-3.5 h-3.5 text-gray-700 inline" />
+                      </p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">
+                        (Add to Home Screen) แล้วกด "เพิ่ม" (Add)
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4 text-left mb-6">
+                  <div className="flex items-start gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                    <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center font-black text-sm flex-shrink-0">
+                      1
+                    </div>
+                    <div>
+                      <p className="font-bold text-xs text-gray-800">
+                        แตะที่เมนูเบราว์เซอร์ (จุด 3 จุด ⋮)
+                      </p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">
+                        ที่มุมขวาบนของ Google Chrome หรือเบราว์เซอร์ของคุณ
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                    <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center font-black text-sm flex-shrink-0">
+                      2
+                    </div>
+                    <div>
+                      <p className="font-bold text-xs text-gray-800 flex items-center gap-1">
+                        เลือก "ติดตั้งแอป" หรือ "เพิ่มลงในหน้าจอหลัก"
+                      </p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">
+                        (Install app / Add to Home screen)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <button
                 type="button"
                 onClick={() => setShowIOSModal(false)}
-                className="w-full bg-brand-500 hover:bg-brand-600 text-white font-black py-3 rounded-2xl shadow-lg shadow-orange-500/30 text-sm"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-3 rounded-2xl shadow-lg shadow-orange-500/30 text-sm cursor-pointer"
               >
                 รับทราบแล้ว 👍
               </button>

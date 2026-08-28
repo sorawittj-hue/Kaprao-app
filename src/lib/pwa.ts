@@ -99,6 +99,12 @@ export async function showInstallPrompt(): Promise<boolean> {
   return outcome === 'accepted'
 }
 
+// Auto-initialize when module loads in browser
+if (typeof window !== 'undefined') {
+  initInstallPrompt()
+  initOfflineDetection()
+}
+
 export function isInstallPromptAvailable(): boolean {
   return deferredPrompt !== null
 }

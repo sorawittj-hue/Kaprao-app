@@ -241,6 +241,18 @@ export default function ProfilePage() {
 
   const settingsItems: MenuItemConfig[] = [
     {
+      icon: Smartphone,
+      label: 'ติดตั้งแอปบนมือถือ',
+      sublabel: 'เปิดใช้งานเร็วขึ้น ไม่ต้องผ่านเบราว์เซอร์',
+      onClick: () => {
+        hapticHeavy()
+        window.dispatchEvent(new CustomEvent('open-pwa-install'))
+      },
+      iconBg: 'rgba(255,107,0,0.10)',
+      iconColor: '#FF6B00',
+      glowColor: 'rgba(255,107,0,0.20)',
+    },
+    {
       icon: Settings,
       label: 'การตั้งค่าระบบ',
       onClick: () => { hapticLight(); setActiveModal('settings') },
