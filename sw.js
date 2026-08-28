@@ -133,15 +133,16 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Strategy 4b: hashed JS/CSS bundles — network first; if 404 (asset deleted
-  // after a deploy), force a page reload to fetch the new bundle list.
+  // after a deploy), safely notify clients
   if (url.pathname.includes('/assets/') && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
     event.respondWith(
       fetch(request).then((response) => {
         if (response.status === 404) {
-          // Stale bundle reference — kick clients to reload the shell
-          self.clients.matchAll().then((clients) => {
-            clients.forEach((c) => c.navigate(c.url));
-          });
+          self.clients.matchAll({ type: 'window' }).then((clientList) => {
+            for (const client of clientList) {
+              client.postMessage({ type: 'ASSET_404_RELOAD' });
+            }
+          }).catch(() => {});
         }
         return response;
       }).catch(() => caches.match(request))
@@ -277,8 +278,20 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   if (event.action === 'open' || !event.action) {
+    const targetUrl = event.notification.data?.url || './';
     event.waitUntil(
-      clients.openWindow(event.notification.data.url || './')
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+        for (const client of clientList) {
+          if ('focus' in client) {
+            return client.focus();
+          }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(targetUrl);
+        }
+      }).catch((err) => {
+        console.warn('[SW] Notification click action failed:', err);
+      })
     );
   }
 });
