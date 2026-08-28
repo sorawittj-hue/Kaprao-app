@@ -3,6 +3,46 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore, useUIStore } from '@/store'
 import type { Order } from '@/types'
 
+// Web Audio synthesizer chime sound (Zero external audio file dependency!)
+export function playChimeSound(type: 'order' | 'success' | 'alert' = 'order') {
+  try {
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    if (!AudioContextClass) return
+    const ctx = new AudioContextClass()
+    
+    if (type === 'order') {
+      // Pleasant kitchen chime: C5 -> E5 -> G5
+      const notes = [523.25, 659.25, 783.99]
+      notes.forEach((freq, index) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'sine'
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.12)
+        gain.gain.setValueAtTime(0.2, ctx.currentTime + index * 0.12)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + index * 0.12 + 0.35)
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.start(ctx.currentTime + index * 0.12)
+        osc.stop(ctx.currentTime + index * 0.12 + 0.4)
+      })
+    } else if (type === 'success') {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'triangle'
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime)
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15)
+      gain.gain.setValueAtTime(0.25, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + 0.35)
+    }
+  } catch (err) {
+    console.debug('Audio play blocked by browser policy:', err)
+  }
+}
+
 // Request notification permission
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!('Notification' in window)) {
@@ -91,6 +131,9 @@ export function useOrderNotifications() {
       tag: `order-${order.id}`,
       requireInteraction: false,
     })
+
+    // Play pleasant kitchen chime sound
+    playChimeSound('order')
 
     // Vibrate if supported
     if (navigator.vibrate) {

@@ -19,31 +19,36 @@ interface MenuItemModalProps {
 
 // ─── Options Data ────────────────────────────────────────────────
 const MEAT_OPTIONS: SelectedOption[] = [
-  { optionId: 'meat_sap',     name: 'หมูสับ',          price: 0  },
-  { optionId: 'meat_sanko',   name: 'หมูสันคอสไลด์',   price: 0  },
-  { optionId: 'meat_kai',     name: 'ไก่ชิ้น',         price: 0  },
-  { optionId: 'meat_kai_sap', name: 'ไก่สับ',          price: 0  },
-  { optionId: 'meat_krob',    name: 'หมูกรอบ',         price: 15 },
-  { optionId: 'meat_kung',    name: 'กุ้ง',            price: 25 },
+  { optionId: 'meat_sap',     name: 'หมูสับ',              price: 0  },
+  { optionId: 'meat_sanko',   name: 'หมูสันคอสไลด์',       price: 0  },
+  { optionId: 'meat_kai',     name: 'ไก่ชิ้นเนื้อนุ่ม',     price: 0  },
+  { optionId: 'meat_krob',    name: 'หมูกรอบพรีเมียม 🔥',  price: 20 },
+  { optionId: 'meat_beef',    name: 'เนื้อโคขุนสไลด์ 🥩',   price: 25 },
+  { optionId: 'meat_kung',    name: 'กุ้งสดตัวโต 🦐',      price: 25 },
+  { optionId: 'meat_squid',   name: 'หมึกสดเด้ง 🦑',       price: 25 },
+  { optionId: 'meat_talay',   name: 'รวมมิตรทะเล 🌊',      price: 30 },
 ]
 const EGG_OPTIONS: SelectedOption[] = [
-  { optionId: 'no_egg',      name: 'ไม่ใส่ไข่',       price: 0  },
-  { optionId: 'egg_dao',     name: 'ไข่ดาว',           price: 10 },
-  { optionId: 'egg_khon',    name: 'ไข่ข้น',           price: 10 },
-  { optionId: 'egg_jiao',    name: 'ไข่เจียว',         price: 10 },
-  { optionId: 'egg_tom',     name: 'ไข่ต้ม',           price: 10 },
-  { optionId: 'egg_yiaoma',  name: 'ไข่เยี่ยวม้า',    price: 15 },
+  { optionId: 'no_egg',       name: 'ไม่ใส่ไข่',               price: 0  },
+  { optionId: 'egg_dao_yoi',  name: '🍳 ไข่ดาวกรอบ (ไข่แดงเยิ้ม)', price: 10 },
+  { optionId: 'egg_dao_suk',  name: '🍳 ไข่ดาวสุก',             price: 10 },
+  { optionId: 'egg_khon',     name: '🍳 ไข่ข้นนุ่มละมุน',        price: 15 },
+  { optionId: 'egg_jiao',     name: '🍳 ไข่เจียวกรอบฟู',        price: 15 },
+  { optionId: 'egg_yiaoma',   name: '🥚 ไข่เยี่ยวม้าทอดกรอบ',   price: 20 },
 ]
 const SPICE_OPTIONS: SelectedOption[] = [
   { optionId: 'no_spicy',    name: 'ไม่เผ็ด (0)',       price: 0 },
-  { optionId: 'mild',        name: 'เผ็ดน้อย (1)',      price: 0 },
-  { optionId: 'medium',      name: 'เผ็ดกลาง (2)',      price: 0 },
-  { optionId: 'spicy',       name: 'เผ็ด (3)',          price: 0 },
-  { optionId: 'very_spicy',  name: 'เผ็ดมาก (4)',       price: 0 },
-  { optionId: 'extreme',     name: 'เผ็ดสุดขีด (5) 🔥', price: 0 },
+  { optionId: 'mild',        name: 'เผ็ดน้อย (1) 🌶️',   price: 0 },
+  { optionId: 'medium',      name: 'เผ็ดกลาง (2) 🔥',   price: 0 },
+  { optionId: 'spicy',       name: 'เผ็ดจัดจ้าน (3) 🔥🔥', price: 0 },
+  { optionId: 'very_spicy',  name: 'เผ็ดมาก (4) 🔥🔥🔥', price: 0 },
+  { optionId: 'extreme',     name: 'เผ็ดนรกแตก (5) 💀', price: 0 },
 ]
 const EXTRA_OPTIONS: SelectedOption[] = [
-  { optionId: 'extra_special', name: 'พิเศษ', price: 10 },
+  { optionId: 'extra_special', name: 'พิเศษ (+ข้าว +เนื้อ)', price: 15 },
+  { optionId: 'extra_crispy_pork_skin', name: 'กากหมูกระเทียมเจียวกรอบ', price: 15 },
+  { optionId: 'extra_kun_chiang', name: 'กุนเชียงทอดหวานเค็ม', price: 15 },
+  { optionId: 'extra_rice', name: 'เพิ่มข้าวสวยหอมมะลิ', price: 10 },
 ]
 
 // ─── Spice color helpers ────────────────────────────────────────

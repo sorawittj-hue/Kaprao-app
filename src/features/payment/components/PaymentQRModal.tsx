@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Copy, Check, Clock, Upload } from 'lucide-react'
+import { X, Copy, Check, Clock, Upload, Download, QrCode as QrIcon } from 'lucide-react'
 import { QRCodeCanvas as QRCode } from 'qrcode.react'
 import { Button } from '@/components/ui/Button'
 import { useContactInfo, usePaymentConfig, usePromptPayQR } from '../hooks/usePayment'
 import { PaymentSlipUpload } from './PaymentSlipUpload'
 import { formatPrice } from '@/utils/formatPrice'
-import { hapticLight } from '@/utils/haptics'
+import { hapticLight, hapticMedium } from '@/utils/haptics'
 
 interface PaymentQRModalProps {
   isOpen: boolean
@@ -25,6 +25,7 @@ export function PaymentQRModal({
 }: PaymentQRModalProps) {
   const [copied, setCopied] = useState(false)
   const [showUpload, setShowUpload] = useState(false)
+  const qrRef = useRef<HTMLDivElement>(null)
 
   const { data: contact } = useContactInfo()
   const { data: paymentConfig } = usePaymentConfig()
@@ -36,6 +37,19 @@ export function PaymentQRModal({
       navigator.clipboard.writeText(paymentConfig.promptpay_number)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  const handleDownloadQR = () => {
+    hapticMedium()
+    if (qrRef.current) {
+      const canvas = qrRef.current.querySelector('canvas')
+      if (canvas) {
+        const link = document.createElement('a')
+        link.download = `PromptPay-Kaprao52-Order-${orderId}.png`
+        link.href = canvas.toDataURL('image/png')
+        link.click()
+      }
     }
   }
 
@@ -52,56 +66,70 @@ export function PaymentQRModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl border"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-gray-800">ชำระเงินด้วยพร้อมเพย์</h2>
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                <QrIcon className="w-4 h-4" />
+              </div>
+              <h2 className="text-base font-black text-slate-900">ชำระเงินด้วยพร้อมเพย์ QR</h2>
+            </div>
             <button
               onClick={() => {
                 hapticLight()
                 onClose()
               }}
-              className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+              className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 text-slate-600" />
             </button>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-5 space-y-5">
             {/* Amount Display */}
-            <div className="text-center">
-              <p className="text-sm text-gray-500 mb-1">ยอดที่ต้องชำระ</p>
-              <p className="text-3xl font-black text-brand-600">
+            <div className="text-center bg-orange-50/60 p-3.5 rounded-2xl border border-orange-200/60">
+              <p className="text-xs font-bold text-slate-500 mb-0.5">ยอดที่ต้องชำระ (ออเดอร์ #{orderId})</p>
+              <p className="text-3xl font-black text-orange-600 num-display">
                 {formatPrice(amount)}
               </p>
             </div>
 
             {/* QR Code */}
             {qrPayload && (
-              <div className="flex justify-center">
-                <div className="p-4 bg-white rounded-xl border-2 border-gray-100">
+              <div className="flex flex-col items-center gap-2.5">
+                <div ref={qrRef} className="p-4 bg-white rounded-2xl border-2 border-slate-200/80 shadow-sm">
                   <QRCode
                     value={qrPayload}
-                    size={200}
+                    size={210}
                     level="M"
                     includeMargin={true}
                     imageSettings={{
                       src: '/Kaprao-app/assets/icons/icon-192x192.png',
-                      height: 40,
-                      width: 40,
+                      height: 42,
+                      width: 42,
                       excavate: true,
                     }}
                   />
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleDownloadQR}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer shadow-xs"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>บันทึกรูป QR ลงเครื่อง</span>
+                </button>
               </div>
             )}
 
